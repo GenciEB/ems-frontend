@@ -335,6 +335,9 @@ canvas{width:100%!important;max-height:200px;}
 <script>
 'use strict';
 var API='https://ems-api-mgye.onrender.com';
+var API_KEY='ems-secret-2026';
+var BIZ_CODE='default';
+var BIZ_ID=1;
 var MGR='0000';
 var emps=[],shfts=[],lvs=[];
 var vDate=new Date(), vMo=new Date();
@@ -342,7 +345,7 @@ var mMode='in', pBuf='', lBuf='';
 var mgrOk=false, dashInt=null, chs={};
 
 function apiFetch(method,path,body){
-  var o={method:method,headers:{}};
+  var o={method:method,headers:{'x-api-key':API_KEY}};
   if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body);}
   return fetch(API+path,o).then(function(r){
     if(!r.ok) return r.json().then(function(e){throw new Error(e.error||r.status);});
@@ -360,7 +363,7 @@ function setSy(s){document.getElementById('syncDot').className='sdot '+s;}
 async function loadAll(){
   setSy('syncing');
   try{
-    var r=await Promise.all([aGet('/api/employees'),aGet('/api/shifts'),aGet('/api/leaves')]);
+    var r=await Promise.all([aGet('/api/employees?business_id='+BIZ_ID),aGet('/api/shifts?business_id='+BIZ_ID),aGet('/api/leaves?business_id='+BIZ_ID)]);
     emps=r[0]; shfts=r[1]; lvs=r[2];
     setSy('ok'); return true;
   }catch(e){setSy('error');toast('Cannot connect to server','error');return false;}
@@ -463,7 +466,7 @@ async function addEmp(){
   btn.disabled=true;btn.textContent='Saving…';
   try{
     setSy('syncing');
-    var emp=await aPost('/api/employees',{name:name,role:role,salary:sal,rate:rate,pin:pin,start_time:st,end_time:et});
+    var emp=await aPost('/api/employees',{name:name,role:role,salary:sal,rate:rate,pin:pin,start_time:st,end_time:et,business_id:BIZ_ID});
     emps.push(emp);setSy('ok');
     ['eN','eR','eSal','eRt','eP'].forEach(function(id){document.getElementById(id).value='';});
     document.getElementById('eSt').value='09:00';document.getElementById('eEt').value='17:00';
@@ -518,7 +521,7 @@ async function doCI(){
       if(ex){toast(emp.name+' already checked in','warn');closeModal();return;}
       var isLate=false,lateMin=0;
       if(emp.start_time){var diff=mb(emp.start_time,tNow);if(diff>5&&diff<720){isLate=true;lateMin=diff;}}
-      var shift=await aPost('/api/shifts',{emp_id:empId,date:today,check_in:tNow,is_late:isLate,late_minutes:lateMin});
+      var shift=await aPost('/api/shifts',{emp_id:empId,date:today,check_in:tNow,is_late:isLate,late_minutes:lateMin,business_id:BIZ_ID});
       shfts.push(shift);
       if(isLate)toast('⚠️ '+emp.name+' is '+lateMin+'min late','warn');
       else toast('✅ '+emp.name+' in at '+tNow,'success');
