@@ -251,6 +251,12 @@ canvas{width:100%!important;max-height:200px;}
       </div>
     </div>
     <div id="empList"></div>
+
+    <div class="card" style="border-color:rgba(255,68,102,0.3);margin-top:20px;">
+      <div class="card-lbl" style="color:var(--red)">⚠️ Danger Zone</div>
+      <p style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:12px;">Use this if employees are stuck as "on shift" after a crash or forgotten checkout.</p>
+      <button type="button" class="btn btn-d" style="width:100%" onclick="clearGhostShifts()">🔄 Clear All Open Shifts</button>
+    </div>
   </div>
 </div>
 
@@ -728,6 +734,22 @@ function exportCSV(){
     csv+='"'+e.name+'","'+e.role+'",'+e.salary+','+rh.toFixed(1)+','+ot.toFixed(1)+','+(e.rate*rh).toFixed(2)+','+(e.rate*1.5*ot).toFixed(2)+','+bo.toFixed(2)+','+(parseFloat(e.salary)+e.rate*rh+e.rate*1.5*ot+bo).toFixed(2)+'\n';
   });
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='payroll_'+pf+'.csv';a.click();toast('CSV exported!','success');
+}
+
+/* CLEAR GHOST SHIFTS */
+async function clearGhostShifts(){
+  if(!confirm('This will close all open shifts. Are you sure?')) return;
+  try{
+    setSy('syncing');
+    var open=shfts.filter(function(s){return!s.check_out;});
+    for(var i=0;i<open.length;i++){
+      await aPatch('/api/shifts/'+open[i].id,{check_out:'23:59',hours:0,regular_hours:0,ot_hours:0});
+    }
+    await loadAll();
+    renderCheckin();
+    setSy('ok');
+    toast('All open shifts cleared!','success');
+  }catch(e){setSy('error');toast('Failed: '+e.message,'error');}
 }
 
 /* INIT */
