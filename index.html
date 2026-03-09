@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EMS">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>EMS — Staff Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1e;--bg2:#0f1528;--surface:#141a2e;--surface2:#1a2240;--border:#1f2d4a;--border2:#263556;--accent:#00d4ff;--accent-dim:rgba(0,212,255,0.1);--accent-glow:rgba(0,212,255,0.25);--green:#00ff9d;--green-dim:rgba(0,255,157,0.1);--red:#ff4466;--red-dim:rgba(255,68,102,0.1);--amber:#ffb700;--amber-dim:rgba(255,183,0,0.1);--purple:#bf7fff;--purple-dim:rgba(191,127,255,0.1);--text:#e8eeff;--text2:#8896b3;--mono:'IBM Plex Mono',monospace;--body:'Manrope',sans-serif;--display:'Bebas Neue',cursive;--sb:env(safe-area-inset-bottom);--st:env(safe-area-inset-top);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overscroll-behavior:none;}
+body{font-family:var(--body);background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+header{position:sticky;top:0;z-index:100;background:rgba(10,15,30,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:calc(var(--st) + 10px) 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:var(--display);font-size:28px;letter-spacing:3px;color:var(--accent);}
+.logo-sub{font-family:var(--mono);font-size:8px;color:var(--text2);letter-spacing:2px;}
+.hdr-r{display:flex;align-items:center;gap:10px;}
+.clock{font-family:var(--mono);font-size:13px;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(0,212,255,0.2);padding:5px 10px;border-radius:8px;}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--text2);transition:background .3s;flex-shrink:0;}
+.sdot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+.sdot.ok{background:var(--green);}
+.sdot.error{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 14px calc(72px + var(--sb));max-width:860px;margin:0 auto;width:100%;position:relative;z-index:1;}
+.page{display:none;}
+.page.active{display:block;animation:fu .2s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,15,30,0.98);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:var(--mono);font-size:8px;letter-spacing:.5px;-webkit-tap-highlight-color:transparent;transition:color .2s;}
+.tb .ic{font-size:17px;}
+.tb.active{color:var(--accent);}
+.sh{margin-bottom:18px;}
+.sh-eye{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.sh-title{font-family:var(--display);font-size:32px;letter-spacing:2px;}
+.sh-sub{color:var(--text2);font-size:13px;margin-top:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.4),transparent);}
+.card-lbl{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.ci-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cib{width:100%;padding:18px 10px;border-radius:14px;border:none;cursor:pointer;font-family:var(--display);font-size:18px;letter-spacing:2px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .15s;-webkit-tap-highlight-color:transparent;}
+.cib span.n{font-size:32px;}
+.cib span.s{font-family:var(--mono);font-size:9px;letter-spacing:1px;}
+.cib:active{transform:scale(.95);}
+.cib-in{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,157,0.25);}
+.cib-out{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,102,0.25);}
+.si{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--green);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;}
+.si.done{border-left-color:var(--text2);opacity:.7;}
+.si-n{font-weight:700;font-size:14px;}
+.si-r{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;}
+.si-t{font-family:var(--mono);font-size:11px;color:var(--green);text-align:right;}
+.si-d{font-family:var(--mono);font-size:11px;color:var(--text2);}
+.badge{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:5px;display:inline-block;}
+.br{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(0,212,255,0.15);}
+.bs{background:var(--amber-dim);color:var(--amber);}
+.brt{background:var(--green-dim);color:var(--green);}
+.bl{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,102,0.3);}
+.bo{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,157,0.2);}
+.bsc{background:var(--purple-dim);color:var(--purple);}
+.form-s{display:flex;flex-direction:column;gap:10px;}
+.form-r{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+label{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;}
+input,select{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;-webkit-appearance:none;appearance:none;}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);}
+input::placeholder{color:var(--text2);opacity:.4;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238896b3' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;}
+.btn{font-family:var(--body);font-weight:700;font-size:14px;padding:11px 16px;border:none;border-radius:12px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;}
+.btn-p{background:var(--accent);color:var(--bg);width:100%;margin-top:2px;}
+.btn-p:active{transform:scale(.97);}
+.btn-p:disabled{opacity:.5;cursor:not-allowed;}
+.btn-d{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,102,0.2);font-size:12px;padding:6px 11px;border-radius:8px;}
+.btn-g{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.btn-sm{padding:7px 13px;font-size:12px;width:auto;}
+.emp-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.emp-n{font-size:15px;font-weight:700;}
+.emp-m{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+.dn-nav{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;}
+.dn-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--text);width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.dn-day{font-family:var(--display);font-size:24px;letter-spacing:2px;color:var(--accent);text-align:center;}
+.dn-dt{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;}
+.de{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:10px;}
+.de-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.de-n{font-size:15px;font-weight:700;}
+.de-pay{font-family:var(--display);font-size:22px;letter-spacing:1px;color:var(--green);}
+.de-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.de-k{font-family:var(--mono);font-size:9px;color:var(--text2);text-transform:uppercase;margin-bottom:2px;}
+.de-v{font-family:var(--mono);font-size:13px;}
+.de-v.ot{color:var(--amber);}
+.mr{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.nr{display:flex;gap:8px;align-items:flex-end;margin-top:8px;}
+.nr input{flex:1;}
+.nb{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:6px;font-style:italic;}
+.mo-nav{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:12px;}
+.mo-t{font-family:var(--display);font-size:24px;letter-spacing:3px;color:var(--accent);text-align:center;}
+.mo-y{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;}
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;}
+.sk{font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.sv{font-family:var(--display);font-size:26px;letter-spacing:1px;color:var(--accent);}
+.pb{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border2);border-radius:16px;padding:18px;margin-bottom:12px;}
+.pb-l{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;}
+.pb-a{font-family:var(--display);font-size:42px;letter-spacing:2px;color:var(--green);line-height:1.1;margin:4px 0 12px;}
+.me{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.me-h{padding:13px 15px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.me-n{font-size:15px;font-weight:700;}
+.me-t{font-family:var(--display);font-size:20px;letter-spacing:1px;color:var(--green);}
+.me-b{display:none;padding:0 15px 13px;border-top:1px solid var(--border);}
+.me-b.open{display:block;}
+.me-bk{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:11px;}
+.mbk{font-family:var(--mono);font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.mbv{font-family:var(--mono);font-size:13px;}
+.ac{margin-top:11px;padding-top:11px;border-top:1px solid var(--border);}
+.ac-l{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+.ac-d{display:flex;flex-wrap:wrap;gap:4px;}
+.ad{width:26px;height:26px;border-radius:6px;font-family:var(--mono);font-size:10px;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--text2);}
+.ad.worked{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,157,0.3);}
+.ad.ot{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,183,0,0.3);}
+.ad.leave{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,102,0.3);}
+.dash-t{font-family:var(--display);font-size:56px;letter-spacing:4px;color:var(--accent);text-shadow:0 0 28px var(--accent-glow);text-align:center;padding:14px 0 6px;}
+.dash-d{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:2px;text-align:center;margin-bottom:14px;}
+.dsg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.dsc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;text-align:center;}
+.dsc-v{font-family:var(--display);font-size:30px;letter-spacing:2px;color:var(--accent);}
+.dsc-k{font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.dc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.dc.on{border-left:3px solid var(--green);}
+.dc.off{border-left:3px solid var(--border2);opacity:.65;}
+.da{width:40px;height:40px;border-radius:10px;background:var(--accent-dim);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px;color:var(--accent);flex-shrink:0;}
+.dn{font-size:14px;font-weight:700;}
+.dr{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;}
+.ds{font-family:var(--mono);font-size:11px;text-align:right;}
+.ds.in{color:var(--green);}
+.ds.out{color:var(--text2);}
+.dd{font-family:var(--display);font-size:18px;letter-spacing:1px;color:var(--green);}
+.chart-c{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
+.chart-l{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+canvas{width:100%!important;max-height:200px;}
+.lv-i{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.lv-d{font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:2px;}
+.lock-ov{position:absolute;inset:0;z-index:10;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:60vh;}
+.lock-ov.hidden{display:none;}
+.lock-ico{font-size:44px;margin-bottom:14px;opacity:.5;}
+.lock-t{font-family:var(--display);font-size:30px;letter-spacing:3px;color:var(--accent);margin-bottom:4px;}
+.lock-s{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:20px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:12px 0;}
+.pd{width:13px;height:13px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all .15s;}
+.pd.filled{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px var(--accent-glow);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;}
+.pk{aspect-ratio:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;-webkit-tap-highlight-color:transparent;}
+.pk:active{background:var(--accent-dim);border-color:var(--accent);transform:scale(.92);}
+.pk.ok{background:var(--accent-dim);color:var(--accent);border-color:rgba(0,212,255,0.3);font-family:var(--body);font-size:14px;font-weight:700;}
+.pk.del{font-family:var(--body);font-size:18px;}
+.modal-ov{position:fixed;inset:0;z-index:200;background:rgba(10,15,30,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:24px 24px 0 0;padding:22px 18px calc(22px + var(--sb));width:100%;max-width:440px;transform:translateY(20px);transition:transform .25s ease;position:relative;}
+.modal-ov.open .modal-box{transform:translateY(0);}
+.modal-t{font-family:var(--display);font-size:28px;letter-spacing:2px;text-align:center;margin-bottom:4px;}
+.modal-s{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;letter-spacing:.5px;margin-bottom:16px;}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);width:30px;height:30px;border-radius:8px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.empty{text-align:center;padding:30px 20px;color:var(--text2);}
+.empty .ico{font-size:34px;margin-bottom:8px;opacity:.25;}
+.empty p{font-family:var(--mono);font-size:12px;letter-spacing:.5px;}
+.toast-w{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
+.toast{background:var(--surface2);border:1px solid var(--border2);border-top:2px solid var(--accent);border-radius:10px;padding:9px 16px;font-family:var(--mono);font-size:12px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:tin .25s ease,tout .3s 2.3s ease forwards;white-space:nowrap;}
+.toast.success{border-top-color:var(--green);}
+.toast.error{border-top-color:var(--red);}
+.toast.warn{border-top-color:var(--amber);}
+@keyframes tin{from{opacity:0;transform:translateY(-8px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes tout{from{opacity:1}to{opacity:0}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">EMS</div><div class="logo-sub">STAFF MANAGER</div></div>
+  <div class="hdr-r">
+    <div class="sdot" id="syncDot"></div>
+    <div class="clock" id="clockEl">00:00:00</div>
+  </div>
+</header>
+
+<main>
+<!-- CHECK IN -->
+<div id="page-checkin" class="page active">
+  <div class="sh"><div class="sh-eye">Station</div><div class="sh-title">CHECK IN/OUT</div><div class="sh-sub" id="todayLbl"></div></div>
+  <div class="card"><div class="card-lbl">On Shift Now</div><div id="activeList"></div></div>
+  <div class="card">
+    <div class="card-lbl">Log Shift</div>
+    <div class="ci-btns">
+      <button class="cib cib-in" onclick="openModal('in')"><span>CHECK</span><span class="n">IN</span><span class="s">START SHIFT</span></button>
+      <button class="cib cib-out" onclick="openModal('out')"><span>CHECK</span><span class="n">OUT</span><span class="s">END SHIFT</span></button>
+    </div>
+  </div>
+  <div class="card"><div class="card-lbl">Completed Today</div><div id="doneList"></div></div>
+</div>
+
+<!-- LIVE -->
+<div id="page-dashboard" class="page">
+  <div class="dash-t" id="dashTime">00:00:00</div>
+  <div class="dash-d" id="dashDate"></div>
+  <div class="dsg" id="dashStats"></div>
+  <div id="dashGrid"></div>
+</div>
+
+<!-- CHARTS -->
+<div id="page-charts" class="page">
+  <div class="sh"><div class="sh-eye">Analytics</div><div class="sh-title">CHARTS</div></div>
+  <div class="chart-c"><div class="chart-l">Hours Per Employee</div><canvas id="chH"></canvas></div>
+  <div class="chart-c"><div class="chart-l">Busiest Days</div><canvas id="chD"></canvas></div>
+  <div class="chart-c"><div class="chart-l">Pay Breakdown</div><canvas id="chP"></canvas></div>
+</div>
+
+<!-- TEAM -->
+<div id="page-employees" class="page" style="position:relative;min-height:500px;">
+  <div class="lock-ov" id="empLock">
+    <div class="lock-ico">🔒</div>
+    <div class="lock-t">MANAGER</div>
+    <div class="lock-s">Enter PIN to continue</div>
+    <div class="pin-dots"><div class="pd" id="ld0"></div><div class="pd" id="ld1"></div><div class="pd" id="ld2"></div><div class="pd" id="ld3"></div></div>
+    <div class="pin-pad">
+      <button class="pk" onclick="lp('1')">1</button><button class="pk" onclick="lp('2')">2</button><button class="pk" onclick="lp('3')">3</button>
+      <button class="pk" onclick="lp('4')">4</button><button class="pk" onclick="lp('5')">5</button><button class="pk" onclick="lp('6')">6</button>
+      <button class="pk" onclick="lp('7')">7</button><button class="pk" onclick="lp('8')">8</button><button class="pk" onclick="lp('9')">9</button>
+      <button class="pk del" onclick="lp('del')">⌫</button><button class="pk" onclick="lp('0')">0</button><button class="pk ok" onclick="lp('ok')">OK</button>
+    </div>
+  </div>
+  <div id="empContent" style="display:none">
+    <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">TEAM</div></div>
+    <div class="card">
+      <div class="card-lbl">Add Employee</div>
+      <div class="form-s">
+        <div class="form-r">
+          <div class="field"><label>Full Name</label><input type="text" id="eN" placeholder="Jane Doe" autocomplete="off"></div>
+          <div class="field"><label>Role</label><input type="text" id="eR" placeholder="Cashier" autocomplete="off"></div>
+        </div>
+        <div class="form-r">
+          <div class="field"><label>Base Salary ($/mo)</label><input type="text" id="eSal" placeholder="0.00" inputmode="decimal"></div>
+          <div class="field"><label>Hourly Rate ($/hr)</label><input type="text" id="eRt" placeholder="0.00" inputmode="decimal"></div>
+        </div>
+        <div class="form-r">
+          <div class="field"><label>Start Time</label><input type="time" id="eSt" value="09:00"></div>
+          <div class="field"><label>End Time</label><input type="time" id="eEt" value="17:00"></div>
+        </div>
+        <div class="field"><label>4-Digit PIN</label><input type="text" id="eP" placeholder="1234" maxlength="4" inputmode="numeric" autocomplete="off"></div>
+        <button type="button" class="btn btn-p" id="addEmpBtn" onclick="addEmp()">+ Add Employee</button>
+      </div>
+    </div>
+    <div id="empList"></div>
+  </div>
+</div>
+
+<!-- LEAVE -->
+<div id="page-leave" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">LEAVE</div></div>
+  <div class="card">
+    <div class="card-lbl">Log Leave</div>
+    <div class="form-s">
+      <div class="field"><label>Employee</label><select id="lvEmp"><option value="">Select employee…</option></select></div>
+      <div class="form-r">
+        <div class="field"><label>Date</label><input type="date" id="lvDate"></div>
+        <div class="field"><label>Type</label>
+          <select id="lvType">
+            <option value="sick">🤒 Sick Day</option><option value="vacation">🏖 Vacation</option>
+            <option value="absent">⚠️ Absent</option><option value="dayoff">✅ Day Off</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Note (optional)</label><input type="text" id="lvNote" placeholder="Doctor appointment…"></div>
+      <button type="button" class="btn btn-p" onclick="addLeave()">+ Log Leave</button>
+    </div>
+  </div>
+  <div id="leaveList"></div>
+</div>
+
+<!-- DAILY -->
+<div id="page-daily" class="page">
+  <div class="sh"><div class="sh-eye">View</div><div class="sh-title">DAILY LOG</div></div>
+  <div class="dn-nav">
+    <button class="dn-btn" onclick="chDay(-1)">‹</button>
+    <div><div class="dn-day" id="navDay"></div><div class="dn-dt" id="navDt"></div></div>
+    <button class="dn-btn" onclick="chDay(1)">›</button>
+  </div>
+  <div id="dailyList"></div>
+</div>
+
+<!-- MONTHLY -->
+<div id="page-monthly" class="page">
+  <div class="sh"><div class="sh-eye">Report</div><div class="sh-title">MONTHLY</div></div>
+  <div class="mo-nav">
+    <button class="dn-btn" onclick="chMo(-1)">‹</button>
+    <div><div class="mo-t" id="moTitle"></div><div class="mo-y" id="moYear"></div></div>
+    <button class="dn-btn" onclick="chMo(1)">›</button>
+  </div>
+  <div class="sg" id="moStats"></div>
+  <div class="pb"><div class="pb-l">Total Payroll</div><div class="pb-a" id="moTotal">$0.00</div><button class="btn btn-g" onclick="exportCSV()">⬇ Export CSV</button></div>
+  <div id="moList"></div>
+</div>
+</main>
+
+<nav>
+  <button class="tb active" onclick="goNav('checkin',this)"><span class="ic">🕐</span>IN/OUT</button>
+  <button class="tb" onclick="goNav('dashboard',this)"><span class="ic">📺</span>LIVE</button>
+  <button class="tb" onclick="goNav('charts',this)"><span class="ic">📈</span>CHARTS</button>
+  <button class="tb" onclick="goNav('employees',this)"><span class="ic">👥</span>TEAM</button>
+  <button class="tb" onclick="goNav('leave',this)"><span class="ic">🏖</span>LEAVE</button>
+  <button class="tb" onclick="goNav('daily',this)"><span class="ic">📅</span>DAILY</button>
+  <button class="tb" onclick="goNav('monthly',this)"><span class="ic">📊</span>PAY</button>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modalOv">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-t" id="modalT">CHECK IN</div>
+    <div class="modal-s" id="modalS">Enter your 4-digit PIN</div>
+    <div id="modalEmpName" style="text-align:center;font-family:var(--mono);font-size:13px;color:var(--green);min-height:20px;margin-bottom:8px;letter-spacing:1px;"></div>
+    <div class="pin-dots"><div class="pd" id="d0"></div><div class="pd" id="d1"></div><div class="pd" id="d2"></div><div class="pd" id="d3"></div></div>
+    <div class="pin-pad">
+      <button class="pk" onclick="pp('1')">1</button><button class="pk" onclick="pp('2')">2</button><button class="pk" onclick="pp('3')">3</button>
+      <button class="pk" onclick="pp('4')">4</button><button class="pk" onclick="pp('5')">5</button><button class="pk" onclick="pp('6')">6</button>
+      <button class="pk" onclick="pp('7')">7</button><button class="pk" onclick="pp('8')">8</button><button class="pk" onclick="pp('9')">9</button>
+      <button class="pk del" onclick="pp('del')">⌫</button><button class="pk" onclick="pp('0')">0</button><button class="pk ok" onclick="pp('ok')">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-w" id="toastW"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+'use strict';
+var API='https://ems-api-mgye.onrender.com';
+var MGR='0000';
+var emps=[],shfts=[],lvs=[];
+var vDate=new Date(), vMo=new Date();
+var mMode='in', pBuf='', lBuf='';
+var mgrOk=false, dashInt=null, chs={};
+
+function apiFetch(method,path,body){
+  var o={method:method,headers:{}};
+  if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body);}
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok) return r.json().then(function(e){throw new Error(e.error||r.status);});
+    if(method==='DELETE') return null;
+    return r.json();
+  });
+}
+function aGet(p){return apiFetch('GET',p);}
+function aPost(p,b){return apiFetch('POST',p,b);}
+function aPatch(p,b){return apiFetch('PATCH',p,b);}
+function aDel(p){return apiFetch('DELETE',p);}
+
+function setSy(s){document.getElementById('syncDot').className='sdot '+s;}
+
+async function loadAll(){
+  setSy('syncing');
+  try{
+    var r=await Promise.all([aGet('/api/employees'),aGet('/api/shifts'),aGet('/api/leaves')]);
+    emps=r[0]; shfts=r[1]; lvs=r[2];
+    setSy('ok'); return true;
+  }catch(e){setSy('error');toast('Cannot connect to server','error');return false;}
+}
+
+function dk(d){return d.toISOString().slice(0,10);}
+function fmt(n){return '$'+parseFloat(n||0).toFixed(2);}
+function ts(d){return d.toTimeString().slice(0,5);}
+function mb(a,b){var pa=a.split(':').map(Number),pb=b.split(':').map(Number),d=(pb[0]*60+pb[1])-(pa[0]*60+pa[1]);return d<0?d+1440:d;}
+function durS(m){return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';}
+function calcOT(h){return{reg:Math.min(h,8),ot:Math.max(0,h-8)};}
+function calcPay(e,rh,ot,bo){return(e.rate*rh)+(e.rate*1.5*ot)+(bo||0);}
+function ini(n){return n?n[0].toUpperCase():'?';}
+function isActive(s){if(s.check_out)return false;var t=new Date(s.date+'T'+s.check_in+':00');return(Date.now()-t)<24*3600*1000;}
+function getAct(eid){return shfts.find(function(s){return s.emp_id===eid&&isActive(s);});}
+
+function tickClock(){
+  var t=new Date().toTimeString().slice(0,8);
+  document.getElementById('clockEl').textContent=t;
+  document.getElementById('dashTime').textContent=t;
+  document.querySelectorAll('[data-ci]').forEach(function(el){el.textContent=durS(mb(el.dataset.ci,t.slice(0,5)));});
+}
+setInterval(tickClock,1000); tickClock();
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});
+
+function toast(msg,type){
+  var el=document.createElement('div');
+  el.className='toast '+(type||'');
+  el.textContent=msg;
+  document.getElementById('toastW').appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},2800);
+}
+
+function goNav(page,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn) btn.classList.add('active');
+  clearInterval(dashInt); dashInt=null;
+  if(page==='checkin')   renderCheckin();
+  if(page==='dashboard'){renderDash();dashInt=setInterval(function(){loadAll().then(renderDash);},30000);}
+  if(page==='charts')    renderCharts();
+  if(page==='employees'){if(!mgrOk)showLock();else showEmpContent();}
+  if(page==='leave')     renderLeave();
+  if(page==='daily')     renderDaily();
+  if(page==='monthly')   renderMonthly();
+  window.scrollTo(0,0);
+}
+
+/* LOCK */
+function showLock(){lBuf='';updLD();document.getElementById('empLock').classList.remove('hidden');document.getElementById('empContent').style.display='none';}
+function showEmpContent(){document.getElementById('empLock').classList.add('hidden');document.getElementById('empContent').style.display='block';renderEmps();}
+function updLD(){for(var i=0;i<4;i++)document.getElementById('ld'+i).classList.toggle('filled',i<lBuf.length);}
+function lp(k){
+  if(k==='del'){lBuf=lBuf.slice(0,-1);updLD();return;}
+  if(k==='ok'){checkLock();return;}
+  if(lBuf.length<4){lBuf+=k;updLD();if(lBuf.length===4)checkLock();}
+}
+function checkLock(){
+  if(lBuf===MGR){mgrOk=true;showEmpContent();toast('Welcome Manager!','success');}
+  else{toast('Wrong PIN','error');lBuf='';updLD();}
+}
+
+/* EMPLOYEES */
+function fillModalSel(){
+  // PIN-only mode — no dropdown needed
+  document.getElementById('modalEmpName').textContent='';
+}
+
+function renderEmps(){
+  fillModalSel();
+  var list=document.getElementById('empList');
+  if(emps.length===0){list.innerHTML='<div class="empty"><div class="ico">👥</div><p>No employees yet</p></div>';return;}
+  list.innerHTML='';
+  emps.forEach(function(e){
+    var d=document.createElement('div');d.className='emp-item';
+    d.innerHTML='<div style="flex:1;min-width:0"><div class="emp-n">'+e.name+'</div>'+
+      '<div class="emp-m"><span class="badge br">'+e.role+'</span><span class="badge bs">'+fmt(e.salary)+'/mo</span>'+
+      '<span class="badge brt">'+fmt(e.rate)+'/hr</span><span class="badge bsc">⏰ '+(e.start_time||'09:00')+' – '+(e.end_time||'17:00')+'</span></div></div>'+
+      '<button class="btn btn-d" onclick="delEmp('+e.id+')">✕</button>';
+    list.appendChild(d);
+  });
+}
+
+async function addEmp(){
+  var name=document.getElementById('eN').value.trim();
+  var role=document.getElementById('eR').value.trim();
+  var sal=parseFloat(document.getElementById('eSal').value);
+  var rate=parseFloat(document.getElementById('eRt').value);
+  var st=document.getElementById('eSt').value||'09:00';
+  var et=document.getElementById('eEt').value||'17:00';
+  var pin=document.getElementById('eP').value.trim();
+  if(!name){toast('Enter a name','error');return;}
+  if(!role){toast('Enter a role','error');return;}
+  if(isNaN(sal)){toast('Enter valid salary','error');return;}
+  if(isNaN(rate)){toast('Enter valid rate','error');return;}
+  if(pin.length!==4||isNaN(+pin)){toast('PIN must be 4 digits','error');return;}
+  var btn=document.getElementById('addEmpBtn');
+  btn.disabled=true;btn.textContent='Saving…';
+  try{
+    setSy('syncing');
+    var emp=await aPost('/api/employees',{name:name,role:role,salary:sal,rate:rate,pin:pin,start_time:st,end_time:et});
+    emps.push(emp);setSy('ok');
+    ['eN','eR','eSal','eRt','eP'].forEach(function(id){document.getElementById(id).value='';});
+    document.getElementById('eSt').value='09:00';document.getElementById('eEt').value='17:00';
+    renderEmps();toast(name+' added!','success');
+  }catch(e){setSy('error');toast('Failed: '+e.message,'error');}
+  btn.disabled=false;btn.textContent='+ Add Employee';
+}
+
+async function delEmp(id){
+  try{
+    setSy('syncing');await aDel('/api/employees/'+id);
+    emps=emps.filter(function(e){return e.id!==id;});
+    shfts=shfts.filter(function(s){return s.emp_id!==id;});
+    setSy('ok');renderEmps();toast('Removed','warn');
+  }catch(e){setSy('error');toast('Delete failed','error');}
+}
+
+/* MODAL */
+function openModal(mode){
+  if(emps.length===0){toast('Add employees first in Team tab','warn');return;}
+  mMode=mode;pBuf='';updPD();
+  document.getElementById('modalEmpName').textContent='';
+  document.getElementById('modalT').textContent=mode==='in'?'CHECK IN':'CHECK OUT';
+  document.getElementById('modalS').textContent=mode==='in'?'Enter your 4-digit PIN':'Enter your 4-digit PIN';
+  document.getElementById('modalOv').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOv').classList.remove('open');pBuf='';updPD();document.getElementById('modalEmpName').textContent='';}
+function updPD(){for(var i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pBuf.length);}
+function pp(k){
+  if(k==='del'){pBuf=pBuf.slice(0,-1);updPD();document.getElementById('modalEmpName').textContent='';return;}
+  if(k==='ok'){doCI();return;}
+  if(pBuf.length<4){pBuf+=k;updPD();if(pBuf.length===4)doCI();}
+}
+
+async function doCI(){
+  if(pBuf.length<4){toast('Enter full 4-digit PIN','warn');return;}
+  var now=new Date(),today=dk(now),tNow=ts(now);
+  try{
+    setSy('syncing');
+    // Find employee by PIN
+    var matchedEmp=null;
+    for(var i=0;i<emps.length;i++){
+      var verRes=await aPost('/api/employees/verify-pin',{emp_id:emps[i].id,pin:pBuf});
+      if(verRes.valid){matchedEmp=emps[i];break;}
+    }
+    if(!matchedEmp){toast('Wrong PIN ❌','error');pBuf='';updPD();document.getElementById('modalEmpName').textContent='';return;}
+    var emp=matchedEmp;
+    document.getElementById('modalEmpName').textContent='👤 '+emp.name;
+    var empId=emp.id;
+    if(mMode==='in'){
+      var ex=shfts.find(function(s){return s.emp_id===empId&&isActive(s);});
+      if(ex){toast(emp.name+' already checked in','warn');closeModal();return;}
+      var isLate=false,lateMin=0;
+      if(emp.start_time){var diff=mb(emp.start_time,tNow);if(diff>5&&diff<720){isLate=true;lateMin=diff;}}
+      var shift=await aPost('/api/shifts',{emp_id:empId,date:today,check_in:tNow,is_late:isLate,late_minutes:lateMin});
+      shfts.push(shift);
+      if(isLate)toast('⚠️ '+emp.name+' is '+lateMin+'min late','warn');
+      else toast('✅ '+emp.name+' in at '+tNow,'success');
+    }else{
+      var act=shfts.find(function(s){return s.emp_id===empId&&isActive(s);});
+      if(!act){toast(emp.name+' is not checked in','warn');closeModal();return;}
+      var mins=mb(act.check_in,tNow),hrs=Math.round((mins/60)*100)/100,ho=calcOT(hrs);
+      var upd=await aPatch('/api/shifts/'+act.id,{check_out:tNow,hours:hrs,regular_hours:ho.reg,ot_hours:ho.ot});
+      shfts[shfts.findIndex(function(s){return s.id===act.id;})]=upd;
+      toast('👋 '+emp.name+' out · '+hrs.toFixed(1)+'h','success');
+    }
+    setSy('ok');
+  }catch(e){setSy('error');toast('Failed: '+e.message,'error');}
+  closeModal();renderCheckin();
+}
+
+/* CHECKIN PAGE */
+function renderCheckin(){
+  var today=dk(new Date()),now=new Date();
+  document.getElementById('todayLbl').textContent=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var acts=shfts.filter(isActive),el=document.getElementById('activeList');
+  if(acts.length===0){el.innerHTML='<div class="empty" style="padding:12px 0"><p>No active shifts</p></div>';}
+  else{
+    el.innerHTML='';
+    acts.forEach(function(s){
+      var emp=emps.find(function(e){return e.id===s.emp_id;});if(!emp)return;
+      var late=s.is_late?'<span class="badge bl">⚠️ '+s.late_minutes+'min late</span>':'<span class="badge bo">✓ On time</span>';
+      var d=document.createElement('div');d.className='si';
+      d.innerHTML='<div><div class="si-n">'+emp.name+'</div><div class="si-r">'+emp.role+'</div><div style="margin-top:4px">'+late+'</div></div>'+
+        '<div style="text-align:right"><div class="si-t">IN '+s.check_in+'</div><div class="si-d" data-ci="'+s.check_in+'">'+durS(mb(s.check_in,ts(now)))+'</div></div>';
+      el.appendChild(d);
+    });
+  }
+  var done=shfts.filter(function(s){return s.date===today&&s.check_out;}),del=document.getElementById('doneList');
+  if(done.length===0){del.innerHTML='<div class="empty" style="padding:12px 0"><p>No completed shifts today</p></div>';}
+  else{
+    del.innerHTML='';
+    done.forEach(function(s){
+      var emp=emps.find(function(e){return e.id===s.emp_id;});if(!emp)return;
+      var pay=calcPay(emp,s.regular_hours,s.ot_hours,s.manual_bonus);
+      var d=document.createElement('div');d.className='si done';
+      d.innerHTML='<div><div class="si-n">'+emp.name+'</div><div class="si-r">'+s.check_in+' → '+s.check_out+'</div></div>'+
+        '<div style="text-align:right"><div class="si-t" style="color:var(--green)">'+fmt(pay)+'</div><div class="si-d">'+parseFloat(s.hours||0).toFixed(1)+'h</div></div>';
+      del.appendChild(d);
+    });
+  }
+}
+
+/* DASHBOARD */
+function renderDash(){
+  var now=new Date(),today=dk(now);
+  document.getElementById('dashDate').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+  var acts=shfts.filter(isActive),done=shfts.filter(function(s){return s.date===today&&s.check_out;});
+  var totH=done.reduce(function(a,s){return a+parseFloat(s.hours||0);},0);
+  document.getElementById('dashStats').innerHTML=
+    '<div class="dsc"><div class="dsc-v" style="color:var(--green)">'+acts.length+'</div><div class="dsc-k">On Shift</div></div>'+
+    '<div class="dsc"><div class="dsc-v">'+emps.length+'</div><div class="dsc-k">Total Staff</div></div>'+
+    '<div class="dsc"><div class="dsc-v" style="color:var(--amber)">'+totH.toFixed(1)+'h</div><div class="dsc-k">Hours Today</div></div>';
+  var grid=document.getElementById('dashGrid');grid.innerHTML='';
+  if(emps.length===0){grid.innerHTML='<div class="empty"><div class="ico">📺</div><p>No employees yet</p></div>';return;}
+  emps.slice().sort(function(a,b){var aa=acts.find(function(s){return s.emp_id===a.id;}),bb=acts.find(function(s){return s.emp_id===b.id;});return(bb?1:0)-(aa?1:0);})
+  .forEach(function(emp){
+    var act=acts.find(function(s){return s.emp_id===emp.id;}),dn=done.find(function(s){return s.emp_id===emp.id;});
+    var st=act?'<div class="ds in">● ON SHIFT</div><div class="dd" data-ci="'+act.check_in+'">'+durS(mb(act.check_in,ts(now)))+'</div>':dn?'<div class="ds out">✓ Done · '+parseFloat(dn.hours||0).toFixed(1)+'h</div>':'<div class="ds out">○ Not in</div>';
+    var c=document.createElement('div');c.className='dc '+(act?'on':'off');
+    c.innerHTML='<div style="display:flex;align-items:center;gap:10px"><div class="da">'+ini(emp.name)+'</div><div><div class="dn">'+emp.name+'</div><div class="dr">'+emp.role+'</div></div></div><div style="text-align:right">'+st+'</div>';
+    grid.appendChild(c);
+  });
+}
+
+/* CHARTS */
+function renderCharts(){
+  var y=vMo.getFullYear(),m=vMo.getMonth(),pf=y+'-'+String(m+1).padStart(2,'0');
+  var ms=shfts.filter(function(s){return s.date.startsWith(pf)&&s.check_out;});
+  var clr=['#00d4ff','#00ff9d','#ffb700','#ff4466','#bf7fff','#ff9d00','#00ffdd'];
+  var axOpt={ticks:{color:'#8896b3',font:{family:'IBM Plex Mono',size:11}},grid:{color:'rgba(255,255,255,0.04)'}};
+  function mk(id,cfg){if(chs[id])chs[id].destroy();chs[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);}
+  var hrs=emps.map(function(e){return ms.filter(function(s){return s.emp_id===e.id;}).reduce(function(a,s){return a+parseFloat(s.hours||0);},0);});
+  mk('chH',{type:'bar',data:{labels:emps.map(function(e){return e.name;}),datasets:[{data:hrs,backgroundColor:clr,borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:axOpt,y:axOpt}}});
+  var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],dc={};
+  ms.forEach(function(s){var d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(s.date+'T00:00:00').getDay()];dc[d]=(dc[d]||0)+parseFloat(s.hours||0);});
+  mk('chD',{type:'bar',data:{labels:days,datasets:[{data:days.map(function(d){return dc[d]||0;}),backgroundColor:'rgba(0,212,255,0.7)',borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:axOpt,y:axOpt}}});
+  var pd=emps.map(function(e){var es=ms.filter(function(s){return s.emp_id===e.id;});var rh=es.reduce(function(a,s){return a+parseFloat(s.regular_hours||0);},0),ot=es.reduce(function(a,s){return a+parseFloat(s.ot_hours||0);},0),bo=es.reduce(function(a,s){return a+parseFloat(s.manual_bonus||0);},0);return parseFloat(e.salary)+calcPay(e,rh,ot,bo);});
+  mk('chP',{type:'doughnut',data:{labels:emps.map(function(e){return e.name;}),datasets:[{data:pd,backgroundColor:clr,borderWidth:0,hoverOffset:8}]},options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#8896b3',font:{family:'IBM Plex Mono',size:11},padding:14}}}}});
+}
+
+/* LEAVE */
+function renderLeave(){
+  var s=document.getElementById('lvEmp');s.innerHTML='<option value="">Select employee…</option>';
+  emps.forEach(function(e){var o=document.createElement('option');o.value=e.id;o.textContent=e.name;s.appendChild(o);});
+  if(!document.getElementById('lvDate').value)document.getElementById('lvDate').value=dk(new Date());
+  var list=document.getElementById('leaveList');
+  if(lvs.length===0){list.innerHTML='<div class="empty"><div class="ico">🏖</div><p>No leave records</p></div>';return;}
+  list.innerHTML='';
+  var tm={sick:'🤒 Sick',vacation:'🏖 Vacation',absent:'⚠️ Absent',dayoff:'✅ Day Off'};
+  var bm={sick:'bl',vacation:'badge br',absent:'badge bs',dayoff:'badge'};
+  lvs.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).forEach(function(lv){
+    var emp=emps.find(function(e){return e.id===lv.emp_id;});if(!emp)return;
+    var el=document.createElement('div');el.className='lv-i';
+    el.innerHTML='<div><div style="font-weight:700">'+emp.name+'</div><div class="lv-d">'+lv.date+(lv.note?' · '+lv.note:'')+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px"><span class="badge '+bm[lv.type]+'">'+tm[lv.type]+'</span><button class="btn btn-d" onclick="delLv('+lv.id+')">✕</button></div>';
+    list.appendChild(el);
+  });
+}
+
+async function addLeave(){
+  var eid=parseInt(document.getElementById('lvEmp').value),date=document.getElementById('lvDate').value,type=document.getElementById('lvType').value,note=document.getElementById('lvNote').value.trim();
+  if(!eid){toast('Select employee','error');return;}
+  if(!date){toast('Select date','error');return;}
+  try{setSy('syncing');var lv=await aPost('/api/leaves',{emp_id:eid,date:date,type:type,note:note||null});lvs.push(lv);setSy('ok');document.getElementById('lvNote').value='';renderLeave();toast('Leave logged!','success');}
+  catch(e){setSy('error');toast('Failed','error');}
+}
+
+async function delLv(id){
+  try{setSy('syncing');await aDel('/api/leaves/'+id);lvs=lvs.filter(function(l){return l.id!==id;});setSy('ok');renderLeave();toast('Removed','warn');}
+  catch(e){setSy('error');toast('Failed','error');}
+}
+
+/* DAILY */
+function chDay(d){vDate.setDate(vDate.getDate()+d);renderDaily();}
+function renderDaily(){
+  var key=dk(vDate),DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('navDay').textContent=DN[vDate.getDay()];
+  document.getElementById('navDt').textContent=MN[vDate.getMonth()]+' '+vDate.getDate()+', '+vDate.getFullYear();
+  var list=document.getElementById('dailyList'),ds=shfts.filter(function(s){return s.date===key&&s.check_out;});
+  if(ds.length===0){list.innerHTML='<div class="empty"><div class="ico">📅</div><p>No shifts this day</p></div>';return;}
+  list.innerHTML='';
+  ds.forEach(function(s){
+    var emp=emps.find(function(e){return e.id===s.emp_id;});if(!emp)return;
+    var pay=calcPay(emp,s.regular_hours,s.ot_hours,s.manual_bonus);
+    var late=s.is_late?'<span class="badge bl">⚠️ '+s.late_minutes+'min late</span>':'';
+    var note=s.note?'<div class="nb">📝 '+s.note+'</div>':'';
+    var el=document.createElement('div');el.className='de';
+    el.innerHTML='<div class="de-hdr"><div><div class="de-n">'+emp.name+'</div><div style="display:flex;gap:6px;margin-top:4px"><span class="badge br">'+emp.role+'</span>'+late+'</div></div><div class="de-pay">'+fmt(pay)+'</div></div>'+
+      '<div class="de-grid"><div><div class="de-k">In</div><div class="de-v">'+s.check_in+'</div></div><div><div class="de-k">Out</div><div class="de-v">'+s.check_out+'</div></div><div><div class="de-k">Regular</div><div class="de-v">'+parseFloat(s.regular_hours||0).toFixed(1)+'h</div></div><div><div class="de-k">OT</div><div class="de-v ot">'+parseFloat(s.ot_hours||0).toFixed(1)+'h</div></div></div>'+note+
+      '<div class="mr"><div class="field"><label>Bonus ($)</label><input type="text" inputmode="decimal" value="'+(s.manual_bonus||0)+'" id="bon_'+s.id+'"></div><div class="field"><label>Hours Override</label><input type="text" inputmode="decimal" value="'+parseFloat(s.hours||0).toFixed(1)+'" id="hrs_'+s.id+'"></div><button class="btn btn-g btn-sm" onclick="saveMan('+s.id+')">Save</button></div>'+
+      '<div class="nr"><div class="field" style="flex:1"><label>Note</label><input type="text" id="nt_'+s.id+'" placeholder="Add note…" value="'+(s.note||'')+'"></div><button class="btn btn-g btn-sm" onclick="saveNt('+s.id+')">📝</button></div>';
+    list.appendChild(el);
+  });
+}
+
+async function saveMan(id){
+  var bo=parseFloat(document.getElementById('bon_'+id).value)||0,hrs=parseFloat(document.getElementById('hrs_'+id).value)||0,ho=calcOT(hrs);
+  try{setSy('syncing');var u=await aPatch('/api/shifts/'+id,{manual_bonus:bo,hours:hrs,regular_hours:ho.reg,ot_hours:ho.ot});shfts[shfts.findIndex(function(s){return s.id===id;})]=u;setSy('ok');renderDaily();toast('Updated','success');}
+  catch(e){setSy('error');toast('Failed','error');}
+}
+async function saveNt(id){
+  var note=document.getElementById('nt_'+id).value.trim();
+  try{setSy('syncing');var u=await aPatch('/api/shifts/'+id,{note:note});shfts[shfts.findIndex(function(s){return s.id===id;})]=u;setSy('ok');renderDaily();toast('Note saved','success');}
+  catch(e){setSy('error');toast('Failed','error');}
+}
+
+/* MONTHLY */
+function chMo(d){vMo.setMonth(vMo.getMonth()+d);renderMonthly();}
+function renderMonthly(){
+  var MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var y=vMo.getFullYear(),m=vMo.getMonth(),pf=y+'-'+String(m+1).padStart(2,'0'),dim=new Date(y,m+1,0).getDate(),today=dk(new Date());
+  document.getElementById('moTitle').textContent=MN[m].toUpperCase();
+  document.getElementById('moYear').textContent=y;
+  var ms=shfts.filter(function(s){return s.date.startsWith(pf)&&s.check_out;}),list=document.getElementById('moList');
+  list.innerHTML='';var totP=0,totH=0,totOT=0;
+  emps.forEach(function(emp){
+    var es=ms.filter(function(s){return s.emp_id===emp.id;});
+    var rh=es.reduce(function(a,s){return a+parseFloat(s.regular_hours||0);},0),ot=es.reduce(function(a,s){return a+parseFloat(s.ot_hours||0);},0),bo=es.reduce(function(a,s){return a+parseFloat(s.manual_bonus||0);},0);
+    var hp=calcPay(emp,rh,ot,bo),total=parseFloat(emp.salary)+hp;
+    var lateC=es.filter(function(s){return s.is_late;}).length,lvC=lvs.filter(function(l){return l.emp_id===emp.id&&l.date.startsWith(pf);}).length;
+    totP+=total;totH+=rh+ot;totOT+=ot;
+    var dots='';
+    for(var d=1;d<=dim;d++){
+      var dk2=pf+'-'+String(d).padStart(2,'0');
+      var ds=es.find(function(s){return s.date===dk2;}),lv=lvs.find(function(l){return l.emp_id===emp.id&&l.date===dk2;});
+      var cls=ds?(parseFloat(ds.ot_hours)>0?'ad ot':'ad worked'):lv?'ad leave':('ad'+(dk2===today?' today':''));
+      dots+='<div class="'+cls+'">'+d+'</div>';
+    }
+    var el=document.createElement('div');el.className='me';
+    el.innerHTML='<div class="me-h" onclick="this.nextElementSibling.classList.toggle(\'open\')"><div><div class="me-n">'+emp.name+'</div><div style="display:flex;gap:6px;margin-top:4px"><span class="badge br">'+emp.role+'</span><span class="badge bs">Base '+fmt(emp.salary)+'</span></div></div><div class="me-t">'+fmt(total)+'</div></div>'+
+      '<div class="me-b"><div class="me-bk">'+
+        '<div><div class="mbk">Regular Hrs</div><div class="mbv">'+rh.toFixed(1)+'h</div></div>'+
+        '<div><div class="mbk">OT Hours</div><div class="mbv" style="color:var(--amber)">'+ot.toFixed(1)+'h</div></div>'+
+        '<div><div class="mbk">OT Pay</div><div class="mbv" style="color:var(--amber)">'+fmt(emp.rate*1.5*ot)+'</div></div>'+
+        '<div><div class="mbk">Hourly Pay</div><div class="mbv">'+fmt(emp.rate*rh)+'</div></div>'+
+        '<div><div class="mbk">Bonuses</div><div class="mbv" style="color:var(--green)">'+fmt(bo)+'</div></div>'+
+        '<div><div class="mbk">Late Days</div><div class="mbv" style="color:var(--red)">'+lateC+'</div></div>'+
+        '<div><div class="mbk">Leave Days</div><div class="mbv" style="color:var(--amber)">'+lvC+'</div></div>'+
+      '</div>'+
+      '<div class="ac"><div class="ac-l">Attendance · <span style="color:var(--green)">■</span> worked · <span style="color:var(--amber)">■</span> OT · <span style="color:var(--red)">■</span> leave</div><div class="ac-d">'+dots+'</div></div></div>';
+    list.appendChild(el);
+  });
+  document.getElementById('moTotal').textContent=fmt(totP);
+  document.getElementById('moStats').innerHTML=
+    '<div class="sc"><div class="sk">Employees</div><div class="sv">'+emps.length+'</div></div>'+
+    '<div class="sc"><div class="sk">Total Hours</div><div class="sv">'+totH.toFixed(0)+'h</div></div>'+
+    '<div class="sc"><div class="sk">OT Hours</div><div class="sv" style="color:var(--amber)">'+totOT.toFixed(1)+'h</div></div>'+
+    '<div class="sc"><div class="sk">Days Tracked</div><div class="sv" style="color:var(--green)">'+new Set(ms.map(function(s){return s.date;})).size+'</div></div>';
+}
+
+function exportCSV(){
+  var y=vMo.getFullYear(),m=vMo.getMonth(),pf=y+'-'+String(m+1).padStart(2,'0');
+  var ms=shfts.filter(function(s){return s.date.startsWith(pf)&&s.check_out;});
+  var csv='Name,Role,Base Salary,Regular Hours,OT Hours,Hourly Pay,OT Pay,Bonuses,Total\n';
+  emps.forEach(function(e){
+    var es=ms.filter(function(s){return s.emp_id===e.id;});
+    var rh=es.reduce(function(a,s){return a+parseFloat(s.regular_hours||0);},0),ot=es.reduce(function(a,s){return a+parseFloat(s.ot_hours||0);},0),bo=es.reduce(function(a,s){return a+parseFloat(s.manual_bonus||0);},0);
+    csv+='"'+e.name+'","'+e.role+'",'+e.salary+','+rh.toFixed(1)+','+ot.toFixed(1)+','+(e.rate*rh).toFixed(2)+','+(e.rate*1.5*ot).toFixed(2)+','+bo.toFixed(2)+','+(parseFloat(e.salary)+e.rate*rh+e.rate*1.5*ot+bo).toFixed(2)+'\n';
+  });
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='payroll_'+pf+'.csv';a.click();toast('CSV exported!','success');
+}
+
+/* INIT */
+loadAll().then(function(ok){if(ok){renderCheckin();renderDaily();}});
+</script>
+</body>
+</html>
