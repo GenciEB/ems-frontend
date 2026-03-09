@@ -394,7 +394,11 @@ function tickClock(){
 }
 setInterval(tickClock,1000); tickClock();
 
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(r){ r.unregister(); });
+  });
+}
 
 function toast(msg,type){
   var el=document.createElement('div');
