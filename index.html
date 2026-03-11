@@ -260,6 +260,12 @@ canvas{width:100%!important;max-height:200px;}
   </div>
 </div>
 
+<!-- BONUSES -->
+<div id="page-bonuses" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">BONUSES</div><div class="sh-sub">Set qualification & attendance bonuses per employee</div></div>
+  <div id="bonusList"></div>
+</div>
+
 <!-- LEAVE -->
 <div id="page-leave" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">LEAVE</div></div>
@@ -313,6 +319,7 @@ canvas{width:100%!important;max-height:200px;}
   <button class="tb" onclick="goNav('dashboard',this)"><span class="ic">📺</span>LIVE</button>
   <button class="tb" onclick="goNav('charts',this)"><span class="ic">📈</span>CHARTS</button>
   <button class="tb" onclick="goNav('employees',this)"><span class="ic">👥</span>TEAM</button>
+  <button class="tb" onclick="goNav('bonuses',this)"><span class="ic">💰</span>BONUS</button>
   <button class="tb" onclick="goNav('leave',this)"><span class="ic">🏖</span>LEAVE</button>
   <button class="tb" onclick="goNav('daily',this)"><span class="ic">📅</span>DAILY</button>
   <button class="tb" onclick="goNav('monthly',this)"><span class="ic">📊</span>PAY</button>
@@ -342,8 +349,9 @@ canvas{width:100%!important;max-height:200px;}
 'use strict';
 var API='https://ems-api-mgye.onrender.com';
 var API_KEY='ems-secret-2026';
-var BIZ_CODE='default';
-var BIZ_ID=1;
+var BIZ_CODE=localStorage.getItem('ems_biz_code')||'';
+var BIZ_ID=parseInt(localStorage.getItem('ems_biz_id'))||0;
+var BIZ_NAME=localStorage.getItem('ems_biz_name')||'';
 var MGR='0000';
 var emps=[],shfts=[],lvs=[];
 var vDate=new Date(), vMo=new Date();
@@ -381,7 +389,20 @@ function ts(d){return d.toTimeString().slice(0,5);}
 function mb(a,b){var pa=a.split(':').map(Number),pb=b.split(':').map(Number),d=(pb[0]*60+pb[1])-(pa[0]*60+pa[1]);return d<0?d+1440:d;}
 function durS(m){return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';}
 function calcOT(h){return{reg:Math.min(h,8),ot:Math.max(0,h-8)};}
-function calcPay(e,rh,ot,bo){return(e.rate*rh)+(e.rate*1.5*ot)+(bo||0);}
+function calcPay(e,rh,ot,bo,lateCount,absentCount,monthPrefix){
+  var hourly=(e.rate*rh)+(e.rate*1.5*ot)+(bo||0);
+  var b=getBonuses(e.id);
+  var qual=parseFloat(b.qual)||0;
+  var attPct=parseFloat(b.att)||0;
+  var attAmt=0;
+  if(monthPrefix!==undefined){
+    // Only give attendance bonus if zero late AND zero absent days
+    var hasLate=(lateCount||0)>0;
+    var hasAbsent=lvs.filter(function(l){return l.emp_id===e.id&&l.date.startsWith(monthPrefix)&&(l.type==='absent'||l.type==='sick');}).length>0;
+    if(!hasLate&&!hasAbsent) attAmt=(attPct/100)*parseFloat(e.salary||0);
+  }
+  return hourly+qual+attAmt;
+}
 function ini(n){return n?n[0].toUpperCase():'?';}
 function isActive(s){if(s.check_out)return false;var t=new Date(s.date+'T'+s.check_in+':00');return(Date.now()-t)<24*3600*1000;}
 function getAct(eid){return shfts.find(function(s){return s.emp_id===eid&&isActive(s);});}
@@ -418,6 +439,7 @@ function goNav(page,btn){
   if(page==='dashboard'){renderDash();dashInt=setInterval(function(){loadAll().then(renderDash);},30000);}
   if(page==='charts')    renderCharts();
   if(page==='employees'){if(!mgrOk)showLock();else showEmpContent();}
+  if(page==='bonuses')   renderBonuses();
   if(page==='leave')     renderLeave();
   if(page==='daily')     renderDaily();
   if(page==='monthly')   renderMonthly();
@@ -571,7 +593,7 @@ function renderCheckin(){
     del.innerHTML='';
     done.forEach(function(s){
       var emp=emps.find(function(e){return e.id===s.emp_id;});if(!emp)return;
-      var pay=calcPay(emp,s.regular_hours,s.ot_hours,s.manual_bonus);
+      var pay=calcPay(emp,s.regular_hours,s.ot_hours,s.manual_bonus,0,0,undefined);
       var d=document.createElement('div');d.className='si done';
       d.innerHTML='<div><div class="si-n">'+emp.name+'</div><div class="si-r">'+s.check_in+' → '+s.check_out+'</div></div>'+
         '<div style="text-align:right"><div class="si-t" style="color:var(--green)">'+fmt(pay)+'</div><div class="si-d">'+parseFloat(s.hours||0).toFixed(1)+'h</div></div>';
@@ -618,6 +640,64 @@ function renderCharts(){
   mk('chP',{type:'doughnut',data:{labels:emps.map(function(e){return e.name;}),datasets:[{data:pd,backgroundColor:clr,borderWidth:0,hoverOffset:8}]},options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#8896b3',font:{family:'IBM Plex Mono',size:11},padding:14}}}}});
 }
 
+/* BONUSES */
+function getBonuses(empId){
+  var b=localStorage.getItem('bonus_'+empId);
+  return b?JSON.parse(b):{qual:0,att:0};
+}
+function saveBonuses(empId,qual,att){
+  localStorage.setItem('bonus_'+empId,JSON.stringify({qual:parseFloat(qual)||0,att:parseFloat(att)||0}));
+}
+
+function renderBonuses(){
+  var list=document.getElementById('bonusList');
+  if(emps.length===0){list.innerHTML='<div class="empty"><div class="ico">💰</div><p>No employees yet</p></div>';return;}
+  list.innerHTML='';
+  emps.forEach(function(emp){
+    var b=getBonuses(emp.id);
+    var el=document.createElement('div');el.className='card';
+    el.innerHTML=
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+        '<div><div style="font-size:15px;font-weight:700">'+emp.name+'</div>'+
+        '<span class="badge br">'+emp.role+'</span></div>'+
+        '<div class="de-pay" id="bonTotal_'+emp.id+'">'+calcBonusTotal(emp,b)+'</div>'+
+      '</div>'+
+      '<div class="form-r">'+
+        '<div class="field"><label>Qualification Bonus ($/mo)</label>'+
+        '<input type="text" inputmode="decimal" id="bq_'+emp.id+'" value="'+b.qual+'" onchange="updateBonusTotal('+emp.id+')"></div>'+
+        '<div class="field"><label>Attendance Bonus (% of salary)</label>'+
+        '<input type="text" inputmode="decimal" id="ba_'+emp.id+'" value="'+b.att+'" onchange="updateBonusTotal('+emp.id+')"></div>'+
+      '</div>'+
+      '<div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin:8px 0 10px;">'+
+        '⚡ Attendance bonus applies if employee has <strong style="color:var(--green)">zero late or absent days</strong> that month'+
+      '</div>'+
+      '<button class="btn btn-p" onclick="saveEmpBonuses('+emp.id+')">Save Bonuses</button>';
+    list.appendChild(el);
+  });
+}
+
+function calcBonusTotal(emp,b){
+  var qual=parseFloat(b.qual)||0;
+  var att=parseFloat(b.att)||0;
+  var attAmt=(att/100)*parseFloat(emp.salary||0);
+  return '$'+(qual+attAmt).toFixed(2)+'/mo potential';
+}
+
+function updateBonusTotal(empId){
+  var emp=emps.find(function(e){return e.id===empId;});if(!emp)return;
+  var qual=parseFloat(document.getElementById('bq_'+empId).value)||0;
+  var att=parseFloat(document.getElementById('ba_'+empId).value)||0;
+  var b={qual:qual,att:att};
+  document.getElementById('bonTotal_'+empId).textContent=calcBonusTotal(emp,b);
+}
+
+function saveEmpBonuses(empId){
+  var qual=document.getElementById('bq_'+empId).value;
+  var att=document.getElementById('ba_'+empId).value;
+  saveBonuses(empId,qual,att);
+  toast('Bonuses saved!','success');
+}
+
 /* LEAVE */
 function renderLeave(){
   var s=document.getElementById('lvEmp');s.innerHTML='<option value="">Select employee…</option>';
@@ -661,7 +741,7 @@ function renderDaily(){
   list.innerHTML='';
   ds.forEach(function(s){
     var emp=emps.find(function(e){return e.id===s.emp_id;});if(!emp)return;
-    var pay=calcPay(emp,s.regular_hours,s.ot_hours,s.manual_bonus);
+    var pay=calcPay(emp,s.regular_hours,s.ot_hours,s.manual_bonus,0,0,undefined);
     var late=s.is_late?'<span class="badge bl">⚠️ '+s.late_minutes+'min late</span>':'';
     var note=s.note?'<div class="nb">📝 '+s.note+'</div>':'';
     var el=document.createElement('div');el.className='de';
@@ -696,7 +776,7 @@ function renderMonthly(){
   emps.forEach(function(emp){
     var es=ms.filter(function(s){return s.emp_id===emp.id;});
     var rh=es.reduce(function(a,s){return a+parseFloat(s.regular_hours||0);},0),ot=es.reduce(function(a,s){return a+parseFloat(s.ot_hours||0);},0),bo=es.reduce(function(a,s){return a+parseFloat(s.manual_bonus||0);},0);
-    var hp=calcPay(emp,rh,ot,bo),total=parseFloat(emp.salary)+hp;
+    var hp=calcPay(emp,rh,ot,bo,lateC,0,pf),total=parseFloat(emp.salary)+hp;
     var lateC=es.filter(function(s){return s.is_late;}).length,lvC=lvs.filter(function(l){return l.emp_id===emp.id&&l.date.startsWith(pf);}).length;
     totP+=total;totH+=rh+ot;totOT+=ot;
     var dots='';
@@ -756,8 +836,50 @@ async function clearGhostShifts(){
   }catch(e){setSy('error');toast('Failed: '+e.message,'error');}
 }
 
+/* LOGIN */
+async function submitBizCode(){
+  var code=document.getElementById('bizCodeInput').value.trim().toLowerCase();
+  if(!code){document.getElementById('loginErr1').textContent='Please enter a business code';return;}
+  try{
+    var res=await fetch(API+'/api/business/'+code,{headers:{'x-api-key':API_KEY}});
+    if(!res.ok){document.getElementById('loginErr1').textContent='Business code not found';return;}
+    var biz=await res.json();
+    BIZ_CODE=code;
+    BIZ_ID=biz.id;
+    BIZ_NAME=biz.name;
+    localStorage.setItem('ems_biz_code',code);
+    localStorage.setItem('ems_biz_id',biz.id);
+    localStorage.setItem('ems_biz_name',biz.name);
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').style.display='';
+    // Update header with business name
+    var hdr=document.querySelector('.hdr-title');
+    if(hdr)hdr.textContent=BIZ_NAME;
+    loadAll().then(function(ok){if(ok){renderCheckin();renderDaily();}});
+  }catch(e){document.getElementById('loginErr1').textContent='Connection error';}
+}
+
+function logout(){
+  localStorage.removeItem('ems_biz_code');
+  localStorage.removeItem('ems_biz_id');
+  localStorage.removeItem('ems_biz_name');
+  BIZ_CODE='';BIZ_ID=0;BIZ_NAME='';
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('app').style.display='none';
+}
+
 /* INIT */
-loadAll().then(function(ok){if(ok){renderCheckin();renderDaily();}});
+if(BIZ_CODE && BIZ_ID){
+  // Already logged in
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').style.display='';
+  var hdr=document.querySelector('.hdr-title');
+  if(hdr && BIZ_NAME) hdr.textContent=BIZ_NAME;
+  loadAll().then(function(ok){if(ok){renderCheckin();renderDaily();}});
+} else {
+  // Show login
+  document.getElementById('app').style.display='none';
+}
 </script>
 </body>
 </html>
