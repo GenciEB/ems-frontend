@@ -349,8 +349,8 @@ canvas{width:100%!important;max-height:200px;}
 'use strict';
 var API='https://ems-api-mgye.onrender.com';
 var API_KEY='ems-secret-2026';
-var BIZ_CODE=localStorage.getItem('ems_biz_code')||'';
-var BIZ_ID=parseInt(localStorage.getItem('ems_biz_id'))||0;
+var BIZ_CODE=localStorage.getItem('ems_biz_code')||'default';
+var BIZ_ID=parseInt(localStorage.getItem('ems_biz_id'))||1;
 var BIZ_NAME=localStorage.getItem('ems_biz_name')||'';
 var MGR='0000';
 var emps=[],shfts=[],lvs=[];
