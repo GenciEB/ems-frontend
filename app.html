@@ -29,14 +29,14 @@
 }
 html{scroll-behavior:smooth;}
 body{font-family:var(--sans);color:var(--ink);background:var(--paper);overflow-x:hidden;line-height:1.6;}
-
+ 
 /* ── NOISE TEXTURE ── */
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size:256px;
 }
-
+ 
 /* ── NAV ── */
 nav{
   position:sticky;top:0;z-index:100;
@@ -58,7 +58,7 @@ nav{
 .nav-link:hover{background:var(--paper2);color:var(--ink);}
 .nav-cta{background:var(--ink);color:#fff;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s;border:none;cursor:pointer;}
 .nav-cta:hover{background:var(--accent);transform:translateY(-1px);}
-
+ 
 /* ── HERO ── */
 .hero{
   position:relative;z-index:1;
@@ -98,7 +98,7 @@ nav{
 }
 .btn-secondary:hover{border-color:var(--ink2);background:var(--paper2);}
 .hero-note{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:16px;}
-
+ 
 /* ── HERO VISUAL ── */
 .hero-visual{position:relative;}
 .app-mockup{
@@ -140,7 +140,7 @@ nav{
 .fc-label{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:1px;margin-bottom:4px;}
 .fc-value{font-weight:700;font-size:16px;color:var(--ink);}
 .fc-sub{font-size:11px;color:var(--green);font-weight:500;}
-
+ 
 /* ── LOGOS STRIP ── */
 .logos{
   background:var(--paper2);border-top:1px solid var(--paper3);border-bottom:1px solid var(--paper3);
@@ -149,11 +149,11 @@ nav{
 .logos-label{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:2px;margin-bottom:16px;}
 .logos-row{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;}
 .logo-item{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--ink3);letter-spacing:-0.3px;}
-
+ 
 /* ── SECTIONS ── */
 section{position:relative;z-index:1;}
 .container{max-width:1100px;margin:0 auto;padding:0 24px;}
-
+ 
 /* ── FEATURES ── */
 .features{padding:100px 24px;}
 .section-label{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
@@ -175,7 +175,7 @@ section{position:relative;z-index:1;}
 .feat-icon{font-size:28px;margin-bottom:16px;display:block;}
 .feat-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-0.3px;}
 .feat-desc{font-size:14px;color:var(--ink2);line-height:1.6;}
-
+ 
 /* ── HOW IT WORKS ── */
 .how{padding:80px 24px;background:var(--paper2);border-top:1px solid var(--paper3);border-bottom:1px solid var(--paper3);}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:56px;position:relative;}
@@ -194,7 +194,7 @@ section{position:relative;z-index:1;}
 }
 .step-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px;}
 .step-desc{font-size:14px;color:var(--ink2);line-height:1.6;}
-
+ 
 /* ── PRICING ── */
 .pricing{padding:100px 24px;}
 .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:720px;margin:56px auto 0;}
@@ -230,7 +230,7 @@ section{position:relative;z-index:1;}
 .price-btn-outline:hover{border-color:var(--ink);background:var(--paper2);}
 .price-btn-solid{background:#fff;color:var(--ink);}
 .price-btn-solid:hover{background:var(--accent);color:#fff;transform:translateY(-1px);}
-
+ 
 /* ── TESTIMONIALS ── */
 .testimonials{padding:80px 24px;background:var(--paper2);border-top:1px solid var(--paper3);}
 .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;}
@@ -239,7 +239,7 @@ section{position:relative;z-index:1;}
 .test-quote{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink);margin-bottom:16px;font-style:italic;}
 .test-author{font-size:13px;font-weight:600;color:var(--ink);}
 .test-role{font-family:var(--mono);font-size:10px;color:var(--ink3);}
-
+ 
 /* ── CTA ── */
 .cta-section{
   padding:100px 24px;text-align:center;
@@ -268,7 +268,7 @@ section{position:relative;z-index:1;}
 }
 .cta-btn:hover{background:#60a5fa;color:#fff;}
 .cta-note{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.3);}
-
+ 
 /* ── FOOTER ── */
 footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
 .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
@@ -277,11 +277,11 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
 .footer-link{font-size:13px;color:var(--ink3);text-decoration:none;transition:color .15s;}
 .footer-link:hover{color:var(--ink);}
 .footer-copy{font-family:var(--mono);font-size:11px;color:var(--ink3);}
-
+ 
 /* ── ANIMATIONS ── */
 .fade-up{opacity:0;transform:translateY(24px);transition:all .6s cubic-bezier(.22,1,.36,1);}
 .fade-up.visible{opacity:1;transform:none;}
-
+ 
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;gap:40px;padding:60px 24px 40px;}
@@ -303,7 +303,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
 </style>
 </head>
 <body>
-
+ 
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#">
@@ -317,7 +317,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     <a class="nav-cta" href="/app.html">Get Started Free</a>
   </div>
 </nav>
-
+ 
 <!-- HERO -->
 <div class="hero">
   <div class="hero-content fade-up">
@@ -333,7 +333,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     </div>
     <p class="hero-note">Free for up to 5 employees · No credit card required</p>
   </div>
-
+ 
   <div class="hero-visual fade-up" style="transition-delay:.15s;">
     <div class="app-mockup">
       <div class="app-mockup-bar">
@@ -393,7 +393,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     </div>
   </div>
 </div>
-
+ 
 <!-- LOGOS -->
 <div class="logos">
   <div class="logos-label">TRUSTED BY BUSINESSES LIKE</div>
@@ -405,7 +405,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     <span class="logo-item">🏋 Gyms</span>
   </div>
 </div>
-
+ 
 <!-- FEATURES -->
 <section class="features" id="features">
   <div class="container">
@@ -448,7 +448,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     </div>
   </div>
 </section>
-
+ 
 <!-- HOW IT WORKS -->
 <section class="how" id="how">
   <div class="container">
@@ -475,7 +475,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     </div>
   </div>
 </section>
-
+ 
 <!-- PRICING -->
 <section class="pricing" id="pricing">
   <div class="container">
@@ -518,7 +518,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     </div>
   </div>
 </section>
-
+ 
 <!-- TESTIMONIALS -->
 <section class="testimonials">
   <div class="container">
@@ -548,7 +548,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     </div>
   </div>
 </section>
-
+ 
 <!-- CTA -->
 <section class="cta-section">
   <div class="cta-content">
@@ -561,7 +561,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     <p class="cta-note fade-up">Free forever for up to 5 employees. No credit card required.</p>
   </div>
 </section>
-
+ 
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
@@ -575,7 +575,7 @@ footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
     <div class="footer-copy">© 2026 WorkBase. All rights reserved.</div>
   </div>
 </footer>
-
+ 
 <script>
 // Scroll animations
 var observer = new IntersectionObserver(function(entries){
@@ -583,11 +583,11 @@ var observer = new IntersectionObserver(function(entries){
     if(e.isIntersecting){ e.target.classList.add('visible'); }
   });
 }, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
-
+ 
 document.querySelectorAll('.fade-up').forEach(function(el){
   observer.observe(el);
 });
-
+ 
 // CTA signup
 function ctaSignup(){
   var email = document.getElementById('ctaEmail').value.trim();
@@ -595,7 +595,7 @@ function ctaSignup(){
   // Redirect to app with email pre-filled
   window.location.href = '/app.html';
 }
-
+ 
 // Trigger hero fade on load
 window.addEventListener('load', function(){
   document.querySelectorAll('.hero .fade-up').forEach(function(el){
