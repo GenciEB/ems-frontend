@@ -532,13 +532,13 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 <nav class="bnav" id="bnav">
   <button class="tb active" onclick="goNav('dash',this)" data-page="dash"><span class="ic">📊</span>DASH</button>
   <button class="tb" onclick="goNav('checkin',this)" data-page="checkin"><span class="ic">⏱</span>CHECK</button>
-  <button class="tb" onclick="goNav('employees',this)" data-page="employees" data-role="manager"><span class="ic">👥</span>STAFF</button>
-  <button class="tb" onclick="goNav('schedule',this)" data-page="schedule" data-role="manager"><span class="ic">🗓</span>SCHED</button>
-  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll" data-role="manager"><span class="ic">💰</span>PAY</button>
-  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves" data-role="manager"><span class="ic">🏖</span>LEAVE</button>
-  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions" data-role="manager"><span class="ic">➖</span>DED</button>
-  <button class="tb" onclick="goNav('plans',this)" data-page="plans" data-role="manager"><span class="ic">💳</span>PLANS</button>
-  <button class="tb" onclick="goNav('security',this)" data-page="security" data-role="manager"><span class="ic">🔐</span>SEC</button>
+  <button class="tb" onclick="goNav('employees',this)" data-page="employees"><span class="ic">👥</span>STAFF</button>
+  <button class="tb" onclick="goNav('schedule',this)" data-page="schedule"><span class="ic">🗓</span>SCHED</button>
+  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll"><span class="ic">💰</span>PAY</button>
+  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves"><span class="ic">🏖</span>LEAVE</button>
+  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>DED</button>
+  <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
+  <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
 </nav>
  
 </div><!-- end #app -->
@@ -699,11 +699,10 @@ function updateNavForRole() {
   if (IS_MGR) {
     roleEl.textContent = 'MANAGER';
     roleEl.className = 'hdr-role manager';
-    document.querySelectorAll('[data-role="manager"]').forEach(function(b){ b.style.display = ''; });
+ 
   } else {
     roleEl.textContent = 'EMPLOYEE';
     roleEl.className = 'hdr-role employee';
-    document.querySelectorAll('[data-role="manager"]').forEach(function(b){ b.style.display = 'none'; });
   }
 }
  
