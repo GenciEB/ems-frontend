@@ -1,14 +1,44 @@
 {
-  "name": "EMS — Staff Manager",
+  "name": "EMS Staff Manager",
   "short_name": "EMS",
-  "description": "Employee check-in, hours tracking and payroll",
-  "start_url": "./index.html",
+  "description": "Employee Management System — track shifts, pay, and schedules",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0f1e",
-  "theme_color": "#0a0f1e",
   "orientation": "portrait-primary",
+  "background_color": "#fafaf8",
+  "theme_color": "#fafaf8",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["business", "productivity"],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Check In",
+      "short_name": "Check In",
+      "description": "Quick employee check in",
+      "url": "/?action=checkin",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View live dashboard",
+      "url": "/?action=dashboard",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
