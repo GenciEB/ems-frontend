@@ -2,606 +2,1405 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WorkBase — Staff Management</title>
-<meta name="description" content="WorkBase helps small businesses manage employees, track shifts, handle payroll and schedule teams — all in one beautiful app.">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fafaf8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="WorkBase">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>WorkBase — Staff Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --ink:#0d0d0d;
-  --ink2:#3d3d3d;
-  --ink3:#888;
-  --paper:#fafaf8;
-  --paper2:#f2f1ee;
-  --paper3:#e8e6e1;
-  --accent:#1a56db;
-  --accent2:#1e40af;
+  --bg:#fafaf8;
+  --bg2:#f2f1ee;
+  --surface:#ffffff;
+  --surface2:#f2f1ee;
+  --surface3:#e8e6e1;
+  --border:#e8e6e1;
+  --border2:#d4d0c8;
+  --blue:#1a56db;
+  --blue-dim:rgba(26,86,219,0.08);
+  --blue-glow:rgba(26,86,219,0.2);
+  --blue2:#1a56db;
+  --cyan:#0891b2;
+  --cyan-dim:rgba(8,145,178,0.08);
   --green:#16a34a;
-  --amber:#d97706;
+  --green-dim:rgba(22,163,74,0.08);
+  --green-glow:rgba(22,163,74,0.15);
   --red:#dc2626;
-  --serif:'Instrument Serif',Georgia,serif;
-  --sans:'Outfit',sans-serif;
+  --red-dim:rgba(220,38,38,0.08);
+  --amber:#d97706;
+  --amber-dim:rgba(217,119,6,0.08);
+  --purple:#7c3aed;
+  --purple-dim:rgba(124,58,237,0.08);
+  --text:#0d0d0d;
+  --text2:#3d3d3d;
+  --text3:#888888;
+  --display:'Outfit',sans-serif;
+  --body:'Outfit',sans-serif;
   --mono:'JetBrains Mono',monospace;
-  --radius:12px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);
-  --shadow-lg:0 8px 32px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.06);
+  --radius:16px;
+  --radius-sm:10px;
+  --radius-lg:22px;
+  --sb:env(safe-area-inset-bottom);
+  --st:env(safe-area-inset-top);
 }
-html{scroll-behavior:smooth;}
-body{font-family:var(--sans);color:var(--ink);background:var(--paper);overflow-x:hidden;line-height:1.6;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overscroll-behavior:none;}
+body{font-family:var(--body);color:var(--text);background:var(--bg);display:flex;flex-direction:column;position:relative;}
  
-/* ── NOISE TEXTURE ── */
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size:256px;
-}
+/* ── LOGIN SCREEN ── */
+#loginScreen{position:fixed;inset:0;z-index:9999;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;}
+#loginScreen.hidden{display:none;}
+.login-logo{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-1px;color:#0d0d0d;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.login-logo-dot{width:10px;height:10px;background:#1a56db;border-radius:50%;display:inline-block;}
+.login-sub{font-family:var(--mono);font-size:10px;color:#888;letter-spacing:3px;margin-bottom:36px;}
+.login-card{background:#fff;border:1.5px solid #e8e6e1;border-radius:20px;padding:28px 24px;width:100%;max-width:380px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1a56db,#0891b2);}
+.login-card-title{font-size:18px;font-weight:700;color:#0d0d0d;margin-bottom:4px;}
+.login-card-sub{font-size:13px;color:#888;margin-bottom:20px;}
+.login-tabs{display:flex;gap:4px;margin-bottom:20px;background:#f2f1ee;border-radius:10px;padding:4px;}
+.ltab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;font-family:var(--body);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.ltab.active{background:#fff;color:#0d0d0d;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.login-form{display:flex;flex-direction:column;gap:12px;}
+.login-form.hide{display:none;}
+.register-form{display:none;flex-direction:column;gap:12px;}
+.register-form.show{display:flex;}
+.login-err{font-family:var(--mono);font-size:11px;color:#dc2626;min-height:16px;text-align:center;}
+.login-hint{font-size:12px;color:#aaa;text-align:center;margin-top:8px;line-height:1.6;}
+.field{display:flex;flex-direction:column;gap:5px;}
+label{font-family:var(--mono);font-size:10px;color:#3d3d3d;letter-spacing:.5px;text-transform:uppercase;}
+input,select,textarea{background:#fafaf8;border:1.5px solid #e8e6e1;border-radius:var(--radius-sm);color:#0d0d0d;font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;width:100%;transition:border-color .15s;}
+input:focus,select:focus,textarea:focus{border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,0.1);background:#fff;}
+input::placeholder,textarea::placeholder{color:#bbb;}
  
-/* ── NAV ── */
-nav{
-  position:sticky;top:0;z-index:100;
-  background:rgba(250,250,248,0.88);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--paper3);
-  padding:0 24px;
-  display:flex;align-items:center;justify-content:space-between;
-  height:64px;
-}
-.nav-logo{
-  font-family:var(--sans);font-size:20px;font-weight:800;
-  letter-spacing:-0.5px;color:var(--ink);text-decoration:none;
-  display:flex;align-items:center;gap:8px;
-}
-.nav-logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;}
-.nav-links{display:flex;align-items:center;gap:8px;}
-.nav-link{font-size:14px;font-weight:500;color:var(--ink2);text-decoration:none;padding:6px 14px;border-radius:8px;transition:all .15s;}
-.nav-link:hover{background:var(--paper2);color:var(--ink);}
-.nav-cta{background:var(--ink);color:#fff;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s;border:none;cursor:pointer;}
-.nav-cta:hover{background:var(--accent);transform:translateY(-1px);}
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:var(--radius-sm);padding:11px 16px;font-family:var(--body);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;width:100%;-webkit-tap-highlight-color:transparent;}
+.btn-p{background:#0d0d0d;color:#fff;}
+.btn-p:hover{background:#1a56db;}
+.btn-p:active{opacity:.85;}
+.btn-g{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.btn-d{background:var(--red-dim);color:var(--red);border:1px solid rgba(220,38,38,0.2);}
+.btn-s{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(26,86,219,0.2);}
  
-/* ── HERO ── */
-.hero{
-  position:relative;z-index:1;
-  padding:100px 24px 80px;
-  max-width:1100px;margin:0 auto;
-  display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
-}
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--paper2);border:1px solid var(--paper3);
-  border-radius:20px;padding:5px 14px 5px 8px;
-  font-family:var(--mono);font-size:11px;color:var(--ink2);
-  margin-bottom:24px;
-}
-.hero-eyebrow-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
-.hero-h1{
-  font-family:var(--serif);font-size:clamp(42px,5vw,68px);
-  line-height:1.08;letter-spacing:-1px;
-  color:var(--ink);margin-bottom:20px;
-}
-.hero-h1 em{font-style:italic;color:var(--accent);}
-.hero-p{font-size:18px;color:var(--ink2);line-height:1.7;margin-bottom:32px;font-weight:400;}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
-.btn-primary{
-  background:var(--ink);color:#fff;border:none;border-radius:10px;
-  padding:14px 28px;font-family:var(--sans);font-size:15px;font-weight:600;
-  cursor:pointer;text-decoration:none;display:inline-block;
-  transition:all .2s;position:relative;overflow:hidden;
-}
-.btn-primary::after{content:'→';margin-left:8px;transition:transform .2s;}
-.btn-primary:hover{background:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,86,219,.3);}
-.btn-secondary{
-  background:transparent;color:var(--ink);border:1.5px solid var(--paper3);
-  border-radius:10px;padding:14px 28px;font-family:var(--sans);font-size:15px;font-weight:600;
-  cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s;
-}
-.btn-secondary:hover{border-color:var(--ink2);background:var(--paper2);}
-.hero-note{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:16px;}
+/* ── HEADER ── */
+header{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;padding-top:var(--st);}
+.logo{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0d0d0d;display:flex;align-items:center;gap:6px;}
+.logo-dot{width:7px;height:7px;background:#1a56db;border-radius:50%;}
+.logo-sub{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:2px;margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.hdr-role{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:20px;letter-spacing:.5px;}
+.hdr-role.manager{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(26,86,219,0.2);}
+.hdr-role.employee{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(8,145,178,0.2);}
+.clock{font-family:var(--mono);font-size:12px;color:var(--blue);background:var(--blue-dim);border:1px solid rgba(26,86,219,0.2);padding:4px 10px;border-radius:20px;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--text3);transition:background .3s;flex-shrink:0;}
+.sdot.ok{background:var(--green);}
+.sdot.error{background:var(--red);}
+.sdot.syncing{background:var(--amber);animation:pulse .8s infinite;}
  
-/* ── HERO VISUAL ── */
-.hero-visual{position:relative;}
-.app-mockup{
-  background:var(--ink);border-radius:20px;overflow:hidden;
-  box-shadow:var(--shadow-lg),0 32px 80px rgba(0,0,0,.15);
-  position:relative;
-}
-.app-mockup-bar{
-  background:#1a1a1a;padding:12px 16px;display:flex;align-items:center;gap:8px;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.dot{width:10px;height:10px;border-radius:50%;}
-.dot-r{background:#ff5f57;}
-.dot-y{background:#febc2e;}
-.dot-g{background:#28c840;}
-.app-mockup-url{flex:1;background:rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.5);text-align:center;}
-.app-screen{padding:20px;background:#fafaf8;}
-.app-screen-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid #e8e6e1;padding-bottom:12px;}
-.app-title{font-family:var(--mono);font-size:10px;color:#888;letter-spacing:2px;}
-.app-badge{background:rgba(52,211,153,.15);color:#34d399;font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:10px;}
-.app-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
-.app-stat{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
-.app-stat-v{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;color:#1a56db;}
-.app-stat-k{font-family:var(--mono);font-size:8px;color:#888;margin-top:2px;letter-spacing:1px;}
-.emp-list{display:flex;flex-direction:column;gap:6px;}
-.emp-row{background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.emp-name{font-size:12px;color:#0d0d0d;font-weight:600;}
-.emp-role{font-family:var(--mono);font-size:9px;color:#888;}
-.emp-status{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:10px;}
-.emp-status.in{background:rgba(52,211,153,.15);color:#34d399;}
-.emp-status.out{background:rgba(248,113,113,.12);color:#f87171;}
-.emp-status.sched{background:rgba(59,130,246,.15);color:#60a5fa;}
-.floating-card{
-  position:absolute;background:#fff;border-radius:12px;padding:12px 14px;
-  box-shadow:var(--shadow-lg);font-size:12px;
-}
-.floating-card-1{bottom:-20px;left:-30px;min-width:140px;}
-.floating-card-2{top:20px;right:-30px;min-width:150px;}
-.fc-label{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:1px;margin-bottom:4px;}
-.fc-value{font-weight:700;font-size:16px;color:var(--ink);}
-.fc-sub{font-size:11px;color:var(--green);font-weight:500;}
+/* ── BOTTOM NAV ── */
+nav.bnav{background:rgba(250,250,248,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);position:fixed;bottom:0;left:0;right:0;z-index:90;}
+.tb{flex:1;padding:10px 4px 8px;border:none;background:transparent;color:var(--text3);font-family:var(--mono);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;-webkit-tap-highlight-color:transparent;letter-spacing:.3px;}
+.tb .ic{font-size:18px;}
+.tb.active{color:var(--blue);background:var(--blue-dim);}
  
-/* ── LOGOS STRIP ── */
-.logos{
-  background:var(--paper2);border-top:1px solid var(--paper3);border-bottom:1px solid var(--paper3);
-  padding:24px;text-align:center;
-}
-.logos-label{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:2px;margin-bottom:16px;}
-.logos-row{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;}
-.logo-item{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--ink3);letter-spacing:-0.3px;}
+/* ── PAGES ── */
+.page{display:none;flex:1;overflow-y:auto;padding:16px 16px calc(80px + var(--sb));-webkit-overflow-scrolling:touch;background:var(--bg);}
+.page.active{display:block;}
+main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
  
-/* ── SECTIONS ── */
-section{position:relative;z-index:1;}
-.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.card-lbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;}
  
-/* ── FEATURES ── */
-.features{padding:100px 24px;}
-.section-label{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
-.section-h2{font-family:var(--serif);font-size:clamp(32px,4vw,52px);line-height:1.1;letter-spacing:-0.5px;color:var(--ink);margin-bottom:16px;}
-.section-h2 em{font-style:italic;color:var(--accent);}
-.section-p{font-size:16px;color:var(--ink2);max-width:500px;line-height:1.7;}
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px;}
-.feat-card{
-  background:#fff;border:1px solid var(--paper3);border-radius:16px;
-  padding:28px;transition:all .2s;position:relative;overflow:hidden;
-}
-.feat-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:0;transition:opacity .2s;
-}
-.feat-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-4px);border-color:rgba(26,86,219,.15);}
-.feat-card:hover::before{opacity:1;}
-.feat-icon{font-size:28px;margin-bottom:16px;display:block;}
-.feat-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-0.3px;}
-.feat-desc{font-size:14px;color:var(--ink2);line-height:1.6;}
+/* ── SECTION HEADERS ── */
+.sh{background:#fff;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.sh-title{font-family:var(--display);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
+.sh-sub{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:3px;}
+.sh-eye{font-family:var(--mono);font-size:9px;color:var(--blue);letter-spacing:1px;margin-bottom:4px;}
  
-/* ── HOW IT WORKS ── */
-.how{padding:80px 24px;background:var(--paper2);border-top:1px solid var(--paper3);border-bottom:1px solid var(--paper3);}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:56px;position:relative;}
-.steps::before{
-  content:'';position:absolute;top:28px;left:16%;right:16%;height:1px;
-  background:linear-gradient(90deg,transparent,var(--paper3),var(--paper3),transparent);
-}
-.step{text-align:center;position:relative;}
-.step-num{
-  width:56px;height:56px;border-radius:50%;
-  background:#fff;border:1.5px solid var(--paper3);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:16px;font-weight:500;color:var(--ink);
-  margin:0 auto 20px;position:relative;z-index:1;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
-.step-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px;}
-.step-desc{font-size:14px;color:var(--ink2);line-height:1.6;}
+/* ── BADGES ── */
+.badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;display:inline-block;font-weight:600;}
+.badge.br{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.badge.bg{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.badge.bb{background:#eff6ff;color:#1a56db;border:1px solid #bfdbfe;}
+.badge.ba{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+.badge.bp{background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff;}
  
-/* ── PRICING ── */
-.pricing{padding:100px 24px;}
-.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:720px;margin:56px auto 0;}
-.price-card{
-  background:#fff;border:1.5px solid var(--paper3);border-radius:20px;
-  padding:32px;position:relative;overflow:hidden;
-}
-.price-card.featured{border-color:var(--ink);background:var(--ink);color:#fff;}
-.price-card.featured::before{
-  content:'MOST POPULAR';position:absolute;top:20px;right:-28px;
-  background:var(--accent);color:#fff;font-family:var(--mono);font-size:8px;
-  padding:4px 40px;letter-spacing:1px;transform:rotate(45deg);
-}
-.price-plan{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink3);margin-bottom:12px;}
-.price-card.featured .price-plan{color:rgba(255,255,255,.4);}
-.price-amount{font-family:var(--serif);font-size:52px;line-height:1;color:var(--ink);margin-bottom:4px;}
-.price-card.featured .price-amount{color:#fff;}
-.price-per{font-size:14px;color:var(--ink3);margin-bottom:24px;}
-.price-card.featured .price-per{color:rgba(255,255,255,.4);}
-.price-features{list-style:none;margin-bottom:28px;}
-.price-features li{font-size:14px;color:var(--ink2);padding:7px 0;border-bottom:1px solid var(--paper2);display:flex;align-items:center;gap:10px;}
-.price-card.featured .price-features li{color:rgba(255,255,255,.7);border-bottom-color:rgba(255,255,255,.08);}
-.price-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
-.price-features li.no::before{content:'✗';color:var(--ink3);}
-.price-features li.no{color:var(--ink3);}
-.price-card.featured .price-features li.no{color:rgba(255,255,255,.25);}
-.price-btn{
-  width:100%;padding:13px;border-radius:10px;font-family:var(--sans);font-size:15px;
-  font-weight:600;cursor:pointer;border:none;transition:all .2s;text-align:center;
-  text-decoration:none;display:block;
-}
-.price-btn-outline{background:transparent;border:1.5px solid var(--paper3);color:var(--ink);}
-.price-btn-outline:hover{border-color:var(--ink);background:var(--paper2);}
-.price-btn-solid{background:#fff;color:var(--ink);}
-.price-btn-solid:hover{background:var(--accent);color:#fff;transform:translateY(-1px);}
+/* ── FORM ── */
+.form-s{display:flex;flex-direction:column;gap:10px;}
+.form-r{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
  
-/* ── TESTIMONIALS ── */
-.testimonials{padding:80px 24px;background:var(--paper2);border-top:1px solid var(--paper3);}
-.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;}
-.test-card{background:#fff;border:1px solid var(--paper3);border-radius:16px;padding:24px;}
-.test-stars{color:#f59e0b;font-size:14px;margin-bottom:12px;}
-.test-quote{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink);margin-bottom:16px;font-style:italic;}
-.test-author{font-size:13px;font-weight:600;color:var(--ink);}
-.test-role{font-family:var(--mono);font-size:10px;color:var(--ink3);}
+/* ── EMPLOYEE ROWS ── */
+.emp-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.emp-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-dim);border:2px solid rgba(26,86,219,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--blue);flex-shrink:0;font-family:var(--display);}
+.emp-info{flex:1;min-width:0;}
+.emp-name{font-weight:700;font-size:14px;color:var(--text);}
+.emp-role-label{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:1px;}
  
-/* ── CTA ── */
-.cta-section{
-  padding:100px 24px;text-align:center;
-  background:var(--ink);color:#fff;
-  position:relative;overflow:hidden;
-}
-.cta-section::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(26,86,219,.3),transparent);
-}
-.cta-content{position:relative;z-index:1;}
-.cta-h2{font-family:var(--serif);font-size:clamp(36px,5vw,60px);line-height:1.1;margin-bottom:16px;letter-spacing:-1px;}
-.cta-h2 em{font-style:italic;color:#60a5fa;}
-.cta-p{font-size:17px;color:rgba(255,255,255,.6);margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;}
-.cta-form{display:flex;gap:10px;max-width:440px;margin:0 auto 16px;}
-.cta-input{
-  flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-  border-radius:10px;padding:13px 16px;color:#fff;font-family:var(--sans);font-size:15px;outline:none;
-}
-.cta-input::placeholder{color:rgba(255,255,255,.3);}
-.cta-input:focus{border-color:rgba(255,255,255,.3);}
-.cta-btn{
-  background:#fff;color:var(--ink);border:none;border-radius:10px;
-  padding:13px 22px;font-family:var(--sans);font-size:15px;font-weight:700;
-  cursor:pointer;white-space:nowrap;transition:all .2s;
-}
-.cta-btn:hover{background:#60a5fa;color:#fff;}
-.cta-note{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.3);}
+/* ── SHIFT ROWS ── */
+.shift-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;}
+.shift-date{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px;}
+.shift-times{font-weight:600;font-size:14px;color:var(--text);}
+.shift-hours{font-family:var(--mono);font-size:11px;color:var(--blue);margin-top:2px;}
  
-/* ── FOOTER ── */
-footer{background:#fff;border-top:1px solid var(--paper3);padding:40px 24px;}
-.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
-.footer-logo{font-family:var(--sans);font-size:16px;font-weight:800;color:var(--ink);}
-.footer-links{display:flex;gap:24px;}
-.footer-link{font-size:13px;color:var(--ink3);text-decoration:none;transition:color .15s;}
-.footer-link:hover{color:var(--ink);}
-.footer-copy{font-family:var(--mono);font-size:11px;color:var(--ink3);}
+/* ── STATS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.03);}
+.stat-v{font-family:var(--display);font-size:22px;font-weight:800;color:var(--blue);}
+.stat-k{font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
  
-/* ── ANIMATIONS ── */
-.fade-up{opacity:0;transform:translateY(24px);transition:all .6s cubic-bezier(.22,1,.36,1);}
-.fade-up.visible{opacity:1;transform:none;}
+/* ── TOAST ── */
+.toast-w{position:fixed;top:calc(60px + var(--st));left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;}
+.toast{background:#0d0d0d;color:#fff;border-radius:12px;padding:9px 16px;font-family:var(--mono);font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideDown .25s ease,fadeOut .3s 2.2s ease forwards;white-space:nowrap;}
+.toast.success{background:#16a34a;}
+.toast.error{background:#dc2626;}
+.toast.warn{background:#d97706;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes fu{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
  
-/* ── RESPONSIVE ── */
-@media(max-width:900px){
-  .hero{grid-template-columns:1fr;gap:40px;padding:60px 24px 40px;}
-  .hero-visual{display:none;}
-  .features-grid{grid-template-columns:1fr 1fr;}
-  .steps{grid-template-columns:1fr;gap:24px;}
-  .steps::before{display:none;}
-  .pricing-grid{grid-template-columns:1fr;}
-  .test-grid{grid-template-columns:1fr;}
-}
-@media(max-width:600px){
-  .features-grid{grid-template-columns:1fr;}
-  .pricing-grid{grid-template-columns:1fr;}
-  .cta-form{flex-direction:column;}
-  .nav-links .nav-link{display:none;}
-  .footer-inner{flex-direction:column;text-align:center;}
-  .footer-links{justify-content:center;}
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-card{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px calc(24px + var(--sb));width:100%;max-width:480px;border:1px solid var(--border);box-shadow:0 -8px 32px rgba(0,0,0,0.1);transform:translateY(20px);transition:transform .25s cubic-bezier(.34,1.2,.64,1);}
+.modal-ov.open .modal-card{transform:translateY(0);}
+.modal-title{font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:16px;color:var(--text);}
+ 
+/* ── LOCK OVERLAY ── */
+.lock-ov{position:absolute;inset:0;z-index:10;background:rgba(250,250,248,0.98);backdrop-filter:blur(24px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:60vh;}
+ 
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:#888;}
+.empty .ico{font-size:36px;margin-bottom:8px;}
+.empty p{font-family:var(--mono);font-size:12px;}
+ 
+/* ── MONTH NAV ── */
+.mo-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.mo-t{font-family:var(--display);font-size:16px;font-weight:800;color:var(--text);}
+.mo-y{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.dn-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text2);}
+ 
+/* ── FILTER TABS ── */
+.filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+.filter-row::-webkit-scrollbar{display:none;}
+.af{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+.af.active{background:var(--blue-dim);border-color:rgba(26,86,219,0.3);color:var(--blue);}
+ 
+/* ── SCHEDULE ── */
+.sched-grid{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px;}
+.sched-grid th{background:var(--bg2);border:1px solid var(--border);padding:7px 4px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;text-align:center;color:var(--text2);}
+.sched-grid th.today{background:var(--blue-dim);color:var(--blue);border-color:rgba(26,86,219,0.3);}
+.sched-grid td{background:#fff;border:1px solid var(--border);padding:3px;vertical-align:top;min-width:36px;}
+.sched-grid td.today{background:rgba(26,86,219,0.03);border-color:rgba(26,86,219,0.2);}
+.sched-emp-cell{background:var(--bg2);border:1px solid var(--border);padding:8px;font-size:11px;font-weight:600;white-space:nowrap;}
+.sched-slot{border-radius:5px;padding:2px 4px;margin-bottom:2px;cursor:pointer;font-size:9px;line-height:1.3;}
+.sched-slot.scheduled{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(26,86,219,0.2);}
+.sched-slot.worked{background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2);}
+.sched-slot.missed{background:var(--red-dim);color:var(--red);border:1px solid rgba(220,38,38,0.2);}
+.sched-slot.partial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(217,119,6,0.2);}
+.sched-add-btn{font-size:14px;color:var(--text3);cursor:pointer;display:block;text-align:center;padding:2px;transition:color .15s;}
+.sched-add-btn:hover{color:var(--blue);}
+ 
+/* ── PLANS ── */
+.plan-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden;}
+.plan-card.pro{border-color:rgba(26,86,219,0.3);}
+.plan-card.pro::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--cyan));}
+.plan-badge{font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;letter-spacing:1px;}
+.plan-badge.free{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.plan-badge.pro{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(26,86,219,0.2);}
+.plan-price{font-family:var(--display);font-size:32px;font-weight:800;color:var(--text);line-height:1;}
+.plan-per{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.plan-name{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;margin:4px 0 12px;}
+.pf{font-family:var(--mono);font-size:10px;padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.pf:last-child{border-bottom:none;}
+.pf::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+.pf.pf-no{color:var(--text3);}
+.pf.pf-no::before{content:'✗';color:var(--text3);}
+.plan-btn-current{background:var(--bg2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:10px;font-family:var(--mono);font-size:11px;text-align:center;margin-top:12px;}
+.plan-btn-upgrade{background:#0d0d0d;color:#fff;border:none;border-radius:10px;padding:11px;font-family:var(--body);font-size:13px;font-weight:700;width:100%;cursor:pointer;transition:background .2s;margin-top:12px;}
+.plan-btn-upgrade:hover{background:var(--blue);}
+ 
+/* ── AUDIT ── */
+.audit-i{background:#fff;border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:7px;}
+.audit-i.action-checkin{border-left-color:var(--green);}
+.audit-i.action-checkout{border-left-color:var(--red);}
+.audit-i.action-add{border-left-color:var(--blue);}
+.audit-i.action-delete{border-left-color:var(--red);}
+.audit-i.action-leave{border-left-color:var(--amber);}
+.audit-i.action-shift{border-left-color:var(--amber);}
+.audit-i.action-security{border-left-color:var(--cyan);}
+.audit-ts{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:2px;}
+.audit-msg{font-size:13px;font-weight:600;}
+.audit-who{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;}
+ 
+/* ── PAYSLIP ── */
+.payslip{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;}
+.payslip-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.payslip-name{font-family:var(--display);font-size:18px;font-weight:800;}
+.payslip-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid var(--bg2);}
+.payslip-row:last-child{border-bottom:none;}
+.payslip-total{font-weight:700;font-size:15px;color:var(--blue);}
+ 
+/* ── MOBILE ── */
+@media(max-width:400px){
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .form-r{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
  
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="#">
-    <span class="nav-logo-dot"></span>
-    WorkBase
-  </a>
-  <div class="nav-links">
-    <a class="nav-link" href="#features">Features</a>
-    <a class="nav-link" href="#pricing">Pricing</a>
-    <a class="nav-link" href="#how">How it works</a>
-    <a class="nav-cta" href="/app.html">Get Started Free</a>
+<div class="toast-w" id="toastW"></div>
+ 
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-logo"><span class="login-logo-dot"></span>WorkBase</div>
+  <div class="login-sub">STAFF MANAGEMENT</div>
+  <div class="login-card">
+    <div class="login-tabs">
+      <button class="ltab active" onclick="switchLoginTab('login')">Sign In</button>
+      <button class="ltab" onclick="switchLoginTab('register')">Register</button>
+    </div>
+    <div class="login-form" id="loginForm">
+      <div class="login-card-title">Welcome back</div>
+      <div class="login-card-sub">Enter your business code to continue</div>
+      <div class="field"><label>Business Code</label><input type="text" id="bizCodeInput" placeholder="e.g. mycoffeeshop" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+      <div class="login-err" id="loginErr1"></div>
+      <button type="button" class="btn btn-p" onclick="submitBizCode()">Enter Workspace →</button>
+      <div class="login-hint">Don't have an account? Switch to Register above.</div>
+    </div>
+    <div class="register-form" id="registerForm">
+      <div class="login-card-title">Create your workspace</div>
+      <div class="login-card-sub">Free for up to 5 employees</div>
+      <div class="field"><label>Business Name</label><input type="text" id="regName" placeholder="My Coffee Shop" autocomplete="off"></div>
+      <div class="field"><label>Business Code</label><input type="text" id="regCode" placeholder="mycoffeeshop" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+      <div class="field"><label>Email <span style="color:#bbb;font-size:10px;">(for welcome email)</span></label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="login-err" id="loginErr2"></div>
+      <button type="button" class="btn btn-p" onclick="submitRegister()">Create Workspace →</button>
+      <div class="login-hint">Your code is how your team logs in.</div>
+    </div>
   </div>
+</div>
+ 
+<!-- MAIN APP -->
+<div id="app" style="display:none;flex-direction:column;height:100%;">
+ 
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="logo"><span class="logo-dot"></span>WorkBase</div>
+    <div class="logo-sub" id="bizNameLabel"></div>
+  </div>
+  <div class="hdr-r">
+    <span class="sdot" id="syncDot" title="Sync status"></span>
+    <div class="clock" id="clockEl"></div>
+    <span class="hdr-role" id="roleLabel"></span>
+  </div>
+</header>
+ 
+<main>
+ 
+<!-- DASHBOARD -->
+<div id="page-dash" class="page active">
+  <div class="sh"><div class="sh-eye">Overview</div><div class="sh-title">DASHBOARD</div><div class="sh-sub" id="dashDate"></div></div>
+  <div class="stat-grid" id="dashStats"></div>
+  <div id="dashOnShift"></div>
+  <div id="dashRecentShifts"></div>
+</div>
+ 
+<!-- EMPLOYEES -->
+<div id="page-employees" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">STAFF</div><div class="sh-sub">Manage your team</div></div>
+  <div class="lock-ov" id="empLock" style="display:none;">
+    <div style="font-size:32px;margin-bottom:12px;">🔒</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:16px;">Manager access required</div>
+    <div class="field" style="width:100%;max-width:260px;">
+      <label>Manager PIN</label>
+      <input type="password" id="empPinInput" placeholder="••••" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')verifyMgrPin()">
+    </div>
+    <button class="btn btn-p" style="max-width:260px;margin-top:8px;" onclick="verifyMgrPin()">Unlock →</button>
+  </div>
+  <div id="empContent" style="display:none;">
+    <div class="card">
+      <div class="card-lbl">Add Employee</div>
+      <div class="form-s">
+        <div class="form-r">
+          <div class="field"><label>Name</label><input type="text" id="empName" placeholder="Sarah K."></div>
+          <div class="field"><label>Role</label><input type="text" id="empRole" placeholder="Barista"></div>
+        </div>
+        <div class="form-r">
+          <div class="field"><label>PIN</label><input type="password" id="empPin" placeholder="4-6 digits" inputmode="numeric" maxlength="6"></div>
+          <div class="field"><label>Pay Rate (£/hr)</label><input type="number" id="empRate" placeholder="12.50" step="0.01"></div>
+        </div>
+        <div class="form-r">
+          <div class="field"><label>Start Time</label><input type="time" id="empStart" value="09:00"></div>
+          <div class="field"><label>End Time</label><input type="time" id="empEnd" value="17:00"></div>
+        </div>
+        <button type="button" class="btn btn-p" onclick="addEmp()">+ Add Employee</button>
+      </div>
+    </div>
+    <div id="empList"></div>
+  </div>
+</div>
+ 
+<!-- CHECK IN/OUT -->
+<div id="page-checkin" class="page">
+  <div class="sh"><div class="sh-eye">All Staff</div><div class="sh-title">CHECK IN/OUT</div><div class="sh-sub">Tap your name and enter PIN</div></div>
+  <div id="checkinList"></div>
+</div>
+ 
+<!-- SCHEDULE -->
+<div id="page-schedule" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">SCHEDULE</div><div class="sh-sub">Plan shifts for your team</div></div>
+  <div class="mo-nav" style="margin-bottom:12px;">
+    <button class="dn-btn" onclick="chSchedWeek(-1)">‹</button>
+    <div style="text-align:center;"><div class="mo-t" id="schedWeekLabel"></div><div class="mo-y" id="schedWeekRange"></div></div>
+    <button class="dn-btn" onclick="chSchedWeek(1)">›</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;">
+    <button class="af active" id="schedViewWeek" onclick="setSchedView('week',this)">📅 Weekly</button>
+    <button class="af" id="schedViewDay" onclick="setSchedView('day',this)">📋 Daily</button>
+  </div>
+  <div id="schedGridWrap"></div>
+  <div id="schedDayWrap" style="display:none;"></div>
+  <div class="card" id="schedAddCard" style="display:none;">
+    <div class="card-lbl" id="schedAddTitle">Assign Shift</div>
+    <div class="form-s">
+      <div class="form-r">
+        <div class="field"><label>Employee</label><select id="schedEmp"></select></div>
+        <div class="field"><label>Date</label><input type="date" id="schedDate"></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Start</label><input type="time" id="schedStart" value="09:00"></div>
+        <div class="field"><label>End</label><input type="time" id="schedEnd" value="17:00"></div>
+      </div>
+      <div class="field"><label>Note</label><input type="text" id="schedNote" placeholder="e.g. Opening shift…"></div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="btn btn-p" onclick="saveSchedule()">💾 Save</button>
+        <button type="button" class="btn btn-g" onclick="closeSchedAdd()">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="btn btn-p" onclick="openSchedAdd()" style="margin-top:8px;">+ Assign Shift</button>
+</div>
+ 
+<!-- PAYROLL -->
+<div id="page-payroll" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">PAYROLL</div><div class="sh-sub">Monthly pay & payslips</div></div>
+  <div class="mo-nav">
+    <button class="dn-btn" onclick="chPayMonth(-1)">‹</button>
+    <div style="text-align:center;"><div class="mo-t" id="payMonthLabel"></div></div>
+    <button class="dn-btn" onclick="chPayMonth(1)">›</button>
+  </div>
+  <div id="payrollList"></div>
+</div>
+ 
+<!-- LEAVES -->
+<div id="page-leaves" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">LEAVES</div><div class="sh-sub">Track time off</div></div>
+  <div class="card">
+    <div class="card-lbl">Add Leave</div>
+    <div class="form-s">
+      <div class="form-r">
+        <div class="field"><label>Employee</label><select id="leaveEmp"></select></div>
+        <div class="field"><label>Date</label><input type="date" id="leaveDate"></div>
+      </div>
+      <div class="field"><label>Type</label>
+        <select id="leaveType">
+          <option>Holiday</option><option>Sick</option><option>Personal</option><option>Unpaid</option>
+        </select>
+      </div>
+      <div class="field"><label>Note</label><input type="text" id="leaveNote" placeholder="Optional…"></div>
+      <button type="button" class="btn btn-p" onclick="addLeave()">+ Add Leave</button>
+    </div>
+  </div>
+  <div id="leaveList"></div>
+</div>
+ 
+<!-- DEDUCTIONS -->
+<div id="page-deductions" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">DEDUCTIONS</div><div class="sh-sub">Bonuses & deductions</div></div>
+  <div class="card">
+    <div class="card-lbl">Add Entry</div>
+    <div class="form-s">
+      <div class="form-r">
+        <div class="field"><label>Employee</label><select id="dedEmp"></select></div>
+        <div class="field"><label>Month</label><input type="month" id="dedMonth"></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Type</label>
+          <select id="dedType"><option value="bonus">Bonus</option><option value="deduction">Deduction</option></select>
+        </div>
+        <div class="field"><label>Amount (£)</label><input type="number" id="dedAmount" placeholder="50.00" step="0.01"></div>
+      </div>
+      <div class="field"><label>Label</label><input type="text" id="dedLabel" placeholder="e.g. Performance bonus"></div>
+      <button type="button" class="btn btn-p" onclick="addDed()">+ Add Entry</button>
+    </div>
+  </div>
+  <div id="dedList"></div>
+</div>
+ 
+<!-- PLANS -->
+<div id="page-plans" class="page">
+  <div class="sh"><div class="sh-eye">Subscription</div><div class="sh-title">PLANS</div><div class="sh-sub">Choose the right plan</div></div>
+  <div class="card" id="currentPlanBanner" style="border-left:3px solid var(--blue);margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px;">CURRENT PLAN</div>
+        <div id="currentPlanName" style="font-size:22px;font-weight:800;color:var(--blue);">FREE</div>
+      </div>
+      <div style="text-align:right;">
+        <div id="empUsage" style="font-family:var(--mono);font-size:11px;color:var(--text2);"></div>
+        <div style="width:100px;height:5px;background:var(--bg2);border-radius:3px;margin-top:5px;overflow:hidden;">
+          <div id="empBarFill" style="height:100%;background:var(--blue);border-radius:3px;transition:width .3s;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+    <div class="plan-card" id="planFreeCard">
+      <div class="plan-badge free">FREE</div>
+      <div class="plan-price">$0<span class="plan-per">/mo</span></div>
+      <div class="plan-name">Starter</div>
+      <div style="margin-bottom:12px;">
+        <div class="pf">Up to 5 employees</div>
+        <div class="pf">Check in / out</div>
+        <div class="pf">Daily reports</div>
+        <div class="pf pf-no">Unlimited staff</div>
+        <div class="pf pf-no">Payslips & Tax</div>
+        <div class="pf pf-no">Scheduling</div>
+      </div>
+      <div id="planFreeBtn" class="plan-btn-current">✓ Current Plan</div>
+    </div>
+    <div class="plan-card pro" id="planProCard">
+      <div class="plan-badge pro">PRO</div>
+      <div class="plan-price">$19<span class="plan-per">/mo</span></div>
+      <div class="plan-name">Professional</div>
+      <div style="margin-bottom:12px;">
+        <div class="pf">Unlimited employees</div>
+        <div class="pf">Check in / out</div>
+        <div class="pf">Full reports</div>
+        <div class="pf">Unlimited staff</div>
+        <div class="pf">Payslips & Tax</div>
+        <div class="pf">Scheduling</div>
+      </div>
+      <button class="plan-btn-upgrade" onclick="startUpgrade()">🚀 Upgrade to Pro</button>
+    </div>
+  </div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:20px;margin-bottom:8px;">✉️</div>
+    <div style="font-weight:700;margin-bottom:4px;">Get notified when Pro launches</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;">Leave your email and we'll be in touch</div>
+    <div style="display:flex;gap:8px;max-width:300px;margin:0 auto;">
+      <input type="email" id="notifyEmail" placeholder="your@email.com" style="flex:1;">
+      <button class="btn btn-p" style="width:auto;white-space:nowrap;" onclick="saveNotifyEmail()">Notify Me</button>
+    </div>
+    <div id="notifyMsg" style="font-family:var(--mono);font-size:11px;color:var(--green);margin-top:8px;min-height:16px;"></div>
+  </div>
+</div>
+ 
+<!-- SECURITY -->
+<div id="page-security" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">SECURITY</div><div class="sh-sub">Session & access control</div></div>
+  <div class="card">
+    <div class="card-lbl">Business Info</div>
+    <div style="margin-bottom:10px;"><div style="font-family:var(--mono);font-size:10px;color:var(--text3);">BUSINESS CODE</div><div style="font-size:18px;font-weight:700;" id="secBizCode">—</div></div>
+    <div style="margin-bottom:10px;"><div style="font-family:var(--mono);font-size:10px;color:var(--text3);">BUSINESS NAME</div><div style="font-size:16px;font-weight:600;" id="secBizName">—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-lbl">Actions</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-g" onclick="lockManager()">🔒 Lock Manager Session</button>
+      <button class="btn btn-d" onclick="logoutBiz()">⏏ Switch Business</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-lbl">Audit Log</div>
+    <div id="auditLog"></div>
+  </div>
+</div>
+ 
+</main>
+ 
+<!-- BOTTOM NAV -->
+<nav class="bnav" id="bnav">
+  <button class="tb active" onclick="goNav('dash',this)" data-page="dash"><span class="ic">📊</span>DASH</button>
+  <button class="tb" onclick="goNav('checkin',this)" data-page="checkin"><span class="ic">⏱</span>CHECK</button>
+  <button class="tb" onclick="goNav('employees',this)" data-page="employees" data-role="manager"><span class="ic">👥</span>STAFF</button>
+  <button class="tb" onclick="goNav('schedule',this)" data-page="schedule" data-role="manager"><span class="ic">🗓</span>SCHED</button>
+  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll" data-role="manager"><span class="ic">💰</span>PAY</button>
+  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves" data-role="manager"><span class="ic">🏖</span>LEAVE</button>
+  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions" data-role="manager"><span class="ic">➖</span>DED</button>
+  <button class="tb" onclick="goNav('plans',this)" data-page="plans" data-role="manager"><span class="ic">💳</span>PLANS</button>
+  <button class="tb" onclick="goNav('security',this)" data-page="security" data-role="manager"><span class="ic">🔐</span>SEC</button>
 </nav>
  
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-content fade-up">
-    <div class="hero-eyebrow">
-      <span class="hero-eyebrow-dot"></span>
-      Now live — free to get started
-    </div>
-    <h1 class="hero-h1">Staff management <em>without</em> the headache</h1>
-    <p class="hero-p">WorkBase helps small businesses track shifts, manage employees, handle payroll and schedule teams — all from one simple app.</p>
-    <div class="hero-actions">
-      <a class="btn-primary" href="/app.html">Start for free</a>
-      <a class="btn-secondary" href="#features">See features</a>
-    </div>
-    <p class="hero-note">Free for up to 5 employees · No credit card required</p>
-  </div>
- 
-  <div class="hero-visual fade-up" style="transition-delay:.15s;">
-    <div class="app-mockup">
-      <div class="app-mockup-bar">
-        <div class="dot dot-r"></div>
-        <div class="dot dot-y"></div>
-        <div class="dot dot-g"></div>
-        <div class="app-mockup-url">workbase.app</div>
-      </div>
-      <div class="app-screen">
-        <div class="app-screen-header">
-          <span class="app-title">LIVE DASHBOARD</span>
-          <span class="app-badge">● Live</span>
-        </div>
-        <div class="app-stat-row">
-          <div class="app-stat">
-            <div class="app-stat-v">8</div>
-            <div class="app-stat-k">ON SHIFT</div>
-          </div>
-          <div class="app-stat">
-            <div class="app-stat-v" style="color:#34d399;">142h</div>
-            <div class="app-stat-k">THIS WEEK</div>
-          </div>
-          <div class="app-stat">
-            <div class="app-stat-v" style="color:#a78bfa;">£3.2k</div>
-            <div class="app-stat-k">PAYROLL</div>
-          </div>
-        </div>
-        <div class="emp-list">
-          <div class="emp-row">
-            <div><div class="emp-name">Sarah K.</div><div class="emp-role">MANAGER</div></div>
-            <span class="emp-status in">✓ Checked in</span>
-          </div>
-          <div class="emp-row">
-            <div><div class="emp-name">James T.</div><div class="emp-role">BARISTA</div></div>
-            <span class="emp-status in">✓ Checked in</span>
-          </div>
-          <div class="emp-row">
-            <div><div class="emp-name">Maria L.</div><div class="emp-role">SERVER</div></div>
-            <span class="emp-status sched">◷ Scheduled 2pm</span>
-          </div>
-          <div class="emp-row">
-            <div><div class="emp-name">Tom B.</div><div class="emp-role">KITCHEN</div></div>
-            <span class="emp-status out">Off today</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="floating-card floating-card-1">
-      <div class="fc-label">THIS MONTH</div>
-      <div class="fc-value">£8,420</div>
-      <div class="fc-sub">↑ 12% vs last month</div>
-    </div>
-    <div class="floating-card floating-card-2">
-      <div class="fc-label">ATTENDANCE</div>
-      <div class="fc-value">96.4%</div>
-      <div class="fc-sub">↑ Great this week</div>
-    </div>
-  </div>
-</div>
- 
-<!-- LOGOS -->
-<div class="logos">
-  <div class="logos-label">TRUSTED BY BUSINESSES LIKE</div>
-  <div class="logos-row">
-    <span class="logo-item">☕ Coffee Shops</span>
-    <span class="logo-item">🍕 Restaurants</span>
-    <span class="logo-item">🛍 Retail Stores</span>
-    <span class="logo-item">💈 Salons</span>
-    <span class="logo-item">🏋 Gyms</span>
-  </div>
-</div>
- 
-<!-- FEATURES -->
-<section class="features" id="features">
-  <div class="container">
-    <div class="fade-up">
-      <div class="section-label">Features</div>
-      <h2 class="section-h2">Everything you need,<br><em>nothing you don't</em></h2>
-      <p class="section-p">WorkBase is built for small business owners who just want things to work — no bloat, no complexity.</p>
-    </div>
-    <div class="features-grid">
-      <div class="feat-card fade-up">
-        <span class="feat-icon">⏱</span>
-        <div class="feat-title">Check In & Out</div>
-        <div class="feat-desc">Employees clock in with their PIN. See who's on shift in real time, with late tracking and overtime automatically calculated.</div>
-      </div>
-      <div class="feat-card fade-up" style="transition-delay:.05s;">
-        <span class="feat-icon">🗓</span>
-        <div class="feat-title">Shift Scheduling</div>
-        <div class="feat-desc">Plan the week ahead with a beautiful grid view. See scheduled vs actual, spot missed shifts instantly, edit with one tap.</div>
-      </div>
-      <div class="feat-card fade-up" style="transition-delay:.1s;">
-        <span class="feat-icon">💰</span>
-        <div class="feat-title">Payroll & Payslips</div>
-        <div class="feat-desc">Automatic pay calculation based on hours worked. Generate professional payslips with deductions, tax and net pay.</div>
-      </div>
-      <div class="feat-card fade-up" style="transition-delay:.15s;">
-        <span class="feat-icon">🏖</span>
-        <div class="feat-title">Leave Management</div>
-        <div class="feat-desc">Track holidays, sick days and personal leave per employee. See it all on the dashboard so you're never caught short.</div>
-      </div>
-      <div class="feat-card fade-up" style="transition-delay:.2s;">
-        <span class="feat-icon">📊</span>
-        <div class="feat-title">Live Dashboard</div>
-        <div class="feat-desc">Real-time overview of who's in, hours worked this week, monthly payroll totals and attendance charts at a glance.</div>
-      </div>
-      <div class="feat-card fade-up" style="transition-delay:.25s;">
-        <span class="feat-icon">📱</span>
-        <div class="feat-title">Works on Any Device</div>
-        <div class="feat-desc">Install WorkBase on your phone like a native app. Works offline too — no internet required once installed.</div>
-      </div>
-    </div>
-  </div>
-</section>
- 
-<!-- HOW IT WORKS -->
-<section class="how" id="how">
-  <div class="container">
-    <div class="fade-up" style="text-align:center;">
-      <div class="section-label">How it works</div>
-      <h2 class="section-h2">Up and running in <em>minutes</em></h2>
-    </div>
-    <div class="steps">
-      <div class="step fade-up">
-        <div class="step-num">01</div>
-        <div class="step-title">Create your workspace</div>
-        <div class="step-desc">Register your business with a unique code. Takes 30 seconds — no credit card needed.</div>
-      </div>
-      <div class="step fade-up" style="transition-delay:.1s;">
-        <div class="step-num">02</div>
-        <div class="step-title">Add your team</div>
-        <div class="step-desc">Add employees with their role, pay rate and PIN. Share your business code so they can check in.</div>
-      </div>
-      <div class="step fade-up" style="transition-delay:.2s;">
-        <div class="step-num">03</div>
-        <div class="step-title">Run your business</div>
-        <div class="step-desc">Track shifts, schedule ahead, handle payroll and leave — all from one place on any device.</div>
-      </div>
-    </div>
-  </div>
-</section>
- 
-<!-- PRICING -->
-<section class="pricing" id="pricing">
-  <div class="container">
-    <div class="fade-up" style="text-align:center;">
-      <div class="section-label">Pricing</div>
-      <h2 class="section-h2">Simple, <em>honest</em> pricing</h2>
-      <p class="section-p" style="margin:0 auto;">Start free, upgrade when you're ready. No hidden fees, no surprises.</p>
-    </div>
-    <div class="pricing-grid">
-      <div class="price-card fade-up">
-        <div class="price-plan">FREE</div>
-        <div class="price-amount">$0</div>
-        <div class="price-per">forever free</div>
-        <ul class="price-features">
-          <li>Up to 5 employees</li>
-          <li>Check in / out tracking</li>
-          <li>Daily reports</li>
-          <li>Leave tracking</li>
-          <li class="no">Payslips & Tax calculator</li>
-          <li class="no">Shift scheduling</li>
-          <li class="no">Unlimited employees</li>
-        </ul>
-        <a class="price-btn price-btn-outline" href="/app.html">Get started free</a>
-      </div>
-      <div class="price-card featured fade-up" style="transition-delay:.1s;">
-        <div class="price-plan">PRO</div>
-        <div class="price-amount" style="color:#fff;">$19</div>
-        <div class="price-per">per month</div>
-        <ul class="price-features">
-          <li>Unlimited employees</li>
-          <li>Check in / out tracking</li>
-          <li>Daily & monthly reports</li>
-          <li>Leave tracking</li>
-          <li>Payslips & Tax calculator</li>
-          <li>Shift scheduling</li>
-          <li>Priority support</li>
-        </ul>
-        <a class="price-btn price-btn-solid" href="/app.html">Start free trial</a>
-      </div>
-    </div>
-  </div>
-</section>
- 
-<!-- TESTIMONIALS -->
-<section class="testimonials">
-  <div class="container">
-    <div class="fade-up" style="text-align:center;">
-      <div class="section-label">Testimonials</div>
-      <h2 class="section-h2">Loved by small <em>business owners</em></h2>
-    </div>
-    <div class="test-grid">
-      <div class="test-card fade-up">
-        <div class="test-stars">★★★★★</div>
-        <div class="test-quote">"Finally an app that does exactly what I need without overcomplicating everything. My team loves the PIN check-in."</div>
-        <div class="test-author">Marco R.</div>
-        <div class="test-role">CAFE OWNER · LONDON</div>
-      </div>
-      <div class="test-card fade-up" style="transition-delay:.1s;">
-        <div class="test-stars">★★★★★</div>
-        <div class="test-quote">"Scheduling used to take me hours on a spreadsheet. Now I do the whole week in 10 minutes and everyone can see their shifts."</div>
-        <div class="test-author">Priya S.</div>
-        <div class="test-role">SALON MANAGER · MANCHESTER</div>
-      </div>
-      <div class="test-card fade-up" style="transition-delay:.2s;">
-        <div class="test-stars">★★★★★</div>
-        <div class="test-quote">"The payslip feature alone saves me 3 hours a month. It calculates everything automatically — tax, deductions, net pay."</div>
-        <div class="test-author">David K.</div>
-        <div class="test-role">RESTAURANT OWNER · BIRMINGHAM</div>
-      </div>
-    </div>
-  </div>
-</section>
- 
-<!-- CTA -->
-<section class="cta-section">
-  <div class="cta-content">
-    <h2 class="cta-h2 fade-up">Ready to take <em>control</em><br>of your team?</h2>
-    <p class="cta-p fade-up">Join hundreds of small businesses already using WorkBase to manage their staff smarter.</p>
-    <div class="cta-form fade-up">
-      <input class="cta-input" type="email" placeholder="your@email.com" id="ctaEmail">
-      <button class="cta-btn" onclick="ctaSignup()">Get started free →</button>
-    </div>
-    <p class="cta-note fade-up">Free forever for up to 5 employees. No credit card required.</p>
-  </div>
-</section>
- 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">● WorkBase</div>
-    <div class="footer-links">
-      <a class="footer-link" href="#features">Features</a>
-      <a class="footer-link" href="#pricing">Pricing</a>
-      <a class="footer-link" href="#how">How it works</a>
-      <a class="footer-link" href="/app.html">Login</a>
-    </div>
-    <div class="footer-copy">© 2026 WorkBase. All rights reserved.</div>
-  </div>
-</footer>
+</div><!-- end #app -->
  
 <script>
-// Scroll animations
-var observer = new IntersectionObserver(function(entries){
-  entries.forEach(function(e){
-    if(e.isIntersecting){ e.target.classList.add('visible'); }
-  });
-}, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+'use strict';
+var API = 'https://ems-api-mgye.onrender.com';
+var API_KEY = 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd';
+var BIZ_CODE = localStorage.getItem('ems_biz_code') || '';
+var BIZ_ID = localStorage.getItem('ems_biz_id') || '';
+var BIZ_NAME = localStorage.getItem('ems_biz_name') || '';
+var IS_MGR = localStorage.getItem('ems_is_mgr') === '1';
+var SESSION_TOKEN = localStorage.getItem('ems_session_token') || null;
+var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
+var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
+var currentPlan = 'free';
+var FREE_EMP_LIMIT = 5;
+var payMonth = new Date();
+var vSchedWeek = new Date();
+var schedView = 'week';
  
-document.querySelectorAll('.fade-up').forEach(function(el){
-  observer.observe(el);
-});
- 
-// CTA signup
-function ctaSignup(){
-  var email = document.getElementById('ctaEmail').value.trim();
-  if(!email || !email.includes('@')){ alert('Please enter a valid email address'); return; }
-  // Redirect to app with email pre-filled
-  window.location.href = '/app.html';
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function dk(d) {
+  var dt = new Date(d);
+  return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+}
+function fmt(d) {
+  if (!d) return '—';
+  var dt = new Date(d + (d.includes('T') ? '' : 'T00:00:00'));
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return dt.getDate() + ' ' + months[dt.getMonth()];
+}
+function fmtTime(t) { return t ? t.slice(0,5) : '—'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg, type) {
+  var w = document.getElementById('toastW');
+  var t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2700);
+}
+function setSy(s) {
+  var d = document.getElementById('syncDot');
+  if (d) { d.className = 'sdot ' + s; }
 }
  
-// Trigger hero fade on load
-window.addEventListener('load', function(){
-  document.querySelectorAll('.hero .fade-up').forEach(function(el){
-    el.classList.add('visible');
+// ── API HELPERS ────────────────────────────────────────────────────────────
+function buildHeaders() {
+  var h = { 'Content-Type': 'application/json', 'x-api-key': API_KEY };
+  if (SESSION_TOKEN) h['x-session-token'] = SESSION_TOKEN;
+  return h;
+}
+async function aGet(path) {
+  var r = await fetch(API + path, { headers: buildHeaders() });
+  if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); }
+  return r.json();
+}
+async function aPost(path, body) {
+  var r = await fetch(API + path, { method: 'POST', headers: buildHeaders(), body: JSON.stringify(body) });
+  if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); }
+  return r.json();
+}
+async function aDel(path) {
+  var r = await fetch(API + path, { method: 'DELETE', headers: buildHeaders() });
+  if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); }
+  return r.json();
+}
+async function aPatch(path, body) {
+  var r = await fetch(API + path, { method: 'PATCH', headers: buildHeaders(), body: JSON.stringify(body) });
+  if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); }
+  return r.json();
+}
+ 
+// ── CLOCK ──────────────────────────────────────────────────────────────────
+function startClock() {
+  function tick() {
+    var now = new Date();
+    var h = String(now.getHours()).padStart(2,'0');
+    var m = String(now.getMinutes()).padStart(2,'0');
+    var el = document.getElementById('clockEl');
+    if (el) el.textContent = h + ':' + m;
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+ 
+// ── LOGIN ──────────────────────────────────────────────────────────────────
+function switchLoginTab(tab) {
+  document.querySelectorAll('.ltab').forEach(function(b){ b.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('loginForm').classList.toggle('hide', tab === 'register');
+  document.getElementById('registerForm').classList.toggle('show', tab === 'register');
+}
+ 
+async function submitBizCode() {
+  var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
+  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  try {
+    setSy('syncing');
+    var biz = await aGet('/api/business/' + code);
+    BIZ_CODE = biz.code; BIZ_ID = biz.id; BIZ_NAME = biz.name;
+    localStorage.setItem('ems_biz_code', BIZ_CODE);
+    localStorage.setItem('ems_biz_id', BIZ_ID);
+    localStorage.setItem('ems_biz_name', BIZ_NAME);
+    AUDIT_KEY = 'ems_audit_' + BIZ_CODE;
+    loadAudit();
+    await loadPlan();
+    setSy('ok');
+    initApp();
+  } catch(e) {
+    setSy('error');
+    document.getElementById('loginErr1').textContent = 'Business not found. Check your code.';
+  }
+}
+ 
+async function submitRegister() {
+  var name = document.getElementById('regName').value.trim();
+  var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
+  var email = document.getElementById('regEmail').value.trim();
+  if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
+  if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  try {
+    setSy('syncing');
+    var biz = await aPost('/api/business', { name: name, code: code, email: email || null });
+    BIZ_CODE = code; BIZ_ID = biz.id; BIZ_NAME = biz.name;
+    localStorage.setItem('ems_biz_code', BIZ_CODE);
+    localStorage.setItem('ems_biz_id', BIZ_ID);
+    localStorage.setItem('ems_biz_name', BIZ_NAME);
+    AUDIT_KEY = 'ems_audit_' + BIZ_CODE;
+    loadAudit();
+    await loadPlan();
+    setSy('ok');
+    initApp();
+    logAudit('security', 'New business registered: ' + BIZ_NAME, 'System');
+    toast('Workspace created! Welcome, ' + BIZ_NAME, 'success');
+  } catch(e) {
+    setSy('error');
+    document.getElementById('loginErr2').textContent = e.message || 'Code already taken';
+  }
+}
+ 
+function initApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  var app = document.getElementById('app');
+  app.style.display = 'flex';
+  document.getElementById('bizNameLabel').textContent = BIZ_NAME;
+  document.getElementById('secBizCode').textContent = BIZ_CODE;
+  document.getElementById('secBizName').textContent = BIZ_NAME;
+  updateNavForRole();
+  startClock();
+  loadAll();
+}
+ 
+// ── ROLE / NAV ─────────────────────────────────────────────────────────────
+function updateNavForRole() {
+  var roleEl = document.getElementById('roleLabel');
+  if (IS_MGR) {
+    roleEl.textContent = 'MANAGER';
+    roleEl.className = 'hdr-role manager';
+    document.querySelectorAll('[data-role="manager"]').forEach(function(b){ b.style.display = ''; });
+  } else {
+    roleEl.textContent = 'EMPLOYEE';
+    roleEl.className = 'hdr-role employee';
+    document.querySelectorAll('[data-role="manager"]').forEach(function(b){ b.style.display = 'none'; });
+  }
+}
+ 
+function goNav(page, btn) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('active'); });
+  var pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+  if (btn) btn.classList.add('active');
+ 
+  // Manager-only pages need PIN
+  var managerPages = ['employees','schedule','payroll','leaves','deductions','plans','security'];
+  if (managerPages.includes(page) && !IS_MGR) {
+    showEmpLock();
+    return;
+  }
+  if (page === 'dash') renderDash();
+  if (page === 'checkin') renderCheckin();
+  if (page === 'employees') { document.getElementById('empLock').style.display = 'none'; document.getElementById('empContent').style.display = ''; renderEmps(); }
+  if (page === 'schedule') renderSchedule();
+  if (page === 'payroll') renderPayroll();
+  if (page === 'leaves') renderLeaves();
+  if (page === 'deductions') renderDeds();
+  if (page === 'plans') renderPlans();
+  if (page === 'security') renderSecurity();
+}
+ 
+// ── LOAD DATA ──────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    setSy('syncing');
+    var r = await Promise.all([
+      aGet('/api/employees?business_id=' + BIZ_ID),
+      aGet('/api/shifts?business_id=' + BIZ_ID),
+      aGet('/api/leaves?business_id=' + BIZ_ID),
+      aGet('/api/deductions?business_id=' + BIZ_ID),
+      aGet('/api/schedules?business_id=' + BIZ_ID)
+    ]);
+    emps = r[0]; shfts = r[1]; lvs = r[2]; deds = r[3]; scheds = r[4];
+    setSy('ok');
+    renderDash();
+    renderCheckin();
+    populateSelects();
+  } catch(e) {
+    setSy('error');
+    toast('Failed to load data', 'error');
+  }
+}
+ 
+async function loadPlan() {
+  try {
+    var r = await aGet('/api/business/' + BIZ_CODE + '/plan');
+    currentPlan = r.plan || 'free';
+  } catch(e) { currentPlan = 'free'; }
+}
+ 
+function isPro() { return currentPlan === 'pro'; }
+ 
+function populateSelects() {
+  var selects = ['leaveEmp','dedEmp','schedEmp'];
+  selects.forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var val = sel.value;
+    sel.innerHTML = '';
+    emps.forEach(function(e) {
+      var o = document.createElement('option');
+      o.value = e.id; o.textContent = e.name;
+      sel.appendChild(o);
+    });
+    if (val) sel.value = val;
   });
-});
+  // Default dates
+  var ld = document.getElementById('leaveDate');
+  if (ld && !ld.value) ld.value = dk(new Date());
+  var dm = document.getElementById('dedMonth');
+  if (dm && !dm.value) dm.value = dk(new Date()).slice(0,7);
+}
+ 
+// ── DASHBOARD ──────────────────────────────────────────────────────────────
+function renderDash() {
+  var today = dk(new Date());
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var now = new Date();
+  document.getElementById('dashDate').textContent = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+ 
+  var onShift = shfts.filter(function(s){ return s.date === today && s.check_in && !s.check_out; });
+  var todayShifts = shfts.filter(function(s){ return s.date === today; });
+  var weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+  var weekShifts = shfts.filter(function(s){ return s.date >= dk(weekStart) && s.date <= today; });
+  var weekHours = weekShifts.reduce(function(a,s){ return a + (parseFloat(s.hours)||0); }, 0);
+  var monthShifts = shfts.filter(function(s){ return s.date.slice(0,7) === today.slice(0,7); });
+  var monthPay = monthShifts.reduce(function(a,s){
+    var emp = emps.find(function(e){ return e.id === s.emp_id; });
+    return a + (parseFloat(s.hours)||0) * (parseFloat(emp && emp.rate)||0);
+  }, 0);
+ 
+  document.getElementById('dashStats').innerHTML =
+    '<div class="stat-box"><div class="stat-v">' + onShift.length + '</div><div class="stat-k">ON SHIFT</div></div>' +
+    '<div class="stat-box"><div class="stat-v">' + weekHours.toFixed(0) + 'h</div><div class="stat-k">THIS WEEK</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">£' + monthPay.toFixed(0) + '</div><div class="stat-k">THIS MONTH</div></div>';
+ 
+  // On shift now
+  var onShiftHtml = '<div class="card"><div class="card-lbl">Currently On Shift</div>';
+  if (onShift.length === 0) {
+    onShiftHtml += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">Nobody currently on shift</div>';
+  } else {
+    onShift.forEach(function(s) {
+      var emp = emps.find(function(e){ return e.id === s.emp_id; });
+      onShiftHtml += '<div class="emp-item" style="margin-bottom:6px;">' +
+        '<div class="emp-avatar">' + ((emp && emp.name[0]) || '?') + '</div>' +
+        '<div class="emp-info"><div class="emp-name">' + esc(emp ? emp.name : 'Unknown') + '</div>' +
+        '<div class="emp-role-label">Since ' + fmtTime(s.check_in) + '</div></div>' +
+        '<span class="badge bg">On shift</span></div>';
+    });
+  }
+  onShiftHtml += '</div>';
+  document.getElementById('dashOnShift').innerHTML = onShiftHtml;
+ 
+  // Recent shifts
+  var recent = shfts.filter(function(s){ return s.check_out; }).sort(function(a,b){ return b.date.localeCompare(a.date); }).slice(0,5);
+  var recentHtml = '<div class="card"><div class="card-lbl">Recent Shifts</div>';
+  if (recent.length === 0) {
+    recentHtml += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No completed shifts yet</div>';
+  } else {
+    recent.forEach(function(s) {
+      var emp = emps.find(function(e){ return e.id === s.emp_id; });
+      recentHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">' +
+        '<div><div style="font-weight:600;font-size:13px;">' + esc(emp ? emp.name : '?') + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + fmt(s.date) + ' · ' + fmtTime(s.check_in) + '–' + fmtTime(s.check_out) + '</div></div>' +
+        '<span class="badge bb">' + (parseFloat(s.hours)||0).toFixed(1) + 'h</span></div>';
+    });
+  }
+  recentHtml += '</div>';
+  document.getElementById('dashRecentShifts').innerHTML = recentHtml;
+}
+ 
+// ── CHECK IN/OUT ────────────────────────────────────────────────────────────
+function renderCheckin() {
+  var today = dk(new Date());
+  var html = '';
+  if (emps.length === 0) {
+    html = '<div class="empty"><div class="ico">👥</div><p>No employees yet. Add staff first.</p></div>';
+  } else {
+    emps.forEach(function(emp) {
+      var shift = shfts.find(function(s){ return s.emp_id === emp.id && s.date === today; });
+      var status = shift ? (shift.check_out ? 'done' : 'in') : 'out';
+      html += '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+        '<div class="emp-avatar">' + emp.name[0] + '</div>' +
+        '<div><div class="emp-name">' + esc(emp.name) + '</div>' +
+        '<div class="emp-role-label">' + esc(emp.role||'') + '</div>' +
+        (shift ? '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">In: ' + fmtTime(shift.check_in) + (shift.check_out ? ' · Out: ' + fmtTime(shift.check_out) : '') + '</div>' : '') +
+        '</div></div>' +
+        '<div style="display:flex;gap:6px;align-items:center;">' +
+        (status === 'out' ? '<button class="btn btn-s" style="width:auto;padding:8px 12px;font-size:12px;" onclick="doCheckIn(' + emp.id + ')">Check In</button>' : '') +
+        (status === 'in' ? '<span class="badge bg">On shift</span><button class="btn btn-d" style="width:auto;padding:8px 12px;font-size:12px;" onclick="doCheckOut(' + emp.id + ')">Check Out</button>' : '') +
+        (status === 'done' ? '<span class="badge bb">Done · ' + (parseFloat(shift.hours)||0).toFixed(1) + 'h</span>' : '') +
+        '</div></div>';
+    });
+  }
+  document.getElementById('checkinList').innerHTML = html;
+}
+ 
+async function doCheckIn(empId) {
+  var emp = emps.find(function(e){ return e.id === empId; });
+  if (!emp) return;
+  // Simple PIN check
+  var pin = prompt('Enter PIN for ' + emp.name + ':');
+  if (!pin) return;
+  try {
+    setSy('syncing');
+    var r = await aPost('/api/employees/verify-pin', { emp_id: empId, pin: pin });
+    if (!r.match) { toast('Wrong PIN', 'error'); setSy('ok'); return; }
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    var s = await aPost('/api/shifts', { emp_id: empId, business_id: BIZ_ID, date: dk(now), check_in: timeStr });
+    shfts.push(s);
+    setSy('ok');
+    logAudit('checkin', emp.name + ' checked in at ' + timeStr, emp.name);
+    toast(emp.name + ' checked in ✓', 'success');
+    renderCheckin();
+    renderDash();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+ 
+async function doCheckOut(empId) {
+  var emp = emps.find(function(e){ return e.id === empId; });
+  var today = dk(new Date());
+  var shift = shfts.find(function(s){ return s.emp_id === empId && s.date === today && !s.check_out; });
+  if (!shift) return;
+  var pin = prompt('Enter PIN for ' + emp.name + ':');
+  if (!pin) return;
+  try {
+    setSy('syncing');
+    var r = await aPost('/api/employees/verify-pin', { emp_id: empId, pin: pin });
+    if (!r.match) { toast('Wrong PIN', 'error'); setSy('ok'); return; }
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    var updated = await aPost('/api/shifts/' + shift.id + '/checkout', { check_out: timeStr });
+    var idx = shfts.findIndex(function(s){ return s.id === shift.id; });
+    if (idx >= 0) shfts[idx] = updated;
+    setSy('ok');
+    logAudit('checkout', emp.name + ' checked out at ' + timeStr + ' (' + (parseFloat(updated.hours)||0).toFixed(1) + 'h)', emp.name);
+    toast(emp.name + ' checked out · ' + (parseFloat(updated.hours)||0).toFixed(1) + 'h', 'success');
+    renderCheckin();
+    renderDash();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+ 
+// ── MANAGER LOCK ────────────────────────────────────────────────────────────
+function showEmpLock() {
+  var lockEl = document.getElementById('empLock');
+  if (lockEl) { lockEl.style.display = 'flex'; document.getElementById('empContent').style.display = 'none'; }
+}
+ 
+async function verifyMgrPin() {
+  var pin = document.getElementById('empPinInput').value.trim();
+  if (!pin) return;
+  try {
+    setSy('syncing');
+    var r = await aPost('/api/business/' + BIZ_CODE + '/verify-mgr', { pin: pin });
+    if (!r.match) { toast('Wrong Manager PIN', 'error'); document.getElementById('empPinInput').value = ''; setSy('ok'); return; }
+    IS_MGR = true;
+    localStorage.setItem('ems_is_mgr', '1');
+    try {
+      var tokenResp = await aPost('/api/auth/manager-login', { business_code: BIZ_CODE, pin: pin });
+      if (tokenResp.token) { SESSION_TOKEN = tokenResp.token; localStorage.setItem('ems_session_token', SESSION_TOKEN); }
+    } catch(e) {}
+    setSy('ok');
+    updateNavForRole();
+    document.getElementById('empLock').style.display = 'none';
+    document.getElementById('empContent').style.display = '';
+    renderEmps();
+    toast('Manager unlocked', 'success');
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+ 
+function lockManager() {
+  IS_MGR = false;
+  SESSION_TOKEN = null;
+  localStorage.removeItem('ems_is_mgr');
+  localStorage.removeItem('ems_session_token');
+  updateNavForRole();
+  goNav('dash', document.querySelector('[data-page="dash"]'));
+  toast('Manager session locked', 'warn');
+}
+ 
+function logoutBiz() {
+  if (!confirm('Switch business? You will be logged out.')) return;
+  localStorage.clear();
+  location.reload();
+}
+ 
+// ── EMPLOYEES ───────────────────────────────────────────────────────────────
+function checkEmpLimit() {
+  if (isPro()) return true;
+  if (emps.length >= FREE_EMP_LIMIT) {
+    toast('Free plan: max ' + FREE_EMP_LIMIT + ' employees. Upgrade to Pro!', 'error');
+    goNav('plans', document.querySelector('[data-page="plans"]'));
+    return false;
+  }
+  return true;
+}
+ 
+async function addEmp() {
+  if (!checkEmpLimit()) return;
+  var name = document.getElementById('empName').value.trim();
+  var role = document.getElementById('empRole').value.trim();
+  var pin = document.getElementById('empPin').value.trim();
+  var rate = document.getElementById('empRate').value.trim();
+  var start = document.getElementById('empStart').value;
+  var end = document.getElementById('empEnd').value;
+  if (!name) { toast('Enter employee name', 'error'); return; }
+  if (!pin || pin.length < 4) { toast('PIN must be at least 4 digits', 'error'); return; }
+  try {
+    setSy('syncing');
+    var emp = await aPost('/api/employees', { business_id: BIZ_ID, name, role: role||'Staff', pin, rate: parseFloat(rate)||0, start_time: start, end_time: end });
+    emps.push(emp);
+    setSy('ok');
+    logAudit('add', 'Employee added: ' + name, 'Manager');
+    toast(name + ' added', 'success');
+    document.getElementById('empName').value = '';
+    document.getElementById('empRole').value = '';
+    document.getElementById('empPin').value = '';
+    document.getElementById('empRate').value = '';
+    renderEmps();
+    populateSelects();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+ 
+function renderEmps() {
+  var html = '';
+  if (emps.length === 0) {
+    html = '<div class="empty"><div class="ico">👥</div><p>No employees yet. Add your first team member above.</p></div>';
+  } else {
+    emps.forEach(function(emp) {
+      html += '<div class="emp-item">' +
+        '<div class="emp-avatar">' + emp.name[0] + '</div>' +
+        '<div class="emp-info">' +
+        '<div class="emp-name">' + esc(emp.name) + '</div>' +
+        '<div class="emp-role-label">' + esc(emp.role||'') + (emp.rate ? ' · £' + parseFloat(emp.rate).toFixed(2) + '/hr' : '') + '</div>' +
+        '</div>' +
+        '<button class="btn btn-d" style="width:auto;padding:6px 10px;font-size:11px;" onclick="delEmp(' + emp.id + ')">✕</button>' +
+        '</div>';
+    });
+  }
+  document.getElementById('empList').innerHTML = html;
+}
+ 
+async function delEmp(id) {
+  var emp = emps.find(function(e){ return e.id === id; });
+  if (!confirm('Delete ' + (emp ? emp.name : 'employee') + '?')) return;
+  try {
+    setSy('syncing');
+    await aDel('/api/employees/' + id);
+    emps = emps.filter(function(e){ return e.id !== id; });
+    setSy('ok');
+    logAudit('delete', 'Employee removed: ' + (emp ? emp.name : id), 'Manager');
+    toast('Employee removed', 'warn');
+    renderEmps();
+    populateSelects();
+    renderDash();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+ 
+// ── SCHEDULE ────────────────────────────────────────────────────────────────
+function getWeekStart(d) {
+  var day = new Date(d);
+  var dow = day.getDay();
+  var diff = dow === 0 ? -6 : 1 - dow;
+  day.setDate(day.getDate() + diff);
+  return day;
+}
+function chSchedWeek(dir) { vSchedWeek.setDate(vSchedWeek.getDate() + dir * 7); renderSchedule(); }
+function setSchedView(view, btn) {
+  schedView = view;
+  document.querySelectorAll('#page-schedule .af').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('schedGridWrap').style.display = view === 'week' ? '' : 'none';
+  document.getElementById('schedDayWrap').style.display = view === 'day' ? '' : 'none';
+}
+ 
+function renderSchedule() {
+  var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var weekStart = getWeekStart(vSchedWeek);
+  var weekDates = [];
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(weekStart); d.setDate(weekStart.getDate() + i); weekDates.push(d);
+  }
+  var today = dk(new Date());
+  document.getElementById('schedWeekLabel').textContent = 'WEEK OF ' + weekStart.getDate() + ' ' + months[weekStart.getMonth()];
+  document.getElementById('schedWeekRange').textContent = weekStart.getFullYear();
+ 
+  // Grid
+  var grid = document.getElementById('schedGridWrap');
+  if (emps.length === 0) { grid.innerHTML = '<div class="empty"><div class="ico">🗓</div><p>No employees yet</p></div>'; document.getElementById('schedDayWrap').innerHTML = ''; return; }
+  var tbl = '<div style="overflow-x:auto;"><table class="sched-grid"><thead><tr><th style="min-width:70px;">Staff</th>';
+  weekDates.forEach(function(d, i) {
+    var ds = dk(d), isToday = ds === today;
+    tbl += '<th class="' + (isToday?'today':'') + '">' + DAYS[i] + '<br><span style="font-size:9px;opacity:.7;">' + d.getDate() + '</span></th>';
+  });
+  tbl += '</tr></thead><tbody>';
+  emps.forEach(function(emp) {
+    tbl += '<tr><td class="sched-emp-cell">' + esc(emp.name) + '</td>';
+    weekDates.forEach(function(d) {
+      var ds = dk(d), isToday = ds === today;
+      var sched = scheds.find(function(s){ return s.emp_id === emp.id && s.date === ds; });
+      var shift = shfts.find(function(s){ return s.emp_id === emp.id && s.date === ds; });
+      tbl += '<td class="' + (isToday?'today':'') + '">';
+      if (sched) {
+        var status = 'scheduled', label = fmtTime(sched.start_time) + '-' + fmtTime(sched.end_time);
+        if (shift && shift.check_out) { status = 'worked'; label = '✓ ' + fmtTime(shift.check_in); }
+        else if (shift && !shift.check_out) { status = 'partial'; label = '⏳ ' + fmtTime(shift.check_in); }
+        else if (ds < today) { status = 'missed'; label = '✗ Missed'; }
+        tbl += '<div class="sched-slot ' + status + '" onclick="openSchedEdit(' + sched.id + ',\'' + esc(emp.name) + '\',\'' + ds + '\')">' + label + '</div>';
+      } else {
+        tbl += '<span class="sched-add-btn" onclick="openSchedAddFor(' + emp.id + ',\'' + ds + '\')">+</span>';
+      }
+      tbl += '</td>';
+    });
+    tbl += '</tr>';
+  });
+  tbl += '</tbody></table></div>';
+  grid.innerHTML = tbl;
+ 
+  // Daily
+  var dayHtml = '';
+  weekDates.forEach(function(d) {
+    var ds = dk(d), isToday = ds === today;
+    var dayScheds = scheds.filter(function(s){ return s.date === ds; });
+    dayHtml += '<div class="card" style="' + (isToday ? 'border-top:3px solid var(--blue);' : '') + '">';
+    dayHtml += '<div style="font-weight:800;font-size:16px;margin-bottom:8px;">' + DAYS[weekDates.indexOf(d)] + ' — ' + d.getDate() + ' ' + months[d.getMonth()] + (isToday ? ' <span class="badge bb">Today</span>' : '') + '</div>';
+    if (dayScheds.length === 0) {
+      dayHtml += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No shifts scheduled</div>';
+    } else {
+      dayScheds.forEach(function(sched) {
+        var emp = emps.find(function(e){ return e.id === sched.emp_id; });
+        if (!emp) return;
+        var shift = shfts.find(function(s){ return s.emp_id === sched.emp_id && s.date === ds; });
+        var status = 'scheduled', statusLabel = 'Scheduled';
+        if (shift && shift.check_out) { status = 'worked'; statusLabel = '✓ Worked'; }
+        else if (shift && !shift.check_out) { status = 'partial'; statusLabel = '⏳ On shift'; }
+        else if (ds < today) { status = 'missed'; statusLabel = '✗ Missed'; }
+        dayHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">' +
+          '<div><div style="font-weight:600;">' + esc(emp.name) + '</div>' +
+          '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + fmtTime(sched.start_time) + ' – ' + fmtTime(sched.end_time) + (sched.note ? ' · ' + esc(sched.note) : '') + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:6px;">' +
+          '<span class="badge ' + (status==='worked'?'bg':status==='missed'?'br':status==='partial'?'ba':'bb') + '">' + statusLabel + '</span>' +
+          '<button class="btn btn-d" style="width:auto;padding:4px 8px;font-size:10px;" onclick="delSched(' + sched.id + ')">✕</button>' +
+          '</div></div>';
+      });
+    }
+    dayHtml += '</div>';
+  });
+  document.getElementById('schedDayWrap').innerHTML = dayHtml;
+  document.getElementById('schedGridWrap').style.display = schedView === 'week' ? '' : 'none';
+  document.getElementById('schedDayWrap').style.display = schedView === 'day' ? '' : 'none';
+}
+ 
+function openSchedAdd() {
+  var card = document.getElementById('schedAddCard');
+  card.style.display = '';
+  populateSelects();
+  document.getElementById('schedDate').value = dk(new Date());
+  document.getElementById('schedStart').value = '09:00';
+  document.getElementById('schedEnd').value = '17:00';
+  document.getElementById('schedNote').value = '';
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+function openSchedAddFor(empId, date) {
+  openSchedAdd();
+  document.getElementById('schedEmp').value = empId;
+  document.getElementById('schedDate').value = date;
+  var emp = emps.find(function(e){ return e.id === empId; });
+  if (emp) { document.getElementById('schedStart').value = emp.start_time||'09:00'; document.getElementById('schedEnd').value = emp.end_time||'17:00'; }
+}
+function openSchedEdit(schedId, empName, date) {
+  var sched = scheds.find(function(s){ return s.id === schedId; });
+  if (!sched) return;
+  openSchedAdd();
+  document.getElementById('schedAddTitle').textContent = 'Edit Shift — ' + empName;
+  document.getElementById('schedEmp').value = sched.emp_id;
+  document.getElementById('schedDate').value = sched.date;
+  document.getElementById('schedStart').value = sched.start_time;
+  document.getElementById('schedEnd').value = sched.end_time;
+  document.getElementById('schedNote').value = sched.note||'';
+}
+function closeSchedAdd() {
+  document.getElementById('schedAddCard').style.display = 'none';
+  document.getElementById('schedAddTitle').textContent = 'Assign Shift';
+}
+async function saveSchedule() {
+  var eid = parseInt(document.getElementById('schedEmp').value);
+  var date = document.getElementById('schedDate').value;
+  var start = document.getElementById('schedStart').value;
+  var end = document.getElementById('schedEnd').value;
+  var note = document.getElementById('schedNote').value.trim();
+  if (!eid || !date || !start || !end) { toast('Fill all fields', 'error'); return; }
+  if (start >= end) { toast('End must be after start', 'error'); return; }
+  try {
+    setSy('syncing');
+    var s = await aPost('/api/schedules', { emp_id: eid, date, start_time: start, end_time: end, note: note||null, business_id: BIZ_ID });
+    var idx = scheds.findIndex(function(x){ return x.emp_id === eid && x.date === date; });
+    if (idx >= 0) scheds[idx] = s; else scheds.push(s);
+    setSy('ok');
+    closeSchedAdd();
+    renderSchedule();
+    toast('Shift saved', 'success');
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+async function delSched(id) {
+  try {
+    setSy('syncing');
+    await aDel('/api/schedules/' + id);
+    scheds = scheds.filter(function(x){ return x.id !== id; });
+    setSy('ok');
+    renderSchedule();
+    toast('Shift removed', 'warn');
+  } catch(e) { setSy('error'); toast('Failed', 'error'); }
+}
+ 
+// ── PAYROLL ─────────────────────────────────────────────────────────────────
+function chPayMonth(dir) { payMonth.setMonth(payMonth.getMonth() + dir); renderPayroll(); }
+function renderPayroll() {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var ym = payMonth.getFullYear() + '-' + String(payMonth.getMonth()+1).padStart(2,'0');
+  document.getElementById('payMonthLabel').textContent = months[payMonth.getMonth()] + ' ' + payMonth.getFullYear();
+  var html = '';
+  if (emps.length === 0) { html = '<div class="empty"><div class="ico">💰</div><p>No employees yet</p></div>'; }
+  else {
+    emps.forEach(function(emp) {
+      var monthShifts = shfts.filter(function(s){ return s.emp_id === emp.id && s.date && s.date.slice(0,7) === ym && s.check_out; });
+      var totalHours = monthShifts.reduce(function(a,s){ return a + (parseFloat(s.hours)||0); }, 0);
+      var regHours = monthShifts.reduce(function(a,s){ return a + (parseFloat(s.regular_hours)||parseFloat(s.hours)||0); }, 0);
+      var otHours = monthShifts.reduce(function(a,s){ return a + (parseFloat(s.ot_hours)||0); }, 0);
+      var rate = parseFloat(emp.rate) || 0;
+      var basePay = regHours * rate;
+      var otPay = otHours * rate * 1.5;
+      var bonuses = deds.filter(function(d){ return d.emp_id === emp.id && d.month === ym && d.type === 'bonus'; }).reduce(function(a,d){ return a + parseFloat(d.amount); }, 0);
+      var deductions = deds.filter(function(d){ return d.emp_id === emp.id && d.month === ym && d.type === 'deduction'; }).reduce(function(a,d){ return a + parseFloat(d.amount); }, 0);
+      var manualBonus = monthShifts.reduce(function(a,s){ return a + (parseFloat(s.manual_bonus)||0); }, 0);
+      var gross = basePay + otPay + bonuses + manualBonus;
+      var net = gross - deductions;
+      html += '<div class="payslip">' +
+        '<div class="payslip-header"><div><div class="payslip-name">' + esc(emp.name) + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + esc(emp.role||'') + '</div></div>' +
+        '<span class="badge bb">' + totalHours.toFixed(1) + 'h</span></div>' +
+        '<div class="payslip-row"><span>Regular (' + regHours.toFixed(1) + 'h × £' + rate.toFixed(2) + ')</span><span>£' + basePay.toFixed(2) + '</span></div>' +
+        (otHours > 0 ? '<div class="payslip-row"><span>Overtime (' + otHours.toFixed(1) + 'h × 1.5)</span><span>£' + otPay.toFixed(2) + '</span></div>' : '') +
+        (bonuses > 0 ? '<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+£' + bonuses.toFixed(2) + '</span></div>' : '') +
+        (deductions > 0 ? '<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-£' + deductions.toFixed(2) + '</span></div>' : '') +
+        '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:6px;"><span class="payslip-total">NET PAY</span><span class="payslip-total">£' + net.toFixed(2) + '</span></div>' +
+        '</div>';
+    });
+  }
+  document.getElementById('payrollList').innerHTML = html;
+}
+ 
+// ── LEAVES ──────────────────────────────────────────────────────────────────
+async function addLeave() {
+  var eid = parseInt(document.getElementById('leaveEmp').value);
+  var date = document.getElementById('leaveDate').value;
+  var type = document.getElementById('leaveType').value;
+  var note = document.getElementById('leaveNote').value.trim();
+  if (!eid || !date) { toast('Select employee and date', 'error'); return; }
+  try {
+    setSy('syncing');
+    var lv = await aPost('/api/leaves', { emp_id: eid, business_id: BIZ_ID, date, type, note: note||null });
+    lvs.push(lv);
+    setSy('ok');
+    var emp = emps.find(function(e){ return e.id === eid; });
+    logAudit('leave', (emp ? emp.name : '?') + ' — ' + type + ' on ' + date, 'Manager');
+    toast('Leave added', 'success');
+    renderLeaves();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+function renderLeaves() {
+  var sorted = lvs.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var html = '';
+  if (sorted.length === 0) { html = '<div class="empty"><div class="ico">🏖</div><p>No leaves recorded yet</p></div>'; }
+  else {
+    sorted.forEach(function(lv) {
+      var emp = emps.find(function(e){ return e.id === lv.emp_id; });
+      html += '<div class="card" style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div><div style="font-weight:600;">' + esc(emp ? emp.name : '?') + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + fmt(lv.date) + (lv.note ? ' · ' + esc(lv.note) : '') + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<span class="badge ba">' + esc(lv.type) + '</span>' +
+        '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delLeave(' + lv.id + ')">✕</button>' +
+        '</div></div>';
+    });
+  }
+  document.getElementById('leaveList').innerHTML = html;
+}
+async function delLeave(id) {
+  try {
+    setSy('syncing');
+    await aDel('/api/leaves/' + id);
+    lvs = lvs.filter(function(l){ return l.id !== id; });
+    setSy('ok');
+    renderLeaves();
+    toast('Leave removed', 'warn');
+  } catch(e) { setSy('error'); toast('Failed', 'error'); }
+}
+ 
+// ── DEDUCTIONS ──────────────────────────────────────────────────────────────
+async function addDed() {
+  var eid = parseInt(document.getElementById('dedEmp').value);
+  var month = document.getElementById('dedMonth').value;
+  var type = document.getElementById('dedType').value;
+  var amount = parseFloat(document.getElementById('dedAmount').value);
+  var label = document.getElementById('dedLabel').value.trim();
+  if (!eid || !month || isNaN(amount) || amount <= 0) { toast('Fill all fields correctly', 'error'); return; }
+  try {
+    setSy('syncing');
+    var d = await aPost('/api/deductions', { emp_id: eid, business_id: BIZ_ID, month, type, amount, label: label||type });
+    deds.push(d);
+    setSy('ok');
+    toast('Entry added', 'success');
+    renderDeds();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+function renderDeds() {
+  var sorted = deds.slice().sort(function(a,b){ return b.month.localeCompare(a.month); });
+  var html = '';
+  if (sorted.length === 0) { html = '<div class="empty"><div class="ico">➖</div><p>No entries yet</p></div>'; }
+  else {
+    sorted.forEach(function(d) {
+      var emp = emps.find(function(e){ return e.id === d.emp_id; });
+      html += '<div class="card" style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div><div style="font-weight:600;">' + esc(emp ? emp.name : '?') + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + esc(d.month) + ' · ' + esc(d.label||d.type) + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<span class="badge ' + (d.type === 'bonus' ? 'bg' : 'br') + '">' + (d.type === 'bonus' ? '+' : '-') + '£' + parseFloat(d.amount).toFixed(2) + '</span>' +
+        '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delDed(' + d.id + ')">✕</button>' +
+        '</div></div>';
+    });
+  }
+  document.getElementById('dedList').innerHTML = html;
+}
+async function delDed(id) {
+  try {
+    setSy('syncing');
+    await aDel('/api/deductions/' + id);
+    deds = deds.filter(function(d){ return d.id !== id; });
+    setSy('ok');
+    renderDeds();
+    toast('Entry removed', 'warn');
+  } catch(e) { setSy('error'); toast('Failed', 'error'); }
+}
+ 
+// ── PLANS ────────────────────────────────────────────────────────────────────
+function renderPlans() {
+  var used = emps.length;
+  document.getElementById('currentPlanName').textContent = isPro() ? 'PRO' : 'FREE';
+  document.getElementById('empUsage').textContent = used + ' / ' + (isPro() ? '∞' : FREE_EMP_LIMIT) + ' employees';
+  var pct = isPro() ? 50 : Math.min(100, (used / FREE_EMP_LIMIT) * 100);
+  document.getElementById('empBarFill').style.width = pct + '%';
+  document.getElementById('empBarFill').style.background = pct >= 100 ? 'var(--red)' : 'var(--blue)';
+  if (isPro()) {
+    document.getElementById('planFreeCard').style.opacity = '0.5';
+    document.getElementById('planFreeBtn').textContent = 'Downgrade';
+  }
+}
+async function startUpgrade() {
+  try {
+    setSy('syncing');
+    var r = await aPost('/api/stripe/create-checkout', { business_code: BIZ_CODE });
+    setSy('ok');
+    if (r.url) window.location.href = r.url;
+  } catch(e) {
+    setSy('ok');
+    toast('Stripe coming soon! Leave your email below.', 'warn');
+    document.getElementById('notifyEmail').focus();
+  }
+}
+async function saveNotifyEmail() {
+  var email = document.getElementById('notifyEmail').value.trim();
+  if (!email || !email.includes('@')) { toast('Enter valid email', 'error'); return; }
+  localStorage.setItem('ems_notify_email', email);
+  try { await aPost('/api/business/' + BIZ_CODE + '/notify-email', { email }); } catch(e) {}
+  document.getElementById('notifyMsg').textContent = '✓ Got it! We\'ll notify you at ' + email;
+  document.getElementById('notifyEmail').value = '';
+  toast('Thanks!', 'success');
+}
+ 
+// ── SECURITY ─────────────────────────────────────────────────────────────────
+function renderSecurity() {
+  document.getElementById('secBizCode').textContent = BIZ_CODE;
+  document.getElementById('secBizName').textContent = BIZ_NAME;
+  renderAuditLog();
+}
+function loadAudit() {
+  if (!AUDIT_KEY) return;
+  try { var data = localStorage.getItem(AUDIT_KEY); return data ? JSON.parse(data) : []; } catch(e) { return []; }
+}
+function logAudit(action, msg, who) {
+  if (!AUDIT_KEY) return;
+  var log = loadAudit() || [];
+  log.unshift({ action, msg, who, ts: new Date().toISOString() });
+  if (log.length > 50) log = log.slice(0, 50);
+  try { localStorage.setItem(AUDIT_KEY, JSON.stringify(log)); } catch(e) {}
+}
+function renderAuditLog() {
+  var log = loadAudit() || [];
+  var html = '';
+  if (log.length === 0) { html = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No activity yet</div>'; }
+  else {
+    log.slice(0, 20).forEach(function(entry) {
+      var d = new Date(entry.ts);
+      var ts = d.getDate() + '/' + (d.getMonth()+1) + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      html += '<div class="audit-i action-' + (entry.action||'') + '">' +
+        '<div class="audit-ts">' + ts + '</div>' +
+        '<div class="audit-msg">' + esc(entry.msg) + '</div>' +
+        '<div class="audit-who">' + esc(entry.who||'System') + '</div>' +
+        '</div>';
+    });
+  }
+  document.getElementById('auditLog').innerHTML = html;
+}
+ 
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// Check for upgrade success param
+var urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('upgraded') === '1') {
+  currentPlan = 'pro';
+  localStorage.setItem('ems_plan', 'pro');
+  toast('Welcome to WorkBase Pro! 🎉', 'success');
+}
+ 
+if (BIZ_CODE && BIZ_ID) {
+  initApp();
+} else {
+  startClock();
+}
 </script>
 </body>
-</html
+</html>
