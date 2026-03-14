@@ -53,21 +53,21 @@ html,body{height:100%;overscroll-behavior:none;}
 body{font-family:var(--body);color:var(--text);background:var(--bg);display:flex;flex-direction:column;position:relative;}
  
 /* ── LOGIN SCREEN ── */
-#loginScreen{position:fixed;inset:0;z-index:9999;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;}
+#loginScreen{position:fixed;inset:0;z-index:9999;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px;overflow-y:auto;}
 #loginScreen.hidden{display:none;}
 .login-logo{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-1px;color:#0d0d0d;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
 .login-logo-dot{width:10px;height:10px;background:#1a56db;border-radius:50%;display:inline-block;}
-.login-sub{font-family:var(--mono);font-size:10px;color:#888;letter-spacing:3px;margin-bottom:36px;}
-.login-card{background:#fff;border:1.5px solid #e8e6e1;border-radius:20px;padding:28px 24px;width:100%;max-width:380px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+.login-sub{font-family:var(--mono);font-size:10px;color:#888;letter-spacing:3px;margin-bottom:16px;}
+.login-card{background:#fff;border:1.5px solid #e8e6e1;border-radius:20px;padding:20px 18px;width:100%;max-width:380px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
 .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1a56db,#0891b2);}
 .login-card-title{font-size:18px;font-weight:700;color:#0d0d0d;margin-bottom:4px;}
 .login-card-sub{font-size:13px;color:#888;margin-bottom:20px;}
 .login-tabs{display:flex;gap:4px;margin-bottom:20px;background:#f2f1ee;border-radius:10px;padding:4px;}
 .ltab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;font-family:var(--body);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
 .ltab.active{background:#fff;color:#0d0d0d;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
-.login-form{display:flex;flex-direction:column;gap:12px;}
+.login-form{display:flex;flex-direction:column;gap:9px;}
 .login-form.hide{display:none;}
-.register-form{display:none;flex-direction:column;gap:12px;}
+.register-form{display:none;flex-direction:column;gap:9px;}
 .register-form.show{display:flex;}
 .login-err{font-family:var(--mono);font-size:11px;color:#dc2626;min-height:16px;text-align:center;}
 .login-hint{font-size:12px;color:#aaa;text-align:center;margin-top:8px;line-height:1.6;}
@@ -336,7 +336,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
         </div>
         <div class="form-r">
           <div class="field"><label>PIN</label><input type="password" id="empPin" placeholder="4-6 digits" inputmode="numeric" maxlength="6"></div>
-          <div class="field"><label>Pay Rate (£/hr)</label><input type="number" id="empRate" placeholder="12.50" step="0.01"></div>
+          <div class="field"><label>Pay Rate (€/hr)</label><input type="number" id="empRate" placeholder="12.50" step="0.01"></div>
         </div>
         <div class="form-r">
           <div class="field"><label>Start Time</label><input type="time" id="empStart" value="09:00"></div>
@@ -437,7 +437,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
         <div class="field"><label>Type</label>
           <select id="dedType"><option value="bonus">Bonus</option><option value="deduction">Deduction</option></select>
         </div>
-        <div class="field"><label>Amount (£)</label><input type="number" id="dedAmount" placeholder="50.00" step="0.01"></div>
+        <div class="field"><label>Amount (€)</label><input type="number" id="dedAmount" placeholder="50.00" step="0.01"></div>
       </div>
       <div class="field"><label>Label</label><input type="text" id="dedLabel" placeholder="e.g. Performance bonus"></div>
       <button type="button" class="btn btn-p" onclick="addDed()">+ Add Entry</button>
@@ -466,7 +466,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
     <div class="plan-card" id="planFreeCard">
       <div class="plan-badge free">FREE</div>
-      <div class="plan-price">$0<span class="plan-per">/mo</span></div>
+      <div class="plan-price">€0<span class="plan-per">/mo</span></div>
       <div class="plan-name">Starter</div>
       <div style="margin-bottom:12px;">
         <div class="pf">Up to 5 employees</div>
@@ -480,7 +480,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
     </div>
     <div class="plan-card pro" id="planProCard">
       <div class="plan-badge pro">PRO</div>
-      <div class="plan-price">$19<span class="plan-per">/mo</span></div>
+      <div class="plan-price">€19<span class="plan-per">/mo</span></div>
       <div class="plan-name">Professional</div>
       <div style="margin-bottom:12px;">
         <div class="pf">Unlimited employees</div>
@@ -803,7 +803,7 @@ function renderDash() {
   document.getElementById('dashStats').innerHTML =
     '<div class="stat-box"><div class="stat-v">' + onShift.length + '</div><div class="stat-k">ON SHIFT</div></div>' +
     '<div class="stat-box"><div class="stat-v">' + weekHours.toFixed(0) + 'h</div><div class="stat-k">THIS WEEK</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">£' + monthPay.toFixed(0) + '</div><div class="stat-k">THIS MONTH</div></div>';
+    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">€' + monthPay.toFixed(0) + '</div><div class="stat-k">THIS MONTH</div></div>';
  
   // On shift now
   var onShiftHtml = '<div class="card"><div class="card-lbl">Currently On Shift</div>';
@@ -1004,7 +1004,7 @@ function renderEmps() {
         '<div class="emp-avatar">' + emp.name[0] + '</div>' +
         '<div class="emp-info">' +
         '<div class="emp-name">' + esc(emp.name) + '</div>' +
-        '<div class="emp-role-label">' + esc(emp.role||'') + (emp.rate ? ' · £' + parseFloat(emp.rate).toFixed(2) + '/hr' : '') + '</div>' +
+        '<div class="emp-role-label">' + esc(emp.role||'') + (emp.rate ? ' · €' + parseFloat(emp.rate).toFixed(2) + '/hr' : '') + '</div>' +
         '</div>' +
         '<button class="btn btn-d" style="width:auto;padding:6px 10px;font-size:11px;" onclick="delEmp(' + emp.id + ')">✕</button>' +
         '</div>';
@@ -1212,11 +1212,11 @@ function renderPayroll() {
         '<div class="payslip-header"><div><div class="payslip-name">' + esc(emp.name) + '</div>' +
         '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + esc(emp.role||'') + '</div></div>' +
         '<span class="badge bb">' + totalHours.toFixed(1) + 'h</span></div>' +
-        '<div class="payslip-row"><span>Regular (' + regHours.toFixed(1) + 'h × £' + rate.toFixed(2) + ')</span><span>£' + basePay.toFixed(2) + '</span></div>' +
-        (otHours > 0 ? '<div class="payslip-row"><span>Overtime (' + otHours.toFixed(1) + 'h × 1.5)</span><span>£' + otPay.toFixed(2) + '</span></div>' : '') +
-        (bonuses > 0 ? '<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+£' + bonuses.toFixed(2) + '</span></div>' : '') +
-        (deductions > 0 ? '<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-£' + deductions.toFixed(2) + '</span></div>' : '') +
-        '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:6px;"><span class="payslip-total">NET PAY</span><span class="payslip-total">£' + net.toFixed(2) + '</span></div>' +
+        '<div class="payslip-row"><span>Regular (' + regHours.toFixed(1) + 'h × €' + rate.toFixed(2) + ')</span><span>€' + basePay.toFixed(2) + '</span></div>' +
+        (otHours > 0 ? '<div class="payslip-row"><span>Overtime (' + otHours.toFixed(1) + 'h × 1.5)</span><span>€' + otPay.toFixed(2) + '</span></div>' : '') +
+        (bonuses > 0 ? '<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+€' + bonuses.toFixed(2) + '</span></div>' : '') +
+        (deductions > 0 ? '<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-€' + deductions.toFixed(2) + '</span></div>' : '') +
+        '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:6px;"><span class="payslip-total">NET PAY</span><span class="payslip-total">€' + net.toFixed(2) + '</span></div>' +
         '</div>';
     });
   }
@@ -1298,7 +1298,7 @@ function renderDeds() {
         '<div><div style="font-weight:600;">' + esc(emp ? emp.name : '?') + '</div>' +
         '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">' + esc(d.month) + ' · ' + esc(d.label||d.type) + '</div></div>' +
         '<div style="display:flex;align-items:center;gap:6px;">' +
-        '<span class="badge ' + (d.type === 'bonus' ? 'bg' : 'br') + '">' + (d.type === 'bonus' ? '+' : '-') + '£' + parseFloat(d.amount).toFixed(2) + '</span>' +
+        '<span class="badge ' + (d.type === 'bonus' ? 'bg' : 'br') + '">' + (d.type === 'bonus' ? '+' : '-') + '€' + parseFloat(d.amount).toFixed(2) + '</span>' +
         '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delDed(' + d.id + ')">✕</button>' +
         '</div></div>';
     });
@@ -1332,13 +1332,17 @@ function renderPlans() {
 async function startUpgrade() {
   try {
     setSy('syncing');
+    toast('Redirecting to checkout...', 'success');
     var r = await aPost('/api/stripe/create-checkout', { business_code: BIZ_CODE });
     setSy('ok');
-    if (r.url) window.location.href = r.url;
+    if (r.url) {
+      window.location.href = r.url;
+    } else {
+      toast('Could not start checkout', 'error');
+    }
   } catch(e) {
-    setSy('ok');
-    toast('Stripe coming soon! Leave your email below.', 'warn');
-    document.getElementById('notifyEmail').focus();
+    setSy('error');
+    toast('Error: ' + e.message, 'error');
   }
 }
 async function saveNotifyEmail() {
