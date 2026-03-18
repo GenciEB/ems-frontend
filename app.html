@@ -446,6 +446,45 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <div id="dedList"></div>
 </div>
 
+
+<!-- REPORTS -->
+<div id="page-reports" class="page">
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">REPORTS</div><div class="sh-sub">Export data as CSV</div></div>
+
+  <!-- Month selector -->
+  <div class="card">
+    <div class="card-lbl">Select Period</div>
+    <div class="form-r">
+      <div class="field"><label>Month</label><input type="month" id="reportMonth"></div>
+      <div class="field"><label>Employee</label>
+        <select id="reportEmp">
+          <option value="">All Employees</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export buttons -->
+  <div class="card">
+    <div class="card-lbl">Export Options</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-p" onclick="exportPayroll()">📥 Payroll Report (CSV)</button>
+      <button class="btn btn-s" onclick="exportShifts()">📥 Shifts Report (CSV)</button>
+      <button class="btn btn-s" onclick="exportAttendance()">📥 Attendance Summary (CSV)</button>
+      <button class="btn btn-s" onclick="exportLeaves()">📥 Leave Report (CSV)</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card" id="reportPreview" style="display:none;">
+    <div class="card-lbl" id="reportPreviewTitle">Preview</div>
+    <div style="overflow-x:auto;">
+      <table id="reportPreviewTable" style="width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);"></table>
+    </div>
+    <button class="btn btn-p" onclick="downloadCSV()" style="margin-top:12px;">⬇️ Download CSV</button>
+  </div>
+</div>
+
 <!-- PLANS -->
 <div id="page-plans" class="page">
   <div class="sh"><div class="sh-eye">Subscription</div><div class="sh-title">PLANS</div><div class="sh-sub">Choose the right plan</div></div>
@@ -552,6 +591,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <button class="tb" onclick="goNav('payroll',this)" data-page="payroll"><span class="ic">💰</span>PAY</button>
   <button class="tb" onclick="goNav('leaves',this)" data-page="leaves"><span class="ic">🏖</span>LEAVE</button>
   <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>DED</button>
+  <button class="tb" onclick="goNav('reports',this)" data-page="reports"><span class="ic">📊</span>REPORT</button>
   <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
   <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
 </nav>
@@ -742,6 +782,7 @@ function goNav(page, btn) {
   if (page === 'leaves') renderLeaves();
   if (page === 'deductions') renderDeds();
   if (page === 'plans') renderPlans();
+  if (page === 'reports') renderReports();
   if (page === 'security') renderSecurity();
 }
 
@@ -1329,6 +1370,141 @@ async function delDed(id) {
     renderDeds();
     toast('Entry removed', 'warn');
   } catch(e) { setSy('error'); toast('Failed', 'error'); }
+}
+
+
+// ── REPORTS ────────────────────────────────────────────────────────────────
+var currentCSV = '';
+var currentCSVName = '';
+
+function renderReports() {
+  // Set default month
+  var rm = document.getElementById('reportMonth');
+  if (!rm.value) rm.value = dk(new Date()).slice(0,7);
+  // Populate employee select
+  var sel = document.getElementById('reportEmp');
+  sel.innerHTML = '<option value="">All Employees</option>';
+  emps.forEach(function(e) {
+    var o = document.createElement('option');
+    o.value = e.id; o.textContent = e.name;
+    sel.appendChild(o);
+  });
+  document.getElementById('reportPreview').style.display = 'none';
+}
+
+function getReportFilters() {
+  var month = document.getElementById('reportMonth').value;
+  var empId = document.getElementById('reportEmp').value;
+  if (!month) { toast('Select a month first', 'error'); return null; }
+  return { month, empId: empId ? parseInt(empId) : null };
+}
+
+function buildCSV(headers, rows) {
+  var lines = [headers.join(',')];
+  rows.forEach(function(row) {
+    lines.push(row.map(function(cell) {
+      var s = String(cell || '');
+      if (s.includes(',') || s.includes('"') || s.includes('
+')) s = '"' + s.replace(/"/g,'""') + '"';
+      return s;
+    }).join(','));
+  });
+  return lines.join('
+');
+}
+
+function showPreview(title, headers, rows, csvContent, filename) {
+  currentCSV = csvContent;
+  currentCSVName = filename;
+  document.getElementById('reportPreviewTitle').textContent = title + ' (' + rows.length + ' rows)';
+  var table = document.getElementById('reportPreviewTable');
+  var html = '<thead><tr>' + headers.map(function(h){ return '<th style="padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;color:var(--text3);white-space:nowrap;">' + h + '</th>'; }).join('') + '</tr></thead><tbody>';
+  rows.slice(0,10).forEach(function(row) {
+    html += '<tr>' + row.map(function(cell){ return '<td style="padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;">' + (cell||'—') + '</td>'; }).join('') + '</tr>';
+  });
+  if (rows.length > 10) html += '<tr><td colspan="' + headers.length + '" style="padding:6px 8px;color:var(--text3);font-size:11px;">... and ' + (rows.length-10) + ' more rows</td></tr>';
+  html += '</tbody>';
+  table.innerHTML = html;
+  document.getElementById('reportPreview').style.display = '';
+  document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth' });
+}
+
+function downloadCSV() {
+  if (!currentCSV) return;
+  var blob = new Blob([currentCSV], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = currentCSVName;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Downloaded: ' + currentCSVName, 'success');
+}
+
+function exportPayroll() {
+  var f = getReportFilters(); if (!f) return;
+  var headers = ['Employee','Role','Pay Rate (€/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (€)','OT Pay (€)','Bonuses (€)','Deductions (€)','Net Pay (€)'];
+  var filteredEmps = f.empId ? emps.filter(function(e){ return e.id === f.empId; }) : emps;
+  var rows = filteredEmps.map(function(emp) {
+    var monthShifts = shfts.filter(function(s){ return s.emp_id === emp.id && s.date && s.date.slice(0,7) === f.month && s.check_out; });
+    var regH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0); }, 0);
+    var otH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); }, 0);
+    var totalH = regH + otH;
+    var rate = parseFloat(emp.rate)||0;
+    var basePay = regH * rate;
+    var otPay = otH * rate * 1.5;
+    var bonuses = deds.filter(function(d){ return d.emp_id===emp.id && d.month===f.month && d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
+    var deductions = deds.filter(function(d){ return d.emp_id===emp.id && d.month===f.month && d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
+    var net = basePay + otPay + bonuses - deductions;
+    return [emp.name, emp.role||'', rate.toFixed(2), regH.toFixed(2), otH.toFixed(2), totalH.toFixed(2), basePay.toFixed(2), otPay.toFixed(2), bonuses.toFixed(2), deductions.toFixed(2), net.toFixed(2)];
+  });
+  var csv = buildCSV(headers, rows);
+  showPreview('Payroll Report — ' + f.month, headers, rows, csv, 'payroll-' + f.month + '.csv');
+}
+
+function exportShifts() {
+  var f = getReportFilters(); if (!f) return;
+  var headers = ['Date','Employee','Role','Check In','Check Out','Hours','Regular Hours','OT Hours','Late','Late Minutes','Note'];
+  var filtered = shfts.filter(function(s){ return s.date && s.date.slice(0,7) === f.month && (f.empId ? s.emp_id === f.empId : true); });
+  var rows = filtered.sort(function(a,b){ return a.date.localeCompare(b.date); }).map(function(s) {
+    var emp = emps.find(function(e){ return e.id === s.emp_id; });
+    return [s.date, emp?emp.name:'?', emp?emp.role||'':'', s.check_in||'', s.check_out||'', (parseFloat(s.hours)||0).toFixed(2), (parseFloat(s.regular_hours)||parseFloat(s.hours)||0).toFixed(2), (parseFloat(s.ot_hours)||0).toFixed(2), s.is_late?'Yes':'No', s.late_minutes||0, s.note||''];
+  });
+  var csv = buildCSV(headers, rows);
+  showPreview('Shifts Report — ' + f.month, headers, rows, csv, 'shifts-' + f.month + '.csv');
+}
+
+function exportAttendance() {
+  var f = getReportFilters(); if (!f) return;
+  var headers = ['Employee','Role','Days Worked','Total Hours','Days On Leave','Days Missed','Attendance %'];
+  // Get all scheduled days
+  var monthScheds = scheds.filter(function(s){ return s.date && s.date.slice(0,7) === f.month; });
+  var filteredEmps = f.empId ? emps.filter(function(e){ return e.id === f.empId; }) : emps;
+  var rows = filteredEmps.map(function(emp) {
+    var empShifts = shfts.filter(function(s){ return s.emp_id===emp.id && s.date && s.date.slice(0,7)===f.month && s.check_out; });
+    var empLeaves = lvs.filter(function(l){ return l.emp_id===emp.id && l.date && l.date.slice(0,7)===f.month; });
+    var empScheds = monthScheds.filter(function(s){ return s.emp_id===emp.id; });
+    var daysWorked = empShifts.length;
+    var totalHours = empShifts.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
+    var daysLeave = empLeaves.length;
+    var daysMissed = Math.max(0, empScheds.length - daysWorked - daysLeave);
+    var attendancePct = empScheds.length > 0 ? ((daysWorked / empScheds.length)*100).toFixed(0)+'%' : 'N/A';
+    return [emp.name, emp.role||'', daysWorked, totalHours.toFixed(1), daysLeave, daysMissed, attendancePct];
+  });
+  var csv = buildCSV(headers, rows);
+  showPreview('Attendance Summary — ' + f.month, headers, rows, csv, 'attendance-' + f.month + '.csv');
+}
+
+function exportLeaves() {
+  var f = getReportFilters(); if (!f) return;
+  var headers = ['Date','Employee','Leave Type','Note'];
+  var filtered = lvs.filter(function(l){ return l.date && l.date.slice(0,7) === f.month && (f.empId ? l.emp_id === f.empId : true); });
+  var rows = filtered.sort(function(a,b){ return a.date.localeCompare(b.date); }).map(function(l) {
+    var emp = emps.find(function(e){ return e.id === l.emp_id; });
+    return [l.date, emp?emp.name:'?', l.type||'', l.note||''];
+  });
+  var csv = buildCSV(headers, rows);
+  showPreview('Leave Report — ' + f.month, headers, rows, csv, 'leaves-' + f.month + '.csv');
 }
 
 // ── PLANS ────────────────────────────────────────────────────────────────────
