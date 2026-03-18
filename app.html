@@ -274,6 +274,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
       <div class="login-err" id="loginErr1"></div>
       <button type="button" class="btn btn-p" onclick="submitBizCode()">Enter Workspace →</button>
       <div class="login-hint">Don't have an account? Switch to Register above.</div>
+      <div style="text-align:center;margin-top:4px;"><button type="button" onclick="showForgotPin()" style="background:none;border:none;color:#1a56db;font-size:12px;cursor:pointer;font-family:var(--mono);">Forgot Manager PIN?</button></div>
     </div>
     <div class="register-form" id="registerForm">
       <div class="login-card-title">Create your workspace</div>
@@ -284,6 +285,18 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
       <div class="login-err" id="loginErr2"></div>
       <button type="button" class="btn btn-p" onclick="submitRegister()">Create Workspace →</button>
       <div class="login-hint">Your code is how your team logs in.</div>
+    </div>
+  
+    <!-- FORGOT PIN FORM -->
+    <div id="forgotPinForm" style="display:none;flex-direction:column;gap:12px;">
+      <div class="login-card-title">Reset Manager PIN</div>
+      <div class="login-card-sub">Enter your business code and registered email</div>
+      <div class="field"><label>Business Code</label><input type="text" id="forgotCode" placeholder="mycoffeeshop" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+      <div class="field"><label>Registered Email</label><input type="email" id="forgotEmail" placeholder="you@example.com"></div>
+      <div class="login-err" id="forgotErr"></div>
+      <button type="button" class="btn btn-p" onclick="submitForgotPin()">Send Temporary PIN →</button>
+      <div id="forgotSuccess" style="display:none;text-align:center;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-family:var(--mono);font-size:12px;color:#16a34a;">✓ Temporary PIN sent to your email!</div>
+      <div style="text-align:center;"><button type="button" onclick="hideForgotPin()" style="background:none;border:none;color:#888;font-size:12px;cursor:pointer;font-family:var(--mono);">← Back to Sign In</button></div>
     </div>
   </div>
 </div>
@@ -1546,6 +1559,44 @@ async function saveNotifyEmail() {
   toast('Thanks!', 'success');
 }
 
+
+
+// ── FORGOT PIN ─────────────────────────────────────────────────────────────
+function showForgotPin() {
+  document.getElementById('loginForm').classList.add('hide');
+  document.getElementById('registerForm').classList.remove('show');
+  document.getElementById('forgotPinForm').style.display = 'flex';
+  document.getElementById('login-tabs') && (document.getElementById('login-tabs').style.display = 'none');
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = 'none'; });
+  document.getElementById('forgotCode').value = document.getElementById('bizCodeInput').value || '';
+}
+
+function hideForgotPin() {
+  document.getElementById('forgotPinForm').style.display = 'none';
+  document.getElementById('loginForm').classList.remove('hide');
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = ''; });
+  document.getElementById('forgotErr').textContent = '';
+  document.getElementById('forgotSuccess').style.display = 'none';
+}
+
+async function submitForgotPin() {
+  var code = document.getElementById('forgotCode').value.trim().toLowerCase();
+  var email = document.getElementById('forgotEmail').value.trim();
+  var errEl = document.getElementById('forgotErr');
+  errEl.textContent = '';
+  if (!code) { errEl.textContent = 'Enter your business code'; return; }
+  if (!email) { errEl.textContent = 'Enter your email'; return; }
+  try {
+    setSy('syncing');
+    await aPost('/api/business/' + code + '/reset-pin', { email });
+    setSy('ok');
+    document.getElementById('forgotSuccess').style.display = '';
+    document.querySelector('#forgotPinForm .btn-p').style.display = 'none';
+  } catch(e) {
+    setSy('error');
+    errEl.textContent = e.message || 'Failed to reset PIN';
+  }
+}
 
 // ── CHANGE MANAGER PIN ─────────────────────────────────────────────────────
 async function changeMgrPin() {
