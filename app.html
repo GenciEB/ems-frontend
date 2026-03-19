@@ -51,7 +51,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overscroll-behavior:none;}
 body{font-family:var(--body);color:var(--text);background:var(--bg);display:flex;flex-direction:column;position:relative;}
- 
+
 /* ── LOGIN SCREEN ── */
 #loginScreen{position:fixed;inset:0;z-index:9999;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px;overflow-y:auto;}
 #loginScreen.hidden{display:none;}
@@ -76,7 +76,7 @@ label{font-family:var(--mono);font-size:10px;color:#3d3d3d;letter-spacing:.5px;t
 input,select,textarea{background:#fafaf8;border:1.5px solid #e8e6e1;border-radius:var(--radius-sm);color:#0d0d0d;font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;width:100%;transition:border-color .15s;}
 input:focus,select:focus,textarea:focus{border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,0.1);background:#fff;}
 input::placeholder,textarea::placeholder{color:#bbb;}
- 
+
 /* ── BUTTONS ── */
 .btn{border:none;border-radius:var(--radius-sm);padding:11px 16px;font-family:var(--body);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;width:100%;-webkit-tap-highlight-color:transparent;}
 .btn-p{background:#0d0d0d;color:#fff;}
@@ -85,7 +85,7 @@ input::placeholder,textarea::placeholder{color:#bbb;}
 .btn-g{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
 .btn-d{background:var(--red-dim);color:var(--red);border:1px solid rgba(220,38,38,0.2);}
 .btn-s{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(26,86,219,0.2);}
- 
+
 /* ── HEADER ── */
 header{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;padding-top:var(--st);}
 .logo{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0d0d0d;display:flex;align-items:center;gap:6px;}
@@ -100,28 +100,28 @@ header{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-botto
 .sdot.ok{background:var(--green);}
 .sdot.error{background:var(--red);}
 .sdot.syncing{background:var(--amber);animation:pulse .8s infinite;}
- 
+
 /* ── BOTTOM NAV ── */
 nav.bnav{background:rgba(250,250,248,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);position:fixed;bottom:0;left:0;right:0;z-index:90;}
 .tb{flex:1;padding:10px 4px 8px;border:none;background:transparent;color:var(--text3);font-family:var(--mono);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;-webkit-tap-highlight-color:transparent;letter-spacing:.3px;}
 .tb .ic{font-size:18px;}
 .tb.active{color:var(--blue);background:var(--blue-dim);}
- 
+
 /* ── PAGES ── */
 .page{display:none;flex:1;overflow-y:auto;padding:16px 16px calc(80px + var(--sb));-webkit-overflow-scrolling:touch;background:var(--bg);}
 .page.active{display:block;}
 main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
- 
+
 /* ── CARDS ── */
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
 .card-lbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;}
- 
+
 /* ── SECTION HEADERS ── */
 .sh{background:#fff;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
 .sh-title{font-family:var(--display);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
 .sh-sub{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:3px;}
 .sh-eye{font-family:var(--mono);font-size:9px;color:var(--blue);letter-spacing:1px;margin-bottom:4px;}
- 
+
 /* ── BADGES ── */
 .badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;display:inline-block;font-weight:600;}
 .badge.br{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
@@ -129,30 +129,30 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .badge.bb{background:#eff6ff;color:#1a56db;border:1px solid #bfdbfe;}
 .badge.ba{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
 .badge.bp{background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff;}
- 
+
 /* ── FORM ── */
 .form-s{display:flex;flex-direction:column;gap:10px;}
 .form-r{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
- 
+
 /* ── EMPLOYEE ROWS ── */
 .emp-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .emp-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-dim);border:2px solid rgba(26,86,219,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--blue);flex-shrink:0;font-family:var(--display);}
 .emp-info{flex:1;min-width:0;}
 .emp-name{font-weight:700;font-size:14px;color:var(--text);}
 .emp-role-label{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:1px;}
- 
+
 /* ── SHIFT ROWS ── */
 .shift-item{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;}
 .shift-date{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px;}
 .shift-times{font-weight:600;font-size:14px;color:var(--text);}
 .shift-hours{font-family:var(--mono);font-size:11px;color:var(--blue);margin-top:2px;}
- 
+
 /* ── STATS ── */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
 .stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.03);}
 .stat-v{font-family:var(--display);font-size:22px;font-weight:800;color:var(--blue);}
 .stat-k{font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
- 
+
 /* ── TOAST ── */
 .toast-w{position:fixed;top:calc(60px + var(--st));left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;}
 .toast{background:#0d0d0d;color:#fff;border-radius:12px;padding:9px 16px;font-family:var(--mono);font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideDown .25s ease,fadeOut .3s 2.2s ease forwards;white-space:nowrap;}
@@ -164,34 +164,34 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 @keyframes fu{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
- 
+
 /* ── MODAL ── */
 .modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-ov.open{opacity:1;pointer-events:all;}
 .modal-card{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px calc(24px + var(--sb));width:100%;max-width:480px;border:1px solid var(--border);box-shadow:0 -8px 32px rgba(0,0,0,0.1);transform:translateY(20px);transition:transform .25s cubic-bezier(.34,1.2,.64,1);}
 .modal-ov.open .modal-card{transform:translateY(0);}
 .modal-title{font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:16px;color:var(--text);}
- 
+
 /* ── LOCK OVERLAY ── */
 .lock-ov{position:absolute;inset:0;z-index:10;background:rgba(250,250,248,0.98);backdrop-filter:blur(24px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:60vh;}
- 
+
 /* ── EMPTY STATE ── */
 .empty{text-align:center;padding:40px 20px;color:#888;}
 .empty .ico{font-size:36px;margin-bottom:8px;}
 .empty p{font-family:var(--mono);font-size:12px;}
- 
+
 /* ── MONTH NAV ── */
 .mo-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .mo-t{font-family:var(--display);font-size:16px;font-weight:800;color:var(--text);}
 .mo-y{font-family:var(--mono);font-size:10px;color:var(--text3);}
 .dn-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text2);}
- 
+
 /* ── FILTER TABS ── */
 .filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
 .filter-row::-webkit-scrollbar{display:none;}
 .af{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:all .15s;}
 .af.active{background:var(--blue-dim);border-color:rgba(26,86,219,0.3);color:var(--blue);}
- 
+
 /* ── SCHEDULE ── */
 .sched-grid{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px;}
 .sched-grid th{background:var(--bg2);border:1px solid var(--border);padding:7px 4px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;text-align:center;color:var(--text2);}
@@ -206,7 +206,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .sched-slot.partial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(217,119,6,0.2);}
 .sched-add-btn{font-size:14px;color:var(--text3);cursor:pointer;display:block;text-align:center;padding:2px;transition:color .15s;}
 .sched-add-btn:hover{color:var(--blue);}
- 
+
 /* ── PLANS ── */
 .plan-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden;}
 .plan-card.pro{border-color:rgba(26,86,219,0.3);}
@@ -225,7 +225,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .plan-btn-current{background:var(--bg2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:10px;font-family:var(--mono);font-size:11px;text-align:center;margin-top:12px;}
 .plan-btn-upgrade{background:#0d0d0d;color:#fff;border:none;border-radius:10px;padding:11px;font-family:var(--body);font-size:13px;font-weight:700;width:100%;cursor:pointer;transition:background .2s;margin-top:12px;}
 .plan-btn-upgrade:hover{background:var(--blue);}
- 
+
 /* ── AUDIT ── */
 .audit-i{background:#fff;border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:7px;}
 .audit-i.action-checkin{border-left-color:var(--green);}
@@ -238,7 +238,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .audit-ts{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:2px;}
 .audit-msg{font-size:13px;font-weight:600;}
 .audit-who{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;}
- 
+
 /* ── PAYSLIP ── */
 .payslip{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;}
 .payslip-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
@@ -246,7 +246,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .payslip-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid var(--bg2);}
 .payslip-row:last-child{border-bottom:none;}
 .payslip-total{font-weight:700;font-size:15px;color:var(--blue);}
- 
+
 /* ── MOBILE ── */
 @media(max-width:400px){
   .stat-grid{grid-template-columns:repeat(2,1fr);}
@@ -254,6 +254,14 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 }
 </style>
 <script>
+function switchLoginTab(tab) {
+  document.querySelectorAll('.ltab').forEach(function(b){ b.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('loginForm').classList.toggle('hide', tab === 'register');
+  document.getElementById('registerForm').classList.toggle('show', tab === 'register');
+  document.getElementById('forgotPinForm').style.display = 'none';
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = ''; });
+}
 function showForgotPin() {
   document.getElementById('loginForm').classList.add('hide');
   document.getElementById('registerForm').classList.remove('show');
@@ -292,9 +300,9 @@ async function submitForgotPin() {
 </script>
 </head>
 <body>
- 
+
 <div class="toast-w" id="toastW"></div>
- 
+
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
   <div class="login-logo"><span class="login-logo-dot"></span>WorkBase</div>
@@ -337,10 +345,10 @@ async function submitForgotPin() {
     </div>
   </div>
 </div>
- 
+
 <!-- MAIN APP -->
 <div id="app" style="display:none;flex-direction:column;height:100%;">
- 
+
 <!-- HEADER -->
 <header>
   <div>
@@ -353,9 +361,9 @@ async function submitForgotPin() {
     <span class="hdr-role" id="roleLabel"></span>
   </div>
 </header>
- 
+
 <main>
- 
+
 <!-- DASHBOARD -->
 <div id="page-dash" class="page active">
   <div class="sh"><div class="sh-eye">Overview</div><div class="sh-title">DASHBOARD</div><div class="sh-sub" id="dashDate"></div></div>
@@ -363,7 +371,7 @@ async function submitForgotPin() {
   <div id="dashOnShift"></div>
   <div id="dashRecentShifts"></div>
 </div>
- 
+
 <!-- EMPLOYEES -->
 <div id="page-employees" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">STAFF</div><div class="sh-sub">Manage your team</div></div>
@@ -398,13 +406,13 @@ async function submitForgotPin() {
     <div id="empList"></div>
   </div>
 </div>
- 
+
 <!-- CHECK IN/OUT -->
 <div id="page-checkin" class="page">
   <div class="sh"><div class="sh-eye">All Staff</div><div class="sh-title">CHECK IN/OUT</div><div class="sh-sub">Tap your name and enter PIN</div></div>
   <div id="checkinList"></div>
 </div>
- 
+
 <!-- SCHEDULE -->
 <div id="page-schedule" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">SCHEDULE</div><div class="sh-sub">Plan shifts for your team</div></div>
@@ -439,7 +447,7 @@ async function submitForgotPin() {
   </div>
   <button type="button" class="btn btn-p" onclick="openSchedAdd()" style="margin-top:8px;">+ Assign Shift</button>
 </div>
- 
+
 <!-- PAYROLL -->
 <div id="page-payroll" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">PAYROLL</div><div class="sh-sub">Monthly pay & payslips</div></div>
@@ -450,7 +458,7 @@ async function submitForgotPin() {
   </div>
   <div id="payrollList"></div>
 </div>
- 
+
 <!-- LEAVES -->
 <div id="page-leaves" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">LEAVES</div><div class="sh-sub">Track time off</div></div>
@@ -472,7 +480,7 @@ async function submitForgotPin() {
   </div>
   <div id="leaveList"></div>
 </div>
- 
+
 <!-- DEDUCTIONS -->
 <div id="page-deductions" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">DEDUCTIONS</div><div class="sh-sub">Bonuses & deductions</div></div>
@@ -495,12 +503,12 @@ async function submitForgotPin() {
   </div>
   <div id="dedList"></div>
 </div>
- 
- 
+
+
 <!-- REPORTS -->
 <div id="page-reports" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">REPORTS</div><div class="sh-sub">Export data as CSV</div></div>
- 
+
   <!-- Month selector -->
   <div class="card">
     <div class="card-lbl">Select Period</div>
@@ -513,7 +521,7 @@ async function submitForgotPin() {
       </div>
     </div>
   </div>
- 
+
   <!-- Export buttons -->
   <div class="card">
     <div class="card-lbl">Export Options</div>
@@ -524,7 +532,7 @@ async function submitForgotPin() {
       <button class="btn btn-s" onclick="exportLeaves()">📥 Leave Report (CSV)</button>
     </div>
   </div>
- 
+
   <!-- Preview -->
   <div class="card" id="reportPreview" style="display:none;">
     <div class="card-lbl" id="reportPreviewTitle">Preview</div>
@@ -534,7 +542,7 @@ async function submitForgotPin() {
     <button class="btn btn-p" onclick="downloadCSV()" style="margin-top:12px;">⬇️ Download CSV</button>
   </div>
 </div>
- 
+
 <!-- PLANS -->
 <div id="page-plans" class="page">
   <div class="sh"><div class="sh-eye">Subscription</div><div class="sh-title">PLANS</div><div class="sh-sub">Choose the right plan</div></div>
@@ -593,7 +601,7 @@ async function submitForgotPin() {
     <div id="notifyMsg" style="font-family:var(--mono);font-size:11px;color:var(--green);margin-top:8px;min-height:16px;"></div>
   </div>
 </div>
- 
+
 <!-- SECURITY -->
 <div id="page-security" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">SECURITY</div><div class="sh-sub">Session & access control</div></div>
@@ -629,9 +637,9 @@ async function submitForgotPin() {
     <div id="auditLog"></div>
   </div>
 </div>
- 
+
 </main>
- 
+
 <!-- BOTTOM NAV -->
 <nav class="bnav" id="bnav">
   <button class="tb active" onclick="goNav('dash',this)" data-page="dash"><span class="ic">📊</span>DASH</button>
@@ -645,9 +653,9 @@ async function submitForgotPin() {
   <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
   <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
 </nav>
- 
+
 </div><!-- end #app -->
- 
+
 <script>
 'use strict';
 var API = 'https://ems-api-mgye.onrender.com';
@@ -664,7 +672,7 @@ var FREE_EMP_LIMIT = 5;
 var payMonth = new Date();
 var vSchedWeek = new Date();
 var schedView = 'week';
- 
+
 // ── UTILS ──────────────────────────────────────────────────────────────────
 function dk(d) {
   var dt = new Date(d);
@@ -690,7 +698,7 @@ function setSy(s) {
   var d = document.getElementById('syncDot');
   if (d) { d.className = 'sdot ' + s; }
 }
- 
+
 // ── API HELPERS ────────────────────────────────────────────────────────────
 function buildHeaders() {
   var h = { 'Content-Type': 'application/json', 'x-api-key': API_KEY };
@@ -717,7 +725,7 @@ async function aPatch(path, body) {
   if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); }
   return r.json();
 }
- 
+
 // ── CLOCK ──────────────────────────────────────────────────────────────────
 function startClock() {
   function tick() {
@@ -730,7 +738,7 @@ function startClock() {
   tick();
   setInterval(tick, 30000);
 }
- 
+
 // ── LOGIN ──────────────────────────────────────────────────────────────────
 function switchLoginTab(tab) {
   document.querySelectorAll('.ltab').forEach(function(b){ b.classList.remove('active'); });
@@ -738,7 +746,7 @@ function switchLoginTab(tab) {
   document.getElementById('loginForm').classList.toggle('hide', tab === 'register');
   document.getElementById('registerForm').classList.toggle('show', tab === 'register');
 }
- 
+
 async function submitBizCode() {
   var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
   if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
@@ -759,7 +767,7 @@ async function submitBizCode() {
     document.getElementById('loginErr1').textContent = 'Business not found. Check your code.';
   }
 }
- 
+
 async function submitRegister() {
   var name = document.getElementById('regName').value.trim();
   var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
@@ -785,7 +793,7 @@ async function submitRegister() {
     document.getElementById('loginErr2').textContent = e.message || 'Code already taken';
   }
 }
- 
+
 function initApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   var app = document.getElementById('app');
@@ -797,27 +805,27 @@ function initApp() {
   startClock();
   loadAll();
 }
- 
+
 // ── ROLE / NAV ─────────────────────────────────────────────────────────────
 function updateNavForRole() {
   var roleEl = document.getElementById('roleLabel');
   if (IS_MGR) {
     roleEl.textContent = 'MANAGER';
     roleEl.className = 'hdr-role manager';
- 
+
   } else {
     roleEl.textContent = 'EMPLOYEE';
     roleEl.className = 'hdr-role employee';
   }
 }
- 
+
 function goNav(page, btn) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('active'); });
   var pageEl = document.getElementById('page-' + page);
   if (pageEl) pageEl.classList.add('active');
   if (btn) btn.classList.add('active');
- 
+
   // Manager-only pages need PIN
   var managerPages = ['employees','schedule','payroll','leaves','deductions','plans','security'];
   if (managerPages.includes(page) && !IS_MGR) {
@@ -835,7 +843,7 @@ function goNav(page, btn) {
   if (page === 'reports') renderReports();
   if (page === 'security') renderSecurity();
 }
- 
+
 // ── LOAD DATA ──────────────────────────────────────────────────────────────
 async function loadAll() {
   try {
@@ -857,16 +865,16 @@ async function loadAll() {
     toast('Failed to load data', 'error');
   }
 }
- 
+
 async function loadPlan() {
   try {
     var r = await aGet('/api/business/' + BIZ_CODE + '/plan');
     currentPlan = r.plan || 'free';
   } catch(e) { currentPlan = 'free'; }
 }
- 
+
 function isPro() { return currentPlan === 'pro'; }
- 
+
 function populateSelects() {
   var selects = ['leaveEmp','dedEmp','schedEmp'];
   selects.forEach(function(id) {
@@ -887,14 +895,14 @@ function populateSelects() {
   var dm = document.getElementById('dedMonth');
   if (dm && !dm.value) dm.value = dk(new Date()).slice(0,7);
 }
- 
+
 // ── DASHBOARD ──────────────────────────────────────────────────────────────
 function renderDash() {
   var today = dk(new Date());
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var now = new Date();
   document.getElementById('dashDate').textContent = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
- 
+
   var onShift = shfts.filter(function(s){ return s.date === today && s.check_in && !s.check_out; });
   var todayShifts = shfts.filter(function(s){ return s.date === today; });
   var weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
@@ -905,12 +913,12 @@ function renderDash() {
     var emp = emps.find(function(e){ return e.id === s.emp_id; });
     return a + (parseFloat(s.hours)||0) * (parseFloat(emp && emp.rate)||0);
   }, 0);
- 
+
   document.getElementById('dashStats').innerHTML =
     '<div class="stat-box"><div class="stat-v">' + onShift.length + '</div><div class="stat-k">ON SHIFT</div></div>' +
     '<div class="stat-box"><div class="stat-v">' + weekHours.toFixed(0) + 'h</div><div class="stat-k">THIS WEEK</div></div>' +
     '<div class="stat-box"><div class="stat-v" style="color:var(--green);">€' + monthPay.toFixed(0) + '</div><div class="stat-k">THIS MONTH</div></div>';
- 
+
   // On shift now
   var onShiftHtml = '<div class="card"><div class="card-lbl">Currently On Shift</div>';
   if (onShift.length === 0) {
@@ -927,7 +935,7 @@ function renderDash() {
   }
   onShiftHtml += '</div>';
   document.getElementById('dashOnShift').innerHTML = onShiftHtml;
- 
+
   // Recent shifts
   var recent = shfts.filter(function(s){ return s.check_out; }).sort(function(a,b){ return b.date.localeCompare(a.date); }).slice(0,5);
   var recentHtml = '<div class="card"><div class="card-lbl">Recent Shifts</div>';
@@ -945,7 +953,7 @@ function renderDash() {
   recentHtml += '</div>';
   document.getElementById('dashRecentShifts').innerHTML = recentHtml;
 }
- 
+
 // ── CHECK IN/OUT ────────────────────────────────────────────────────────────
 function renderCheckin() {
   var today = dk(new Date());
@@ -972,7 +980,7 @@ function renderCheckin() {
   }
   document.getElementById('checkinList').innerHTML = html;
 }
- 
+
 async function doCheckIn(empId) {
   var emp = emps.find(function(e){ return e.id === empId; });
   if (!emp) return;
@@ -994,7 +1002,7 @@ async function doCheckIn(empId) {
     renderDash();
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
- 
+
 async function doCheckOut(empId) {
   var emp = emps.find(function(e){ return e.id === empId; });
   var today = dk(new Date());
@@ -1018,13 +1026,13 @@ async function doCheckOut(empId) {
     renderDash();
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
- 
+
 // ── MANAGER LOCK ────────────────────────────────────────────────────────────
 function showEmpLock() {
   var lockEl = document.getElementById('empLock');
   if (lockEl) { lockEl.style.display = 'flex'; document.getElementById('empContent').style.display = 'none'; }
 }
- 
+
 async function verifyMgrPin() {
   var pin = document.getElementById('empPinInput').value.trim();
   if (!pin) return;
@@ -1046,7 +1054,7 @@ async function verifyMgrPin() {
     toast('Manager unlocked', 'success');
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
- 
+
 function lockManager() {
   IS_MGR = false;
   SESSION_TOKEN = null;
@@ -1056,13 +1064,13 @@ function lockManager() {
   goNav('dash', document.querySelector('[data-page="dash"]'));
   toast('Manager session locked', 'warn');
 }
- 
+
 function logoutBiz() {
   if (!confirm('Switch business? You will be logged out.')) return;
   localStorage.clear();
   location.reload();
 }
- 
+
 // ── EMPLOYEES ───────────────────────────────────────────────────────────────
 function checkEmpLimit() {
   if (isPro()) return true;
@@ -1073,7 +1081,7 @@ function checkEmpLimit() {
   }
   return true;
 }
- 
+
 async function addEmp() {
   if (!checkEmpLimit()) return;
   var name = document.getElementById('empName').value.trim();
@@ -1099,7 +1107,7 @@ async function addEmp() {
     populateSelects();
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
- 
+
 function renderEmps() {
   var html = '';
   if (emps.length === 0) {
@@ -1118,7 +1126,7 @@ function renderEmps() {
   }
   document.getElementById('empList').innerHTML = html;
 }
- 
+
 async function delEmp(id) {
   var emp = emps.find(function(e){ return e.id === id; });
   if (!confirm('Delete ' + (emp ? emp.name : 'employee') + '?')) return;
@@ -1134,7 +1142,7 @@ async function delEmp(id) {
     renderDash();
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
- 
+
 // ── SCHEDULE ────────────────────────────────────────────────────────────────
 function getWeekStart(d) {
   var day = new Date(d);
@@ -1151,7 +1159,7 @@ function setSchedView(view, btn) {
   document.getElementById('schedGridWrap').style.display = view === 'week' ? '' : 'none';
   document.getElementById('schedDayWrap').style.display = view === 'day' ? '' : 'none';
 }
- 
+
 function renderSchedule() {
   var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1163,7 +1171,7 @@ function renderSchedule() {
   var today = dk(new Date());
   document.getElementById('schedWeekLabel').textContent = 'WEEK OF ' + weekStart.getDate() + ' ' + months[weekStart.getMonth()];
   document.getElementById('schedWeekRange').textContent = weekStart.getFullYear();
- 
+
   // Grid
   var grid = document.getElementById('schedGridWrap');
   if (emps.length === 0) { grid.innerHTML = '<div class="empty"><div class="ico">🗓</div><p>No employees yet</p></div>'; document.getElementById('schedDayWrap').innerHTML = ''; return; }
@@ -1195,7 +1203,7 @@ function renderSchedule() {
   });
   tbl += '</tbody></table></div>';
   grid.innerHTML = tbl;
- 
+
   // Daily
   var dayHtml = '';
   weekDates.forEach(function(d) {
@@ -1229,7 +1237,7 @@ function renderSchedule() {
   document.getElementById('schedGridWrap').style.display = schedView === 'week' ? '' : 'none';
   document.getElementById('schedDayWrap').style.display = schedView === 'day' ? '' : 'none';
 }
- 
+
 function openSchedAdd() {
   var card = document.getElementById('schedAddCard');
   card.style.display = '';
@@ -1291,7 +1299,7 @@ async function delSched(id) {
     toast('Shift removed', 'warn');
   } catch(e) { setSy('error'); toast('Failed', 'error'); }
 }
- 
+
 // ── PAYROLL ─────────────────────────────────────────────────────────────────
 function chPayMonth(dir) { payMonth.setMonth(payMonth.getMonth() + dir); renderPayroll(); }
 function renderPayroll() {
@@ -1328,7 +1336,7 @@ function renderPayroll() {
   }
   document.getElementById('payrollList').innerHTML = html;
 }
- 
+
 // ── LEAVES ──────────────────────────────────────────────────────────────────
 async function addLeave() {
   var eid = parseInt(document.getElementById('leaveEmp').value);
@@ -1375,7 +1383,7 @@ async function delLeave(id) {
     toast('Leave removed', 'warn');
   } catch(e) { setSy('error'); toast('Failed', 'error'); }
 }
- 
+
 // ── DEDUCTIONS ──────────────────────────────────────────────────────────────
 async function addDed() {
   var eid = parseInt(document.getElementById('dedEmp').value);
@@ -1421,12 +1429,12 @@ async function delDed(id) {
     toast('Entry removed', 'warn');
   } catch(e) { setSy('error'); toast('Failed', 'error'); }
 }
- 
- 
+
+
 // ── REPORTS ────────────────────────────────────────────────────────────────
 var currentCSV = '';
 var currentCSVName = '';
- 
+
 function renderReports() {
   // Set default month
   var rm = document.getElementById('reportMonth');
@@ -1441,14 +1449,14 @@ function renderReports() {
   });
   document.getElementById('reportPreview').style.display = 'none';
 }
- 
+
 function getReportFilters() {
   var month = document.getElementById('reportMonth').value;
   var empId = document.getElementById('reportEmp').value;
   if (!month) { toast('Select a month first', 'error'); return null; }
   return { month, empId: empId ? parseInt(empId) : null };
 }
- 
+
 function buildCSV(headers, rows) {
   var lines = [headers.join(',')];
   rows.forEach(function(row) {
@@ -1462,7 +1470,7 @@ function buildCSV(headers, rows) {
   return lines.join('
 ');
 }
- 
+
 function showPreview(title, headers, rows, csvContent, filename) {
   currentCSV = csvContent;
   currentCSVName = filename;
@@ -1478,7 +1486,7 @@ function showPreview(title, headers, rows, csvContent, filename) {
   document.getElementById('reportPreview').style.display = '';
   document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth' });
 }
- 
+
 function downloadCSV() {
   if (!currentCSV) return;
   var blob = new Blob([currentCSV], { type: 'text/csv;charset=utf-8;' });
@@ -1490,7 +1498,7 @@ function downloadCSV() {
   URL.revokeObjectURL(url);
   toast('Downloaded: ' + currentCSVName, 'success');
 }
- 
+
 function exportPayroll() {
   var f = getReportFilters(); if (!f) return;
   var headers = ['Employee','Role','Pay Rate (€/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (€)','OT Pay (€)','Bonuses (€)','Deductions (€)','Net Pay (€)'];
@@ -1511,7 +1519,7 @@ function exportPayroll() {
   var csv = buildCSV(headers, rows);
   showPreview('Payroll Report — ' + f.month, headers, rows, csv, 'payroll-' + f.month + '.csv');
 }
- 
+
 function exportShifts() {
   var f = getReportFilters(); if (!f) return;
   var headers = ['Date','Employee','Role','Check In','Check Out','Hours','Regular Hours','OT Hours','Late','Late Minutes','Note'];
@@ -1523,7 +1531,7 @@ function exportShifts() {
   var csv = buildCSV(headers, rows);
   showPreview('Shifts Report — ' + f.month, headers, rows, csv, 'shifts-' + f.month + '.csv');
 }
- 
+
 function exportAttendance() {
   var f = getReportFilters(); if (!f) return;
   var headers = ['Employee','Role','Days Worked','Total Hours','Days On Leave','Days Missed','Attendance %'];
@@ -1544,7 +1552,7 @@ function exportAttendance() {
   var csv = buildCSV(headers, rows);
   showPreview('Attendance Summary — ' + f.month, headers, rows, csv, 'attendance-' + f.month + '.csv');
 }
- 
+
 function exportLeaves() {
   var f = getReportFilters(); if (!f) return;
   var headers = ['Date','Employee','Leave Type','Note'];
@@ -1556,7 +1564,7 @@ function exportLeaves() {
   var csv = buildCSV(headers, rows);
   showPreview('Leave Report — ' + f.month, headers, rows, csv, 'leaves-' + f.month + '.csv');
 }
- 
+
 // ── PLANS ────────────────────────────────────────────────────────────────────
 function renderPlans() {
   var used = emps.length;
@@ -1595,11 +1603,11 @@ async function saveNotifyEmail() {
   document.getElementById('notifyEmail').value = '';
   toast('Thanks!', 'success');
 }
- 
- 
- 
+
+
+
 // ── FORGOT PIN handled in <head> ──
- 
+
 // ── CHANGE MANAGER PIN ─────────────────────────────────────────────────────
 async function changeMgrPin() {
   var current = document.getElementById('currentPin').value.trim();
@@ -1619,7 +1627,7 @@ async function changeMgrPin() {
     toast('PIN changed successfully!', 'success');
   } catch(e) { setSy('error'); toast(e.message || 'Failed to change PIN', 'error'); }
 }
- 
+
 // ── WEEKLY SUMMARY EMAIL ───────────────────────────────────────────────────
 async function sendWeeklySummary() {
   try {
@@ -1635,7 +1643,7 @@ async function sendWeeklySummary() {
     toast(e.message || 'Failed to send summary', 'error');
   }
 }
- 
+
 // ── SECURITY ─────────────────────────────────────────────────────────────────
 function renderSecurity() {
   document.getElementById('secBizCode').textContent = BIZ_CODE;
@@ -1670,7 +1678,7 @@ function renderAuditLog() {
   }
   document.getElementById('auditLog').innerHTML = html;
 }
- 
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Check for upgrade success param
 var urlParams = new URLSearchParams(window.location.search);
@@ -1679,7 +1687,7 @@ if (urlParams.get('upgraded') === '1') {
   localStorage.setItem('ems_plan', 'pro');
   toast('Welcome to WorkBase Pro! 🎉', 'success');
 }
- 
+
 if (BIZ_CODE && BIZ_ID) {
   initApp();
 } else {
