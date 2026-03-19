@@ -1606,13 +1606,11 @@ function buildCSV(headers, rows) {
   rows.forEach(function(row) {
     lines.push(row.map(function(cell) {
       var s = String(cell || '');
-      if (s.includes(',') || s.includes('"') || s.includes('
-')) s = '"' + s.replace(/"/g,'""') + '"';
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) s = '"' + s.replace(/"/g,'""') + '"';
       return s;
     }).join(','));
   });
-  return lines.join('
-');
+  return lines.join('\n');
 }
 
 function showPreview(title, headers, rows, csvContent, filename) {
