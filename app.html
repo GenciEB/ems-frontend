@@ -254,6 +254,78 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 }
 </style>
 <script>
+async function submitBizCode() {
+  var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
+  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    });
+    if (!r.ok) { document.getElementById('loginErr1').textContent = 'Business not found. Check your code.'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr1').textContent = 'Connection error'; }
+}
+async function submitRegister() {
+  var name = document.getElementById('regName').value.trim();
+  var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
+  var email = document.getElementById('regEmail').value.trim();
+  if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
+  if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ name: name, code: code, email: email || null })
+    });
+    if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
+}
+async function submitBizCode() {
+  var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
+  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    });
+    if (!r.ok) { document.getElementById('loginErr1').textContent = 'Business not found. Check your code.'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr1').textContent = 'Connection error'; }
+}
+
+async function submitRegister() {
+  var name = document.getElementById('regName').value.trim();
+  var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
+  var email = document.getElementById('regEmail').value.trim();
+  if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
+  if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ name, code, email: email || null })
+    });
+    if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
+}
+
 function switchLoginTab(tab) {
   document.querySelectorAll('.ltab').forEach(function(b){ b.classList.remove('active'); });
   event.target.classList.add('active');
@@ -740,6 +812,78 @@ function startClock() {
 }
 
 // ── LOGIN ──────────────────────────────────────────────────────────────────
+async function submitBizCode() {
+  var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
+  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    });
+    if (!r.ok) { document.getElementById('loginErr1').textContent = 'Business not found. Check your code.'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr1').textContent = 'Connection error'; }
+}
+async function submitRegister() {
+  var name = document.getElementById('regName').value.trim();
+  var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
+  var email = document.getElementById('regEmail').value.trim();
+  if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
+  if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ name: name, code: code, email: email || null })
+    });
+    if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
+}
+async function submitBizCode() {
+  var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
+  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    });
+    if (!r.ok) { document.getElementById('loginErr1').textContent = 'Business not found. Check your code.'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr1').textContent = 'Connection error'; }
+}
+
+async function submitRegister() {
+  var name = document.getElementById('regName').value.trim();
+  var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
+  var email = document.getElementById('regEmail').value.trim();
+  if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
+  if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ name, code, email: email || null })
+    });
+    if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
+    var biz = await r.json();
+    localStorage.setItem('ems_biz_code', biz.code);
+    localStorage.setItem('ems_biz_id', biz.id);
+    localStorage.setItem('ems_biz_name', biz.name);
+    window.location.reload();
+  } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
+}
+
 function switchLoginTab(tab) {
   document.querySelectorAll('.ltab').forEach(function(b){ b.classList.remove('active'); });
   event.target.classList.add('active');
