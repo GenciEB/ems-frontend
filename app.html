@@ -1657,7 +1657,7 @@ function renderPayroll() {
         (otHours > 0 ? '<div class="payslip-row"><span>Overtime (' + otHours.toFixed(1) + 'h × 1.5)</span><span>€' + otPay.toFixed(2) + '</span></div>' : '') +
         (bonuses > 0 ? '<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+€' + bonuses.toFixed(2) + '</span></div>' : '') +
         (deductions > 0 ? '<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-€' + deductions.toFixed(2) + '</span></div>' : '') +
-        '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:6px;"><span class="payslip-total">NET PAY</span><span class="payslip-total">€' + net.toFixed(2) + '</span></div>' +
+        '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:6px;"><span class="payslip-total">GROSS PAY</span><span class="payslip-total">€' + gross.toFixed(2) + '</span></div>' +
         '</div>';
     });
   }
