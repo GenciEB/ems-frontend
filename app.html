@@ -537,6 +537,7 @@ async function submitForgotPin() {
   <div class="lock-ov" id="empLock" style="display:none;">
     <div style="font-size:32px;margin-bottom:12px;">🔒</div>
     <div style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:16px;">Manager access required</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;">First time? Enter any PIN to set it</div>
     <div class="field" style="width:100%;max-width:260px;">
       <label>Manager PIN</label>
       <input type="password" id="empPinInput" placeholder="••••" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')verifyMgrPin()">
@@ -1092,6 +1093,12 @@ async function loadAll() {
     renderDash();
     renderCheckin();
     populateSelects();
+    // Auto-generate QR tokens for employees that don't have one
+    if (emps.some(function(e){ return !e.qr_token; })) {
+      aPost('/api/business/' + BIZ_CODE + '/generate-qr-tokens', {}).then(function(){
+        aGet('/api/employees?business_id=' + BIZ_ID).then(function(e){ emps = e; });
+      }).catch(function(){});
+    }
   } catch(e) {
     setSy('error');
     toast('Failed to load data', 'error');
@@ -1267,7 +1274,7 @@ function showEmpLock() {
 
 async function verifyMgrPin() {
   var pin = document.getElementById('empPinInput').value.trim();
-  if (!pin) return;
+  if (!pin) { toast('Enter a PIN', 'error'); return; }
   try {
     setSy('syncing');
     var r = await aPost('/api/business/' + BIZ_CODE + '/verify-mgr', { pin: pin });
