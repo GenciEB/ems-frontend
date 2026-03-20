@@ -989,16 +989,10 @@ function startClock() {
     var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
-      body: JSON.stringify({ name, code, email })
+      body: JSON.stringify({ name, code, email, password })
     });
     if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
     var biz = await r.json();
-    // Set password
-    await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/set-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
-      body: JSON.stringify({ password })
-    });
     localStorage.setItem('ems_biz_code', biz.code);
     localStorage.setItem('ems_biz_id', biz.id);
     localStorage.setItem('ems_biz_name', biz.name);
