@@ -317,7 +317,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 
 <!-- DASHBOARD -->
 <div id="page-dash" class="page active">
-  <div class="sh"><div class="sh-eye">Overview</div><div class="sh-title">DASHBOARD</div><div class="sh-sub" id="dashDate"></div></div>
+  <div class="sh" style="display:flex;align-items:flex-start;justify-content:space-between;"><div><div class="sh-eye">Overview</div><div class="sh-title">DASHBOARD</div><div class="sh-sub" id="dashDate"></div></div><button onclick="loadAll()" style="background:var(--blue-dim);border:1px solid rgba(26,86,219,0.2);color:var(--blue);border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:10px;cursor:pointer;">↻ Refresh</button></div>
   <div class="stat-grid" id="dashStats"></div>
   <div id="dashOnShift"></div>
   <div id="dashRecent"></div>
@@ -702,6 +702,7 @@ function initApp() {
   roleEl.className = IS_MGR ? 'hdr-role manager' : 'hdr-role employee';
   startClock();
   loadAll();
+  startAutoRefresh();
 }
 
 // ── NAV ────────────────────────────────────────────────────────────────────
@@ -1124,6 +1125,15 @@ function renderAuditLog(){var log=loadAudit();var html='';if(log.length===0){htm
 // ── TAWK.TO ───────────────────────────────────────────────────────────────────
 var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();
 (function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/69bd3c2b26d3ea1c304abff7/1jk5j62rc';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();
+
+// ── AUTO REFRESH ──────────────────────────────────────────────────────────────
+function startAutoRefresh() {
+  setInterval(function() {
+    if (BIZ_CODE && BIZ_ID) {
+      loadAll();
+    }
+  }, 30000); // every 30 seconds
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 var urlParams = new URLSearchParams(window.location.search);
