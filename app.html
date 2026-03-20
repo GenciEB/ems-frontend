@@ -714,7 +714,7 @@ function goNav(page, btn) {
   var mgrOnly = ['employees','schedule','payroll','leaves','deductions','reports','plans','security'];
   if (mgrOnly.includes(page) && !IS_MGR) { toast('Manager access required', 'error'); return; }
   if (page === 'dash') renderDash();
-  if (page === 'checkin') renderCheckin();
+  if (page === 'checkin') { reloadShifts().then(renderCheckin); }
   if (page === 'employees') renderEmps();
   if (page === 'schedule') renderSchedule();
   if (page === 'payroll') renderPayroll();
@@ -793,6 +793,16 @@ function renderDash() {
   else recent.forEach(function(s){ var emp=emps.find(function(e){return e.id===s.emp_id;}); rh += '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);"><div><div style="font-weight:600;font-size:13px;">'+esc(emp?emp.name:'?')+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+fmt(s.date)+' · '+fmtTime(s.check_in)+'–'+fmtTime(s.check_out)+'</div></div><span class="badge bb">'+(parseFloat(s.hours)||0).toFixed(1)+'h</span></div>'; });
   rh += '</div>';
   document.getElementById('dashRecent').innerHTML = rh;
+}
+
+
+// ── RELOAD SHIFTS ──────────────────────────────────────────────────────────
+async function reloadShifts() {
+  try {
+    setSy('syncing');
+    shfts = await aGet('/api/shifts?business_id=' + BIZ_ID);
+    setSy('ok');
+  } catch(e) { setSy('error'); }
 }
 
 // ── CHECK IN/OUT ────────────────────────────────────────────────────────────
