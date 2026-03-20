@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fafaf8">
+<title>WorkBase — Check In</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:#fafaf8;color:#0d0d0d;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.logo{display:flex;align-items:center;gap:6px;margin-bottom:32px;}
+.logo-dot{width:8px;height:8px;background:#1a56db;border-radius:50%;}
+.logo-text{font-size:20px;font-weight:800;}
+.card{background:#fff;border:1px solid #e8e6e1;border-radius:24px;padding:32px 24px;width:100%;max-width:360px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+.emp-avatar{width:72px;height:72px;border-radius:50%;background:#eff6ff;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#1a56db;margin:0 auto 16px;}
+.emp-name{font-size:24px;font-weight:800;margin-bottom:4px;}
+.emp-role{font-family:'JetBrains Mono',monospace;font-size:12px;color:#888;margin-bottom:8px;}
+.biz-name{font-family:'JetBrains Mono',monospace;font-size:11px;color:#aaa;margin-bottom:28px;}
+.time-display{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:800;color:#1a56db;margin-bottom:8px;}
+.date-display{font-family:'JetBrains Mono',monospace;font-size:12px;color:#888;margin-bottom:28px;}
+.btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.btn-checkin{background:#0d0d0d;color:#fff;}
+.btn-checkin:hover{background:#1a56db;}
+.btn-checkout{background:#dc2626;color:#fff;}
+.status-card{border-radius:16px;padding:20px;margin-bottom:20px;}
+.status-card.success{background:#f0fdf4;border:1px solid #bbf7d0;}
+.status-card.warning{background:#fffbeb;border:1px solid #fde68a;}
+.status-card.info{background:#eff6ff;border:1px solid #bfdbfe;}
+.status-icon{font-size:40px;margin-bottom:12px;}
+.status-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.status-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:#888;}
+.loading{font-family:'JetBrains Mono',monospace;font-size:13px;color:#888;}
+.error-msg{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;color:#dc2626;font-family:'JetBrains Mono',monospace;font-size:12px;}
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <div class="logo-dot"></div>
+  <div class="logo-text">WorkBase</div>
+</div>
+
+<div class="card" id="mainCard">
+  <div class="loading" id="loadingState">Loading...</div>
+  
+  <div id="empState" style="display:none;">
+    <div class="emp-avatar" id="empAvatar"></div>
+    <div class="emp-name" id="empName"></div>
+    <div class="emp-role" id="empRole"></div>
+    <div class="biz-name" id="bizName"></div>
+    <div class="time-display" id="timeDisplay"></div>
+    <div class="date-display" id="dateDisplay"></div>
+    <div id="shiftStatus"></div>
+    <button class="btn btn-checkin" id="actionBtn" onclick="doAction()"></button>
+  </div>
+
+  <div id="successState" style="display:none;">
+    <div class="status-card success">
+      <div class="status-icon" id="successIcon"></div>
+      <div class="status-title" id="successTitle"></div>
+      <div class="status-sub" id="successSub"></div>
+    </div>
+    <button class="btn" style="background:#f2f1ee;color:#0d0d0d;" onclick="reset()">Done</button>
+  </div>
+
+  <div id="errorState" style="display:none;">
+    <div class="error-msg" id="errorMsg"></div>
+    <button class="btn" style="background:#f2f1ee;color:#0d0d0d;margin-top:12px;" onclick="reset()">Try Again</button>
+  </div>
+</div>
+
+<script>
+var API = 'https://ems-api-mgye.onrender.com';
+var API_KEY = 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd';
+var token = new URLSearchParams(window.location.search).get('t');
+var empData = null;
+var currentAction = 'checkin';
+
+function updateClock() {
+  var now = new Date();
+  var h = String(now.getHours()).padStart(2,'0');
+  var m = String(now.getMinutes()).padStart(2,'0');
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('timeDisplay').textContent = h + ':' + m;
+  document.getElementById('dateDisplay').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+}
+
+async function loadEmployee() {
+  if (!token) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = '';
+    document.getElementById('errorMsg').textContent = 'Invalid QR code. Please scan again.';
+    return;
+  }
+  try {
+    var r = await fetch(API + '/api/qr/' + token, { headers: { 'x-api-key': API_KEY } });
+    if (!r.ok) throw new Error('Invalid QR code');
+    empData = await r.json();
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('empState').style.display = '';
+    document.getElementById('empAvatar').textContent = empData.name[0].toUpperCase();
+    document.getElementById('empName').textContent = empData.name;
+    document.getElementById('empRole').textContent = empData.role || 'Staff';
+    document.getElementById('bizName').textContent = empData.biz_name;
+    updateClock();
+    setInterval(updateClock, 1000);
+    // Check today's shift status
+    checkShiftStatus();
+  } catch(e) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = '';
+    document.getElementById('errorMsg').textContent = e.message || 'Failed to load. Please try again.';
+  }
+}
+
+async function checkShiftStatus() {
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    var r = await fetch(API + '/api/shifts?business_id=' + empData.business_id + '&emp_id=' + empData.id, { headers: { 'x-api-key': API_KEY } });
+    var shifts = await r.json();
+    var todayShift = shifts.find(function(s){ return s.date === today; });
+    var btn = document.getElementById('actionBtn');
+    var status = document.getElementById('shiftStatus');
+    if (todayShift && todayShift.check_out) {
+      status.innerHTML = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px;margin-bottom:16px;font-family:JetBrains Mono,monospace;font-size:12px;color:#16a34a;">✓ Shift complete today · ' + todayShift.check_in + ' – ' + todayShift.check_out + '</div>';
+      btn.textContent = 'Already Clocked Out Today';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      currentAction = 'done';
+    } else if (todayShift && !todayShift.check_out) {
+      status.innerHTML = '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px;margin-bottom:16px;font-family:JetBrains Mono,monospace;font-size:12px;color:#1a56db;">⏳ On shift since ' + todayShift.check_in + '</div>';
+      btn.textContent = 'Check Out →';
+      btn.className = 'btn btn-checkout';
+      currentAction = 'checkout';
+    } else {
+      status.innerHTML = '';
+      btn.textContent = 'Check In →';
+      btn.className = 'btn btn-checkin';
+      currentAction = 'checkin';
+    }
+  } catch(e) {
+    document.getElementById('actionBtn').textContent = 'Check In →';
+  }
+}
+
+async function doAction() {
+  if (currentAction === 'done') return;
+  try {
+    document.getElementById('actionBtn').textContent = 'Please wait...';
+    document.getElementById('actionBtn').disabled = true;
+    var r = await fetch(API + '/api/qr/' + token + '/checkin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY }
+    });
+    var data = await r.json();
+    document.getElementById('empState').style.display = 'none';
+    document.getElementById('successState').style.display = '';
+    if (data.action === 'checkin') {
+      document.getElementById('successIcon').textContent = '✅';
+      document.getElementById('successTitle').textContent = 'Checked In!';
+      document.getElementById('successSub').textContent = data.emp_name + ' · ' + data.time;
+    } else if (data.action === 'checkout') {
+      document.getElementById('successIcon').textContent = '👋';
+      document.getElementById('successTitle').textContent = 'Checked Out!';
+      document.getElementById('successSub').textContent = data.emp_name + ' · ' + data.hours + ' hours worked';
+    } else {
+      document.getElementById('successIcon').textContent = '✓';
+      document.getElementById('successTitle').textContent = 'Already Done';
+      document.getElementById('successSub').textContent = 'Shift already completed today';
+    }
+    setTimeout(function(){ window.close() || reset(); }, 3000);
+  } catch(e) {
+    document.getElementById('empState').style.display = 'none';
+    document.getElementById('errorState').style.display = '';
+    document.getElementById('errorMsg').textContent = 'Failed. Please try again.';
+  }
+}
+
+function reset() {
+  document.getElementById('successState').style.display = 'none';
+  document.getElementById('errorState').style.display = 'none';
+  document.getElementById('empState').style.display = '';
+  document.getElementById('actionBtn').disabled = false;
+  checkShiftStatus();
+}
+
+loadEmployee();
+</script>
+</body>
+</html>
