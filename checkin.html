@@ -150,9 +150,13 @@ async function doAction() {
   try {
     document.getElementById('actionBtn').textContent = 'Please wait...';
     document.getElementById('actionBtn').disabled = true;
+    var now = new Date();
+    var localDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+    var localTime = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
     var r = await fetch(API + '/api/qr/' + token + '/checkin', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY }
+      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+      body: JSON.stringify({ date: localDate, time: localTime })
     });
     var data = await r.json();
     document.getElementById('empState').style.display = 'none';
