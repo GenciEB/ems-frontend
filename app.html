@@ -299,18 +299,30 @@ async function submitRegister() {
     window.location.reload();
   } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
 }
-async function submitBizCode() {
+async function submitManagerLogin() {
   var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
-  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  var password = document.getElementById('mgrPassword').value;
+  var err = document.getElementById('loginErr1');
+  if (!code) { err.textContent = 'Enter your business code'; return; }
+  if (!password) { err.textContent = 'Enter your password'; return; }
   try {
-    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
-      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/manager-login-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ password })
     });
-    if (!r.ok) { document.getElementById('loginErr1').textContent = 'Business not found. Check your code.'; return; }
-    var biz = await r.json();
-    localStorage.setItem('ems_biz_code', biz.code);
+    var data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Invalid credentials'; return; }
+    localStorage.setItem('ems_biz_code', data.biz_code);
+    localStorage.setItem('ems_biz_name', data.biz_name);
+    localStorage.setItem('ems_is_mgr', '1');
+    localStorage.setItem('ems_session_token', data.token);
+    // Get biz ID
+    var bizR = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
+      headers: { 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    });
+    var biz = await bizR.json();
     localStorage.setItem('ems_biz_id', biz.id);
-    localStorage.setItem('ems_biz_name', biz.name);
     window.location.reload();
   } catch(e) { document.getElementById('loginErr1').textContent = 'Connection error'; }
 }
@@ -319,21 +331,66 @@ async function submitRegister() {
   var name = document.getElementById('regName').value.trim();
   var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
   var email = document.getElementById('regEmail').value.trim();
+  var password = document.getElementById('regPassword').value;
   if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
   if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  if (!email || !email.includes('@')) { document.getElementById('loginErr2').textContent = 'Enter a valid email'; return; }
+  if (!password || password.length < 6) { document.getElementById('loginErr2').textContent = 'Password must be at least 6 characters'; return; }
   try {
     var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
-      body: JSON.stringify({ name, code, email: email || null })
+      body: JSON.stringify({ name, code, email })
     });
     if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
     var biz = await r.json();
+    // Set password
+    await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/set-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ password })
+    });
     localStorage.setItem('ems_biz_code', biz.code);
     localStorage.setItem('ems_biz_id', biz.id);
     localStorage.setItem('ems_biz_name', biz.name);
+    localStorage.setItem('ems_is_mgr', '1');
     window.location.reload();
   } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
+}
+
+function showForgotPassword() {
+  document.getElementById('loginForm').classList.add('hide');
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = 'none'; });
+  document.getElementById('forgotPasswordForm').style.display = 'flex';
+  var biz = document.getElementById('bizCodeInput');
+  if (biz) document.getElementById('forgotCode').value = biz.value || '';
+}
+
+function hideForgotPassword() {
+  document.getElementById('forgotPasswordForm').style.display = 'none';
+  document.getElementById('loginForm').classList.remove('hide');
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = ''; });
+  document.getElementById('forgotErr').textContent = '';
+  document.getElementById('forgotSuccess').style.display = 'none';
+}
+
+async function submitForgotPassword() {
+  var code = document.getElementById('forgotCode').value.trim().toLowerCase();
+  var email = document.getElementById('forgotEmail').value.trim();
+  var err = document.getElementById('forgotErr');
+  if (!code) { err.textContent = 'Enter your business code'; return; }
+  if (!email) { err.textContent = 'Enter your email'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ email })
+    });
+    var data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Failed'; return; }
+    document.getElementById('forgotSuccess').style.display = '';
+    document.querySelector('#forgotPasswordForm .btn-p').style.display = 'none';
+  } catch(e) { err.textContent = 'Connection error'; }
 }
 
 function switchLoginTab(tab) {
@@ -395,24 +452,44 @@ async function submitForgotPin() {
       <button class="ltab active" onclick="switchLoginTab('login')">Sign In</button>
       <button class="ltab" onclick="switchLoginTab('register')">Register</button>
     </div>
+
+    <!-- SIGN IN -->
     <div class="login-form" id="loginForm">
       <div class="login-card-title">Welcome back</div>
-      <div class="login-card-sub">Enter your business code to continue</div>
+      <div class="login-card-sub">Sign in to your workspace</div>
       <div class="field"><label>Business Code</label><input type="text" id="bizCodeInput" placeholder="e.g. mycoffeeshop" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+      <div class="field"><label>Password</label><input type="password" id="mgrPassword" placeholder="Your manager password"></div>
       <div class="login-err" id="loginErr1"></div>
-      <button type="button" class="btn btn-p" onclick="submitBizCode()">Enter Workspace →</button>
-      <div class="login-hint">Don't have an account? Switch to Register above.</div>
-      <div style="text-align:center;margin-top:4px;"><button type="button" onclick="showForgotPin()" style="background:none;border:none;color:#1a56db;font-size:12px;cursor:pointer;font-family:var(--mono);">Forgot Manager PIN?</button></div>
+      <button type="button" class="btn btn-p" onclick="submitManagerLogin()">Sign In →</button>
+      <div style="text-align:center;margin-top:8px;">
+        <button type="button" onclick="showForgotPassword()" style="background:none;border:none;color:#1a56db;font-size:12px;cursor:pointer;font-family:var(--mono);">Forgot password?</button>
+      </div>
+      <div class="login-hint">Not a manager? Ask your manager for the business code to check in.</div>
     </div>
+
+    <!-- REGISTER -->
     <div class="register-form" id="registerForm">
       <div class="login-card-title">Create your workspace</div>
       <div class="login-card-sub">Free for up to 5 employees</div>
       <div class="field"><label>Business Name</label><input type="text" id="regName" placeholder="My Coffee Shop" autocomplete="off"></div>
       <div class="field"><label>Business Code</label><input type="text" id="regCode" placeholder="mycoffeeshop" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
-      <div class="field"><label>Email <span style="color:#bbb;font-size:10px;">(for welcome email)</span></label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="field"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="field"><label>Password</label><input type="password" id="regPassword" placeholder="Min. 6 characters"></div>
       <div class="login-err" id="loginErr2"></div>
       <button type="button" class="btn btn-p" onclick="submitRegister()">Create Workspace →</button>
       <div class="login-hint">Your code is how your team logs in.</div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="forgotPasswordForm" style="display:none;flex-direction:column;gap:12px;">
+      <div class="login-card-title">Forgot Password</div>
+      <div class="login-card-sub">Enter your business code and email</div>
+      <div class="field"><label>Business Code</label><input type="text" id="forgotCode" placeholder="mycoffeeshop" autocomplete="off" autocapitalize="none"></div>
+      <div class="field"><label>Email</label><input type="email" id="forgotEmail" placeholder="you@example.com"></div>
+      <div class="login-err" id="forgotErr"></div>
+      <button type="button" class="btn btn-p" onclick="submitForgotPassword()">Send Reset Link →</button>
+      <div id="forgotSuccess" style="display:none;text-align:center;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-family:var(--mono);font-size:12px;color:#16a34a;">✓ Reset link sent to your email!</div>
+      <div style="text-align:center;"><button type="button" onclick="hideForgotPassword()" style="background:none;border:none;color:#888;font-size:12px;cursor:pointer;font-family:var(--mono);">← Back to Sign In</button></div>
     </div>
   
     <!-- FORGOT PIN FORM -->
@@ -534,17 +611,8 @@ async function submitForgotPin() {
 <!-- EMPLOYEES -->
 <div id="page-employees" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">STAFF</div><div class="sh-sub">Manage your team</div></div>
-  <div class="lock-ov" id="empLock" style="display:none;">
-    <div style="font-size:32px;margin-bottom:12px;">🔒</div>
-    <div style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:16px;">Manager access required</div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;">First time? Enter any PIN to set it</div>
-    <div class="field" style="width:100%;max-width:260px;">
-      <label>Manager PIN</label>
-      <input type="password" id="empPinInput" placeholder="••••" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')verifyMgrPin()">
-    </div>
-    <button class="btn btn-p" style="max-width:260px;margin-top:8px;" onclick="verifyMgrPin()">Unlock →</button>
-  </div>
-  <div id="empContent" style="display:none;">
+
+  <div id="empContent">
     <div class="card">
       <div class="card-lbl">Add Employee</div>
       <div class="form-s">
@@ -823,7 +891,7 @@ var API_KEY = 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd';
 var BIZ_CODE = localStorage.getItem('ems_biz_code') || '';
 var BIZ_ID = localStorage.getItem('ems_biz_id') || '';
 var BIZ_NAME = localStorage.getItem('ems_biz_name') || '';
-var IS_MGR = localStorage.getItem('ems_is_mgr') === '1';
+var IS_MGR = localStorage.getItem('ems_is_mgr') === '1'; // Set at login
 var SESSION_TOKEN = localStorage.getItem('ems_session_token') || null;
 var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
@@ -935,18 +1003,30 @@ async function submitRegister() {
     window.location.reload();
   } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
 }
-async function submitBizCode() {
+async function submitManagerLogin() {
   var code = document.getElementById('bizCodeInput').value.trim().toLowerCase();
-  if (!code) { document.getElementById('loginErr1').textContent = 'Enter your business code'; return; }
+  var password = document.getElementById('mgrPassword').value;
+  var err = document.getElementById('loginErr1');
+  if (!code) { err.textContent = 'Enter your business code'; return; }
+  if (!password) { err.textContent = 'Enter your password'; return; }
   try {
-    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
-      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/manager-login-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ password })
     });
-    if (!r.ok) { document.getElementById('loginErr1').textContent = 'Business not found. Check your code.'; return; }
-    var biz = await r.json();
-    localStorage.setItem('ems_biz_code', biz.code);
+    var data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Invalid credentials'; return; }
+    localStorage.setItem('ems_biz_code', data.biz_code);
+    localStorage.setItem('ems_biz_name', data.biz_name);
+    localStorage.setItem('ems_is_mgr', '1');
+    localStorage.setItem('ems_session_token', data.token);
+    // Get biz ID
+    var bizR = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code, {
+      headers: { 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' }
+    });
+    var biz = await bizR.json();
     localStorage.setItem('ems_biz_id', biz.id);
-    localStorage.setItem('ems_biz_name', biz.name);
     window.location.reload();
   } catch(e) { document.getElementById('loginErr1').textContent = 'Connection error'; }
 }
@@ -955,21 +1035,66 @@ async function submitRegister() {
   var name = document.getElementById('regName').value.trim();
   var code = document.getElementById('regCode').value.trim().toLowerCase().replace(/\s/g,'');
   var email = document.getElementById('regEmail').value.trim();
+  var password = document.getElementById('regPassword').value;
   if (!name) { document.getElementById('loginErr2').textContent = 'Enter your business name'; return; }
   if (!code || code.length < 3) { document.getElementById('loginErr2').textContent = 'Code must be at least 3 characters'; return; }
+  if (!email || !email.includes('@')) { document.getElementById('loginErr2').textContent = 'Enter a valid email'; return; }
+  if (!password || password.length < 6) { document.getElementById('loginErr2').textContent = 'Password must be at least 6 characters'; return; }
   try {
     var r = await fetch('https://ems-api-mgye.onrender.com/api/business', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
-      body: JSON.stringify({ name, code, email: email || null })
+      body: JSON.stringify({ name, code, email })
     });
     if (!r.ok) { var e = await r.json(); document.getElementById('loginErr2').textContent = e.error || 'Code already taken'; return; }
     var biz = await r.json();
+    // Set password
+    await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/set-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ password })
+    });
     localStorage.setItem('ems_biz_code', biz.code);
     localStorage.setItem('ems_biz_id', biz.id);
     localStorage.setItem('ems_biz_name', biz.name);
+    localStorage.setItem('ems_is_mgr', '1');
     window.location.reload();
   } catch(e) { document.getElementById('loginErr2').textContent = 'Connection error'; }
+}
+
+function showForgotPassword() {
+  document.getElementById('loginForm').classList.add('hide');
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = 'none'; });
+  document.getElementById('forgotPasswordForm').style.display = 'flex';
+  var biz = document.getElementById('bizCodeInput');
+  if (biz) document.getElementById('forgotCode').value = biz.value || '';
+}
+
+function hideForgotPassword() {
+  document.getElementById('forgotPasswordForm').style.display = 'none';
+  document.getElementById('loginForm').classList.remove('hide');
+  document.querySelectorAll('.login-tabs').forEach(function(t){ t.style.display = ''; });
+  document.getElementById('forgotErr').textContent = '';
+  document.getElementById('forgotSuccess').style.display = 'none';
+}
+
+async function submitForgotPassword() {
+  var code = document.getElementById('forgotCode').value.trim().toLowerCase();
+  var email = document.getElementById('forgotEmail').value.trim();
+  var err = document.getElementById('forgotErr');
+  if (!code) { err.textContent = 'Enter your business code'; return; }
+  if (!email) { err.textContent = 'Enter your email'; return; }
+  try {
+    var r = await fetch('https://ems-api-mgye.onrender.com/api/business/' + code + '/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd' },
+      body: JSON.stringify({ email })
+    });
+    var data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Failed'; return; }
+    document.getElementById('forgotSuccess').style.display = '';
+    document.querySelector('#forgotPasswordForm .btn-p').style.display = 'none';
+  } catch(e) { err.textContent = 'Connection error'; }
 }
 
 function switchLoginTab(tab) {
@@ -1059,15 +1184,15 @@ function goNav(page, btn) {
   if (pageEl) pageEl.classList.add('active');
   if (btn) btn.classList.add('active');
 
-  // Manager-only pages need PIN
+  // Manager-only pages
   var managerPages = ['employees','schedule','payroll','leaves','deductions','plans','security'];
   if (managerPages.includes(page) && !IS_MGR) {
-    showEmpLock();
+    toast('Manager access required. Please sign in as manager.', 'error');
     return;
   }
   if (page === 'dash') renderDash();
   if (page === 'checkin') renderCheckin();
-  if (page === 'employees') { document.getElementById('empLock').style.display = 'none'; document.getElementById('empContent').style.display = ''; renderEmps(); }
+  if (page === 'employees') { document.getElementById('empContent').style.display = ''; renderEmps(); }
   if (page === 'schedule') renderSchedule();
   if (page === 'payroll') renderPayroll();
   if (page === 'leaves') renderLeaves();
