@@ -7,12 +7,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="WorkBase">
+<meta name="apple-mobile-web-app-title" content="ShiftHQ">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-XSS-Protection" content="1; mode=block">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>WorkBase — Staff Manager</title>
+<title>ShiftHQ — Staff Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   --bg:#fafaf8;--bg2:#f2f1ee;--surface:#fff;--border:#e8e6e1;--border2:#d4d0c8;
@@ -200,6 +203,32 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .audit-msg{font-size:12px;font-weight:600;}
 .audit-who{font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:2px;}
 
+
+/* DARK MODE */
+body.dark {
+  --bg:#0f0f0f;
+  --bg2:#1a1a1a;
+  --surface:#1e1e1e;
+  --border:#2a2a2a;
+  --border2:#333;
+  --text:#f0f0ee;
+  --text2:#c0c0bc;
+  --text3:#666;
+  --blue:#3b82f6;
+  --blue-dim:rgba(59,130,246,0.12);
+}
+body.dark header{background:rgba(15,15,15,0.95);}
+body.dark nav.bnav{background:rgba(15,15,15,0.97);}
+body.dark .card,.dark .emp-item,.dark .sh,.dark .payslip,.dark .plan-card,.dark .audit-i,.dark .stat-box{background:#1e1e1e;border-color:#2a2a2a;}
+body.dark input,body.dark select,body.dark textarea{background:#1a1a1a;border-color:#2a2a2a;color:#f0f0ee;}
+body.dark .btn-g{background:#1a1a1a;color:#c0c0bc;border-color:#2a2a2a;}
+body.dark #loginScreen{background:#0f0f0f;}
+body.dark .login-card{background:#1e1e1e;border-color:#2a2a2a;}
+body.dark .ltab.active{background:#2a2a2a;}
+body.dark .page{background:#0f0f0f;}
+body.dark .filter-row .af{color:#888;border-color:#2a2a2a;}
+body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
+
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 @keyframes fadeOut{from{opacity:1}to{opacity:0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -217,7 +246,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 
 <!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-logo"><span class="login-logo-dot"></span>WorkBase</div>
+  <div class="login-logo"><span class="login-logo-dot"></span>ShiftHQ</div>
   <div class="login-sub">STAFF MANAGEMENT</div>
   <div class="login-card">
     <div class="login-tabs">
@@ -287,7 +316,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <div style="background:#fff;border-radius:24px;padding:28px 22px;max-width:340px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
     <div style="display:flex;align-items:center;gap:5px;margin-bottom:16px;">
       <div style="width:7px;height:7px;background:#1a56db;border-radius:50%;"></div>
-      <span style="font-weight:800;font-size:15px;">WorkBase</span>
+      <span style="font-weight:800;font-size:15px;">ShiftHQ</span>
     </div>
     <div style="font-size:32px;margin-bottom:10px;">🎉</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Welcome!</div>
@@ -303,13 +332,15 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 
 <header>
   <div>
-    <div class="logo"><span class="logo-dot"></span>WorkBase</div>
+    <div class="logo"><span class="logo-dot"></span>ShiftHQ</div>
     <div class="logo-sub" id="bizNameLabel"></div>
   </div>
   <div class="hdr-r">
     <span class="sdot" id="syncDot"></span>
     <div class="clock" id="clockEl"></div>
     <span class="hdr-role" id="roleLabel"></span>
+    <button onclick="toggleDark()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px;" title="Toggle dark mode">🌙</button>
+    <button onclick="setLang(LANG==='en'?'sq':'en')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:9px;padding:3px 7px;cursor:pointer;color:var(--text2);" id="langBtn">SQ</button>
   </div>
 </header>
 
@@ -438,6 +469,48 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <div id="dedList"></div>
 </div>
 
+
+<!-- ANALYTICS -->
+<div id="page-analytics" class="page">
+  <div class="sh" style="display:flex;align-items:flex-start;justify-content:space-between;">
+    <div><div class="sh-eye">Manager</div><div class="sh-title">ANALYTICS</div><div class="sh-sub">Insights & trends</div></div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-align:right;" id="analyticsRange"></div>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:12px;" id="analyticsStats"></div>
+
+  <!-- Hours per employee chart -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-lbl">Hours This Month — Per Employee</div>
+    <canvas id="chartHoursEmp" height="180"></canvas>
+  </div>
+
+  <!-- Daily hours chart -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-lbl">Daily Hours — Last 14 Days</div>
+    <canvas id="chartDaily" height="180"></canvas>
+  </div>
+
+  <!-- Attendance chart -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-lbl">Attendance Rate — This Month</div>
+    <canvas id="chartAttendance" height="180"></canvas>
+  </div>
+
+  <!-- Payroll trend -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-lbl">Payroll Cost — Last 6 Months</div>
+    <canvas id="chartPayroll" height="180"></canvas>
+  </div>
+
+  <!-- Late arrivals -->
+  <div class="card">
+    <div class="card-lbl">Late Arrivals — This Month</div>
+    <div id="lateList"></div>
+  </div>
+</div>
+
 <!-- REPORTS -->
 <div id="page-reports" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">REPORTS</div><div class="sh-sub">Export data as CSV</div></div>
@@ -487,7 +560,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
     </div>
     <div class="plan-card pro" id="planProCard">
       <div class="plan-badge pro">PRO</div>
-      <div class="plan-price">€19<span class="plan-per">/mo</span></div>
+      <div class="plan-price">€10<span class="plan-per">/mo</span></div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 10px;">Professional</div>
       <div class="pf">Unlimited employees</div>
       <div class="pf">Check in / out</div>
@@ -520,9 +593,9 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <div class="card">
     <div class="card-lbl">Change Password</div>
     <div class="form-s">
-      <div class="field"><label>Current Password</label><input type="password" id="currentPwd" placeholder="••••••"></div>
+      <div class="field"><label>Current Password</label><input type="password" id="currentPwd" placeholder="Your current password"></div>
       <div class="field"><label>New Password</label><input type="password" id="newPwd" placeholder="Min. 6 characters"></div>
-      <div class="field"><label>Confirm New Password</label><input type="password" id="confirmPwd" placeholder="Repeat"></div>
+      <div class="field"><label>Confirm New Password</label><input type="password" id="confirmPwd" placeholder="Repeat new password"></div>
       <button class="btn btn-p" onclick="changePassword()">🔑 Change Password</button>
     </div>
   </div>
@@ -531,6 +604,18 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
     <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:10px;">Send last week's hours & pay to your email.</div>
     <button class="btn btn-s" onclick="sendWeeklySummary()">📧 Send Weekly Summary</button>
     <div id="summaryMsg" style="font-family:var(--mono);font-size:11px;color:var(--green);margin-top:6px;min-height:14px;"></div>
+  </div>
+  <div class="card">
+    <div class="card-lbl">Daily Digest</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:10px;">Send today's attendance summary to your email.</div>
+    <button class="btn btn-s" onclick="sendDailyDigest()">📧 Send Daily Digest</button>
+    <div id="digestMsg" style="font-family:var(--mono);font-size:11px;color:var(--green);margin-top:6px;min-height:14px;"></div>
+  </div>
+  <div class="card">
+    <div class="card-lbl">Employee Portal</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:10px;">Share this link with your employees so they can view their own shifts and pay.</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;font-family:var(--mono);font-size:11px;word-break:break-all;margin-bottom:10px;" id="portalLink"></div>
+    <button class="btn btn-s" onclick="copyPortalLink()">📋 Copy Link</button>
   </div>
   <div class="card">
     <div class="card-lbl">Session</div>
@@ -554,6 +639,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
   <button class="tb" onclick="goNav('payroll',this)" data-page="payroll"><span class="ic">💰</span>PAY</button>
   <button class="tb" onclick="goNav('leaves',this)" data-page="leaves"><span class="ic">🏖</span>LEAVE</button>
   <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>DED</button>
+  <button class="tb" onclick="goNav('analytics',this)" data-page="analytics"><span class="ic">📈</span>STATS</button>
   <button class="tb" onclick="goNav('reports',this)" data-page="reports"><span class="ic">📊</span>REPORT</button>
   <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
   <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
@@ -564,7 +650,7 @@ main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 <script>
 'use strict';
 var API = 'https://ems-api-mgye.onrender.com';
-var API_KEY = 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd';
+var API_KEY = 'shq_api_31qoTd8GkJFIqw4ftcnM9dpYkMWmmPhK';
 var BIZ_CODE = localStorage.getItem('ems_biz_code') || '';
 var BIZ_ID = localStorage.getItem('ems_biz_id') || '';
 var BIZ_NAME = localStorage.getItem('ems_biz_name') || '';
@@ -580,16 +666,55 @@ var schedView = 'week';
 var currentCSV = '', currentCSVName = '';
 var currentQRUrl = '';
 
+
+// ── LANGUAGE ────────────────────────────────────────────────────────────────
+var LANG = localStorage.getItem('shq_lang') || 'en';
+var T = {
+  en: {
+    dashboard: 'DASHBOARD', checkin: 'CHECK IN/OUT', staff: 'STAFF',
+    schedule: 'SCHEDULE', payroll: 'PAYROLL', leaves: 'LEAVES',
+    deductions: 'DEDUCTIONS', reports: 'REPORTS', plans: 'PLANS',
+    security: 'SECURITY', analytics: 'ANALYTICS',
+    onShift: 'On Shift Now', noShift: 'Nobody currently on shift',
+    addEmp: 'Add Employee', signOut: 'Sign Out',
+    grossPay: 'GROSS PAY', thisMonth: 'THIS MONTH',
+    checkIn: 'Check In', checkOut: 'Check Out', done: 'Done'
+  },
+  sq: {
+    dashboard: 'PANELI', checkin: 'HYRJE/DALJE', staff: 'STAFI',
+    schedule: 'ORARI', payroll: 'PAGAT', leaves: 'LEJET',
+    deductions: 'ZBRITJET', reports: 'RAPORTET', plans: 'PLANET',
+    security: 'SIGURIA', analytics: 'STATISTIKA',
+    onShift: 'Në Punë Tani', noShift: 'Askush në punë aktualisht',
+    addEmp: 'Shto Punonjës', signOut: 'Dilni',
+    grossPay: 'PAGA BRUTO', thisMonth: 'KËTË MUAJ',
+    checkIn: 'Hyrje', checkOut: 'Dalje', done: 'Kryer'
+  }
+};
+function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
+function setLang(lang) { LANG = lang; localStorage.setItem('shq_lang', lang); location.reload(); }
+function toggleDark() {
+  var isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('shq_dark', isDark ? '1' : '0');
+}
+
 // ── UTILS ──────────────────────────────────────────────────────────────────
 function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
 function fmt(d) { if (!d) return '—'; var dt = new Date(d + (d.includes('T') ? '' : 'T00:00:00')); var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate() + ' ' + m[dt.getMonth()]; }
 function fmtTime(t) { return t ? t.slice(0,5) : '—'; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sanitizeInput(s) { return String(s||'').replace(/[<>]/g,'').trim().slice(0,500); }
 function toast(msg, type) { var w = document.getElementById('toastW'); var t = document.createElement('div'); t.className = 'toast' + (type ? ' '+type : ''); t.textContent = msg; w.appendChild(t); setTimeout(function(){ t.remove(); }, 2700); }
 function setSy(s) { var d = document.getElementById('syncDot'); if (d) d.className = 'sdot ' + s; }
 
 // ── API ────────────────────────────────────────────────────────────────────
-function buildHeaders() { var h = {'Content-Type':'application/json','x-api-key':API_KEY}; if (SESSION_TOKEN) h['x-session-token'] = SESSION_TOKEN; return h; }
+function buildHeaders() {
+  var h = {'Content-Type':'application/json'};
+  if (SESSION_TOKEN) h['x-session-token'] = SESSION_TOKEN;
+  // Only send API key for non-authenticated requests
+  if (!SESSION_TOKEN) h['x-api-key'] = API_KEY;
+  return h;
+}
 async function aGet(path) { var r = await fetch(API + path, {headers: buildHeaders()}); if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
 async function aPost(path, body) { var r = await fetch(API + path, {method:'POST',headers:buildHeaders(),body:JSON.stringify(body)}); if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
 async function aDel(path) { var r = await fetch(API + path, {method:'DELETE',headers:buildHeaders()}); if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
@@ -703,6 +828,8 @@ function initApp() {
   startClock();
   loadAll();
   startAutoRefresh();
+  var langBtn = document.getElementById('langBtn');
+  if (langBtn) langBtn.textContent = LANG === 'en' ? 'SQ' : 'EN';
 }
 
 // ── NAV ────────────────────────────────────────────────────────────────────
@@ -721,6 +848,7 @@ function goNav(page, btn) {
   if (page === 'payroll') renderPayroll();
   if (page === 'leaves') renderLeaves();
   if (page === 'deductions') renderDeds();
+  if (page === 'analytics') renderAnalytics();
   if (page === 'reports') renderReports();
   if (page === 'plans') renderPlans();
   if (page === 'security') renderSecurity();
@@ -878,7 +1006,7 @@ function checkEmpLimit() {
 
 async function addEmp() {
   if (!checkEmpLimit()) return;
-  var name = document.getElementById('empName').value.trim();
+  var name = sanitizeInput(document.getElementById('empName').value);
   var role = document.getElementById('empRole').value.trim();
   var pin = document.getElementById('empPin').value.trim();
   var rate = document.getElementById('empRate').value.trim();
@@ -939,7 +1067,7 @@ function showQR(empId) {
 }
 function closeQR() { document.getElementById('qrModal').classList.remove('open'); }
 function shareQR() {
-  if (navigator.share) { navigator.share({title:'WorkBase Check-In', url:currentQRUrl}); }
+  if (navigator.share) { navigator.share({title:'ShiftHQ Check-In', url:currentQRUrl}); }
   else { navigator.clipboard.writeText(currentQRUrl).then(function(){ toast('Link copied!', 'success'); }); }
 }
 
@@ -1114,13 +1242,206 @@ async function startUpgrade(){try{setSy('syncing');toast('Redirecting to checkou
 async function saveNotifyEmail(){var email=document.getElementById('notifyEmail').value.trim();if(!email||!email.includes('@')){toast('Enter valid email','error');return;}localStorage.setItem('ems_notify_email',email);try{await aPost('/api/business/'+BIZ_CODE+'/notify-email',{email});}catch(e){}document.getElementById('notifyMsg').textContent='✓ Got it! We\'ll notify you.';document.getElementById('notifyEmail').value='';toast('Thanks!','success');}
 
 // ── SECURITY ─────────────────────────────────────────────────────────────────
-function renderSecurity(){document.getElementById('secBizCode').textContent=BIZ_CODE;document.getElementById('secBizName').textContent=BIZ_NAME;renderAuditLog();}
-async function changePassword(){var current=document.getElementById('currentPwd').value.trim(),newPwd=document.getElementById('newPwd').value.trim(),confirm=document.getElementById('confirmPwd').value.trim();if(!current||!newPwd||!confirm){toast('Fill all fields','error');return;}if(newPwd!==confirm){toast('Passwords do not match','error');return;}if(newPwd.length<6){toast('Password must be at least 6 characters','error');return;}try{setSy('syncing');await aPost('/api/business/'+BIZ_CODE+'/change-mgr-pin',{current_pin:current,new_pin:newPwd});setSy('ok');['currentPwd','newPwd','confirmPwd'].forEach(function(id){document.getElementById(id).value='';});logAudit('security','Password changed','Manager');toast('Password changed!','success');}catch(e){setSy('error');toast(e.message||'Failed','error');}}
+function renderSecurity(){document.getElementById('secBizCode').textContent=BIZ_CODE;document.getElementById('secBizName').textContent=BIZ_NAME;renderAuditLog();renderPortalLink();}
+async function changePassword(){var current=document.getElementById('currentPwd').value,newPwd=document.getElementById('newPwd').value,confirm=document.getElementById('confirmPwd').value;if(!current||!newPwd||!confirm){toast('Fill all fields','error');return;}if(newPwd!==confirm){toast('Passwords do not match','error');return;}if(newPwd.length<6){toast('Min. 6 characters','error');return;}try{setSy('syncing');await aPost('/api/business/'+BIZ_CODE+'/change-mgr-pin',{current_pin:current,new_pin:newPwd});setSy('ok');['currentPwd','newPwd','confirmPwd'].forEach(function(id){document.getElementById(id).value='';});logAudit('security','Password changed','Manager');toast('Password changed!','success');}catch(e){setSy('error');toast(e.message||'Failed','error');}}
 async function sendWeeklySummary(){try{setSy('syncing');document.getElementById('summaryMsg').textContent='Sending...';await aPost('/api/business/'+BIZ_CODE+'/send-weekly-summary',{});setSy('ok');document.getElementById('summaryMsg').textContent='✓ Weekly summary sent!';toast('Weekly summary sent!','success');}catch(e){setSy('error');document.getElementById('summaryMsg').textContent='';toast(e.message||'Failed','error');}}
-function logoutBiz(){if(!confirm('Sign out of WorkBase?'))return;localStorage.clear();location.reload();}
+function logoutBiz(){if(!confirm('Sign out of ShiftHQ?'))return;localStorage.clear();location.reload();}
 function loadAudit(){if(!AUDIT_KEY)return[];try{var d=localStorage.getItem(AUDIT_KEY);return d?JSON.parse(d):[];}catch(e){return[];}}
 function logAudit(action,msg,who){if(!AUDIT_KEY)return;var log=loadAudit();log.unshift({action,msg,who,ts:new Date().toISOString()});if(log.length>50)log=log.slice(0,50);try{localStorage.setItem(AUDIT_KEY,JSON.stringify(log));}catch(e){}}
 function renderAuditLog(){var log=loadAudit();var html='';if(log.length===0){html='<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No activity yet</div>';}else log.slice(0,20).forEach(function(entry){var d=new Date(entry.ts),ts=d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');html+='<div class="audit-i action-'+(entry.action||'')+'"><div class="audit-ts">'+ts+'</div><div class="audit-msg">'+esc(entry.msg)+'</div><div class="audit-who">'+esc(entry.who||'System')+'</div></div>';});document.getElementById('auditLog').innerHTML=html;}
+
+
+// ── ANALYTICS ──────────────────────────────────────────────────────────────
+var chartInstances = {};
+
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+function renderAnalytics() {
+  var today = dk(new Date());
+  var thisMonth = today.slice(0,7);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var now = new Date();
+
+  document.getElementById('analyticsRange').textContent = months[now.getMonth()] + ' ' + now.getFullYear();
+
+  // ── Summary stats ──
+  var monthShifts = shfts.filter(function(s){ return s.date && s.date.slice(0,7)===thisMonth && s.check_out; });
+  var totalH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
+  var totalPay = monthShifts.reduce(function(a,s){ var emp=emps.find(function(e){return e.id===s.emp_id;}); return a+(parseFloat(s.hours)||0)*(parseFloat(emp&&emp.rate)||0); },0);
+  var lateCount = monthShifts.filter(function(s){ return s.is_late; }).length;
+  var attendRate = emps.length > 0 ? Math.round((monthShifts.length / (emps.length * now.getDate())) * 100) : 0;
+
+  document.getElementById('analyticsStats').innerHTML =
+    '<div class="stat-box"><div class="stat-v">'+totalH.toFixed(0)+'h</div><div class="stat-k">TOTAL HOURS</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">€'+totalPay.toFixed(0)+'</div><div class="stat-k">PAYROLL COST</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:'+(lateCount>0?'var(--red)':'var(--green)')+';">'+lateCount+'</div><div class="stat-k">LATE ARRIVALS</div></div>' +
+    '<div class="stat-box"><div class="stat-v">'+Math.min(attendRate,100)+'%</div><div class="stat-k">ATTENDANCE</div></div>';
+
+  // ── Hours per employee ──
+  destroyChart('chartHoursEmp');
+  var empLabels = emps.map(function(e){ return e.name.split(' ')[0]; });
+  var empHours = emps.map(function(emp){
+    return monthShifts.filter(function(s){return s.emp_id===emp.id;}).reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);
+  });
+  var ctx1 = document.getElementById('chartHoursEmp').getContext('2d');
+  chartInstances['chartHoursEmp'] = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: empLabels,
+      datasets: [{
+        label: 'Hours',
+        data: empHours,
+        backgroundColor: 'rgba(26,86,219,0.8)',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+
+  // ── Daily hours last 14 days ──
+  destroyChart('chartDaily');
+  var days14 = [];
+  var dayLabels = [];
+  for (var i=13; i>=0; i--) {
+    var d = new Date(); d.setDate(d.getDate()-i);
+    var ds = dk(d);
+    days14.push(ds);
+    dayLabels.push(String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'));
+  }
+  var dailyHours = days14.map(function(ds){
+    return shfts.filter(function(s){return s.date===ds&&s.check_out;}).reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);
+  });
+  var ctx2 = document.getElementById('chartDaily').getContext('2d');
+  chartInstances['chartDaily'] = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: dayLabels,
+      datasets: [{
+        label: 'Hours',
+        data: dailyHours,
+        borderColor: '#1a56db',
+        backgroundColor: 'rgba(26,86,219,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: '#1a56db'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 45 } }
+      }
+    }
+  });
+
+  // ── Attendance per employee this month ──
+  destroyChart('chartAttendance');
+  var daysInMonth = now.getDate();
+  var attendData = emps.map(function(emp){
+    var worked = monthShifts.filter(function(s){return s.emp_id===emp.id;}).length;
+    return Math.round((worked/daysInMonth)*100);
+  });
+  var ctx3 = document.getElementById('chartAttendance').getContext('2d');
+  chartInstances['chartAttendance'] = new Chart(ctx3, {
+    type: 'bar',
+    data: {
+      labels: empLabels,
+      datasets: [{
+        label: 'Attendance %',
+        data: attendData,
+        backgroundColor: attendData.map(function(v){ return v >= 80 ? 'rgba(22,163,74,0.8)' : v >= 60 ? 'rgba(217,119,6,0.8)' : 'rgba(220,38,38,0.8)'; }),
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { callback: function(v){ return v+'%'; }, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+
+  // ── Payroll last 6 months ──
+  destroyChart('chartPayroll');
+  var pay6 = [], payLabels = [];
+  for (var j=5; j>=0; j--) {
+    var md = new Date(); md.setMonth(md.getMonth()-j);
+    var ym2 = md.getFullYear()+'-'+String(md.getMonth()+1).padStart(2,'0');
+    payLabels.push(months[md.getMonth()].slice(0,3));
+    var mPay = shfts.filter(function(s){ return s.date&&s.date.slice(0,7)===ym2&&s.check_out; }).reduce(function(a,s){
+      var emp=emps.find(function(e){return e.id===s.emp_id;}); return a+(parseFloat(s.hours)||0)*(parseFloat(emp&&emp.rate)||0);
+    },0);
+    pay6.push(Math.round(mPay));
+  }
+  var ctx4 = document.getElementById('chartPayroll').getContext('2d');
+  chartInstances['chartPayroll'] = new Chart(ctx4, {
+    type: 'bar',
+    data: {
+      labels: payLabels,
+      datasets: [{
+        label: 'Payroll €',
+        data: pay6,
+        backgroundColor: 'rgba(8,145,178,0.8)',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: function(v){ return '€'+v; }, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+
+  // ── Late arrivals list ──
+  var lateShifts = monthShifts.filter(function(s){ return s.is_late; }).sort(function(a,b){ return (b.late_minutes||0)-(a.late_minutes||0); });
+  var lateHtml = '';
+  if (lateShifts.length === 0) {
+    lateHtml = '<div style="font-family:var(--mono);font-size:11px;color:var(--green);padding:10px 0;">✓ No late arrivals this month!</div>';
+  } else {
+    lateShifts.forEach(function(s) {
+      var emp = emps.find(function(e){ return e.id===s.emp_id; });
+      lateHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);">' +
+        '<div><div style="font-weight:600;font-size:13px;">'+(emp?emp.name:'?')+'</div>' +
+        '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+s.date+' · checked in '+s.check_in+'</div></div>' +
+        '<span class="badge br">+'+s.late_minutes+'m</span></div>';
+    });
+  }
+  document.getElementById('lateList').innerHTML = lateHtml;
+}
+
+// ── EMPLOYEE PORTAL ───────────────────────────────────────────────────────────
+async function sendDailyDigest(){try{setSy('syncing');document.getElementById('digestMsg').textContent='Sending...';await aPost('/api/business/'+BIZ_CODE+'/send-daily-digest',{});setSy('ok');document.getElementById('digestMsg').textContent='✓ Daily digest sent!';toast('Daily digest sent!','success');}catch(e){setSy('error');document.getElementById('digestMsg').textContent='';toast(e.message||'Failed','error');}}
+function renderPortalLink() {
+  var el = document.getElementById('portalLink');
+  if (el) {
+    var url = 'https://ems-frontend-five-tau.vercel.app/employee.html';
+    el.textContent = url;
+  }
+}
+function copyPortalLink() {
+  var url = 'https://ems-frontend-five-tau.vercel.app/employee.html';
+  navigator.clipboard.writeText(url).then(function(){ toast('Link copied!', 'success'); });
+}
 
 // ── TAWK.TO ───────────────────────────────────────────────────────────────────
 var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();
@@ -1129,7 +1450,10 @@ var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();
 // ── AUTO REFRESH ──────────────────────────────────────────────────────────────
 function startAutoRefresh() {
   setInterval(function() {
-    if (BIZ_CODE && BIZ_ID) {
+    // Apply dark mode on load
+if (localStorage.getItem('shq_dark') === '1') document.body.classList.add('dark');
+
+if (BIZ_CODE && BIZ_ID) {
       loadAll();
     }
   }, 30000); // every 30 seconds
@@ -1137,8 +1461,31 @@ function startAutoRefresh() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 var urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('upgraded') === '1') { currentPlan='pro'; toast('Welcome to WorkBase Pro! 🎉','success'); }
-if (BIZ_CODE && BIZ_ID) { initApp(); } else { startClock(); }
+if (urlParams.get('upgraded') === '1') { currentPlan='pro'; toast('Welcome to ShiftHQ Pro! 🎉','success'); }
+// Apply dark mode on load
+if (localStorage.getItem('shq_dark') === '1') document.body.classList.add('dark');
+
+if (BIZ_CODE && BIZ_ID) {
+  // Validate session token
+  if (SESSION_TOKEN) {
+    try {
+      // Check if JWT is expired by parsing payload
+      var payload = JSON.parse(atob(SESSION_TOKEN.split('.')[1]));
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        // Token expired - clear and redirect to login
+        localStorage.removeItem('ems_session_token');
+        localStorage.removeItem('ems_is_mgr');
+        SESSION_TOKEN = null;
+        IS_MGR = false;
+      }
+    } catch(e) {
+      // Invalid token
+      localStorage.removeItem('ems_session_token');
+      SESSION_TOKEN = null;
+    }
+  }
+  initApp();
+} else { startClock(); }
 </script>
 </body>
 </html>
