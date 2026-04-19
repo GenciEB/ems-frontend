@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#fafaf8">
-<title>WorkBase — Check In</title>
+<title>ShiftHQ — Check In</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -38,7 +38,7 @@ body{font-family:'Outfit',sans-serif;background:#fafaf8;color:#0d0d0d;min-height
 
 <div class="logo">
   <div class="logo-dot"></div>
-  <div class="logo-text">WorkBase</div>
+  <div class="logo-text">ShiftHQ</div>
 </div>
 
 <div class="card" id="mainCard">
@@ -72,7 +72,7 @@ body{font-family:'Outfit',sans-serif;background:#fafaf8;color:#0d0d0d;min-height
 
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
-var API_KEY = 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd';
+var API_KEY = 'shq_api_31qoTd8GkJFIqw4ftcnM9dpYkMWmmPhK';
 var token = new URLSearchParams(window.location.search).get('t');
 var empData = null;
 var currentAction = 'checkin';
@@ -95,7 +95,7 @@ async function loadEmployee() {
     return;
   }
   try {
-    var r = await fetch(API + '/api/qr/' + token, { headers: { 'x-api-key': API_KEY } });
+    var r = await fetch(API + '/api/qr/' + token, { headers: { 'Content-Type': 'application/json' } });
     if (!r.ok) throw new Error('Invalid QR code');
     empData = await r.json();
     document.getElementById('loadingState').style.display = 'none';
@@ -118,7 +118,7 @@ async function loadEmployee() {
 async function checkShiftStatus() {
   try {
     var today = new Date().toISOString().slice(0,10);
-    var r = await fetch(API + '/api/shifts?business_id=' + empData.business_id + '&emp_id=' + empData.id, { headers: { 'x-api-key': API_KEY } });
+    var r = await fetch(API + '/api/shifts?business_id=' + empData.business_id + '&emp_id=' + empData.id, { headers: { 'Content-Type': 'application/json' } });
     var shifts = await r.json();
     var todayShift = shifts.find(function(s){ return s.date === today; });
     var btn = document.getElementById('actionBtn');
@@ -155,7 +155,7 @@ async function doAction() {
     var localTime = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
     var r = await fetch(API + '/api/qr/' + token + '/checkin', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date: localDate, time: localTime })
     });
     var data = await r.json();
@@ -192,5 +192,8 @@ function reset() {
 
 loadEmployee();
 </script>
+<div style="text-align:center;padding:20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;">
+  Want to see your shifts? <a href="/employee.html" style="color:#1a56db;font-weight:600;">My Portal →</a>
+</div>
 </body>
 </html>

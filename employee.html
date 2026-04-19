@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fafaf8">
+<title>ShiftHQ — My Shifts</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:#fafaf8;color:#0d0d0d;min-height:100vh;}
+nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1px solid #e8e6e1;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{font-size:17px;font-weight:800;color:#0d0d0d;display:flex;align-items:center;gap:6px;}
+.nav-logo-dot{width:7px;height:7px;background:#1a56db;border-radius:50%;}
+.container{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
+
+/* PIN LOGIN */
+#pinScreen{display:flex;flex-direction:column;align-items:center;padding:40px 20px;}
+.pin-avatar{width:72px;height:72px;border-radius:50%;background:#eff6ff;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#1a56db;margin:0 auto 12px;}
+.pin-name{font-size:22px;font-weight:800;margin-bottom:4px;text-align:center;}
+.pin-role{font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-bottom:24px;text-align:center;}
+.pin-input-wrap{display:flex;gap:8px;margin-bottom:16px;justify-content:center;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:#e8e6e1;transition:background .15s;}
+.pin-dot.filled{background:#1a56db;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;}
+.pin-btn{background:#fff;border:1.5px solid #e8e6e1;border-radius:12px;padding:16px;font-size:20px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;-webkit-tap-highlight-color:transparent;}
+.pin-btn:active{background:#eff6ff;border-color:#1a56db;}
+.pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#dc2626;min-height:16px;text-align:center;}
+
+/* PORTAL */
+#portal{display:none;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.stat-box{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:12px;text-align:center;}
+.stat-v{font-size:20px;font-weight:800;color:#1a56db;}
+.stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#888;margin-top:2px;}
+.section-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.shift-row{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
+.shift-date{font-weight:600;font-size:13px;}
+.shift-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;margin-top:2px;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;}
+.badge.done{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.badge.late{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.badge.active{background:#eff6ff;color:#1a56db;border:1px solid #bfdbfe;}
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.month-label{font-size:16px;font-weight:800;}
+.nav-btn{background:#f2f1ee;border:1px solid #e8e6e1;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#3d3d3d;}
+.card{background:#fff;border:1px solid #e8e6e1;border-radius:14px;padding:14px;margin-bottom:12px;}
+.empty{text-align:center;padding:32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;}
+.leave-row{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
+.tab-row{display:flex;gap:6px;margin-bottom:16px;background:#f2f1ee;border-radius:10px;padding:4px;}
+.tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.tab.active{background:#fff;color:#0d0d0d;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><div class="nav-logo-dot"></div>ShiftHQ</div>
+  <div id="navName" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;"></div>
+</nav>
+
+<div class="container">
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="font-size:13px;color:#888;font-family:'JetBrains Mono',monospace;margin-bottom:16px;">Enter your PIN to view your shifts</div>
+    <div class="field" style="max-width:280px;margin:0 auto 12px;">
+      <input type="text" id="bizCodeEntry" placeholder="Business code (e.g. mycafe)" style="background:#fafaf8;border:1.5px solid #e8e6e1;border-radius:10px;color:#0d0d0d;font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px 12px;outline:none;width:100%;" autocapitalize="none" spellcheck="false">
+    </div>
+    <div class="field" style="max-width:280px;margin:0 auto 16px;">
+      <input type="text" id="empNameEntry" placeholder="Your name (e.g. Sara)" style="background:#fafaf8;border:1.5px solid #e8e6e1;border-radius:10px;color:#0d0d0d;font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px 12px;outline:none;width:100%;">
+    </div>
+  </div>
+
+  <div class="pin-input-wrap" id="pinDots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+    <div class="pin-dot" id="d4"></div>
+    <div class="pin-dot" id="d5"></div>
+  </div>
+
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn" onclick="pinPress('C')" style="font-size:14px;color:#888;">⌫</button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn" onclick="pinPress('OK')" style="background:#0d0d0d;color:#fff;border-color:#0d0d0d;font-size:13px;">OK</button>
+  </div>
+  <div class="pin-err" id="pinErr"></div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+    <div class="pin-avatar" id="portalAvatar"></div>
+    <div>
+      <div style="font-size:20px;font-weight:800;" id="portalName"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;" id="portalRole"></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-row" id="portalStats"></div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('shifts',this)">Shifts</button>
+    <button class="tab" onclick="showTab('leaves',this)">Leave</button>
+    <button class="tab" onclick="showTab('pay',this)">Pay</button>
+  </div>
+
+  <!-- Month nav -->
+  <div class="month-nav">
+    <button class="nav-btn" onclick="chMonth(-1)">‹</button>
+    <div class="month-label" id="monthLabel"></div>
+    <button class="nav-btn" onclick="chMonth(1)">›</button>
+  </div>
+
+  <!-- Shifts tab -->
+  <div id="tab-shifts">
+    <div id="shiftsList"></div>
+  </div>
+
+  <!-- Leave tab -->
+  <div id="tab-leaves" style="display:none;">
+    <div id="leavesList"></div>
+  </div>
+
+  <!-- Pay tab -->
+  <div id="tab-pay" style="display:none;">
+    <div id="payCard"></div>
+  </div>
+
+  <button onclick="logout()" style="width:100%;padding:11px;border:1px solid #e8e6e1;border-radius:10px;background:#fafaf8;font-family:'Outfit',sans-serif;font-size:13px;color:#888;cursor:pointer;margin-top:8px;">Sign Out</button>
+</div>
+
+</div>
+
+<script>
+var API = 'https://ems-api-mgye.onrender.com';
+var API_KEY = 'shq_api_31qoTd8GkJFIqw4ftcnM9dpYkMWmmPhK';
+var empData = null;
+var allShifts = [], allLeaves = [];
+var viewMonth = new Date();
+var currentPin = '';
+var currentTab = 'shifts';
+var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
+function fmt(d) { if (!d) return '—'; var dt = new Date(d + 'T00:00:00'); var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate() + ' ' + m[dt.getMonth()]; }
+
+// PIN entry
+function pinPress(key) {
+  var err = document.getElementById('pinErr');
+  err.textContent = '';
+  if (key === 'C') { currentPin = currentPin.slice(0,-1); }
+  else if (key === 'OK') { doVerify(); return; }
+  else if (currentPin.length < 6) { currentPin += key; }
+  updateDots();
+  if (currentPin.length === 6) doVerify();
+}
+
+function updateDots() {
+  for (var i = 0; i < 6; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < currentPin.length);
+  }
+}
+
+async function doVerify() {
+  if (currentPin.length < 4) { document.getElementById('pinErr').textContent = 'Enter your PIN'; return; }
+  var bizCode = document.getElementById('bizCodeEntry').value.trim().toLowerCase();
+  var empName = document.getElementById('empNameEntry').value.trim().toLowerCase();
+  if (!bizCode) { document.getElementById('pinErr').textContent = 'Enter your business code'; return; }
+  if (!empName) { document.getElementById('pinErr').textContent = 'Enter your name'; return; }
+  try {
+    // Get employees for this business
+    var bizR = await fetch(API + '/api/business/' + bizCode, { headers: {'x-api-key': API_KEY} });
+    if (!bizR.ok) { document.getElementById('pinErr').textContent = 'Business not found'; currentPin = ''; updateDots(); return; }
+    var biz = await bizR.json();
+    var empsR = await fetch(API + '/api/employees?business_id=' + biz.id, { headers: {'x-api-key': API_KEY} });
+    var emps = await empsR.json();
+    // Find employee by name
+    var emp = emps.find(function(e){ return e.name.toLowerCase() === empName; });
+    if (!emp) { document.getElementById('pinErr').textContent = 'Employee not found'; currentPin = ''; updateDots(); return; }
+    // Verify PIN
+    var verR = await fetch(API + '/api/employees/verify-pin', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':API_KEY},
+      body: JSON.stringify({emp_id: emp.id, pin: currentPin})
+    });
+    var ver = await verR.json();
+    if (!ver.match) { document.getElementById('pinErr').textContent = 'Wrong PIN'; currentPin = ''; updateDots(); return; }
+    // Load portal
+    empData = emp;
+    empData.biz_id = biz.id;
+    empData.biz_name = biz.name;
+    await loadPortalData();
+    showPortal();
+  } catch(e) { document.getElementById('pinErr').textContent = 'Connection error'; currentPin = ''; updateDots(); }
+}
+
+async function loadPortalData() {
+  var sr = await fetch(API + '/api/shifts?business_id=' + empData.biz_id, { headers: {'x-api-key': API_KEY} });
+  var allS = await sr.json();
+  allShifts = allS.filter(function(s){ return s.emp_id === empData.id; });
+  var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: {'x-api-key': API_KEY} });
+  var allL = await lr.json();
+  allLeaves = allL.filter(function(l){ return l.emp_id === empData.id; });
+}
+
+function showPortal() {
+  document.getElementById('pinScreen').style.display = 'none';
+  document.getElementById('portal').style.display = '';
+  document.getElementById('navName').textContent = empData.name;
+  document.getElementById('portalAvatar').textContent = empData.name[0].toUpperCase();
+  document.getElementById('portalName').textContent = empData.name;
+  document.getElementById('portalRole').textContent = (empData.role || 'Staff') + ' · ' + empData.biz_name;
+  renderStats();
+  renderMonth();
+}
+
+function renderStats() {
+  var today = dk(new Date());
+  var thisMonth = today.slice(0,7);
+  var monthShifts = allShifts.filter(function(s){ return s.date && s.date.slice(0,7) === thisMonth && s.check_out; });
+  var totalH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
+  var rate = parseFloat(empData.rate)||0;
+  var grossPay = totalH * rate;
+  var onShift = allShifts.find(function(s){ return s.date===today && s.check_in && !s.check_out; });
+  document.getElementById('portalStats').innerHTML =
+    '<div class="stat-box"><div class="stat-v">' + totalH.toFixed(0) + 'h</div><div class="stat-k">THIS MONTH</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:#16a34a;">€' + grossPay.toFixed(0) + '</div><div class="stat-k">GROSS PAY</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:' + (onShift?'#1a56db':'#888') + ';">' + (onShift?'Yes':'No') + '</div><div class="stat-k">ON SHIFT</div></div>';
+}
+
+function chMonth(dir) { viewMonth.setMonth(viewMonth.getMonth()+dir); renderMonth(); }
+
+function renderMonth() {
+  document.getElementById('monthLabel').textContent = months[viewMonth.getMonth()] + ' ' + viewMonth.getFullYear();
+  var ym = viewMonth.getFullYear() + '-' + String(viewMonth.getMonth()+1).padStart(2,'0');
+  if (currentTab === 'shifts') renderShifts(ym);
+  else if (currentTab === 'leaves') renderLeaves(ym);
+  else renderPay(ym);
+}
+
+function showTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab-shifts').style.display = tab==='shifts' ? '' : 'none';
+  document.getElementById('tab-leaves').style.display = tab==='leaves' ? '' : 'none';
+  document.getElementById('tab-pay').style.display = tab==='pay' ? '' : 'none';
+  renderMonth();
+}
+
+function renderShifts(ym) {
+  var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var html = '';
+  if (ms.length === 0) { html = '<div class="empty">No shifts this month</div>'; }
+  else ms.forEach(function(s) {
+    var status = s.check_out ? (s.is_late ? 'late' : 'done') : (s.check_in ? 'active' : 'done');
+    var label = s.check_out ? (s.is_late ? 'Late' : 'Done') : 'On shift';
+    var hours = s.check_out ? (parseFloat(s.hours)||0).toFixed(1) + 'h' : '—';
+    html += '<div class="shift-row">' +
+      '<div><div class="shift-date">' + fmt(s.date) + '</div>' +
+      '<div class="shift-time">' + (s.check_in||'—') + (s.check_out?' → '+s.check_out:'') + (s.is_late?' · <span style="color:#dc2626;">+'+s.late_minutes+'m late</span>':'') + '</div></div>' +
+      '<div style="display:flex;align-items:center;gap:7px;">' +
+      '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#888;">' + hours + '</span>' +
+      '<span class="badge ' + status + '">' + label + '</span>' +
+      '</div></div>';
+  });
+  document.getElementById('shiftsList').innerHTML = html;
+}
+
+function renderLeaves(ym) {
+  var ml = allLeaves.filter(function(l){ return l.date && l.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var html = '';
+  if (ml.length === 0) { html = '<div class="empty">No leave this month</div>'; }
+  else ml.forEach(function(l) {
+    html += '<div class="leave-row"><div><div class="shift-date">' + fmt(l.date) + '</div>' +
+      (l.note ? '<div class="shift-time">' + l.note + '</div>' : '') + '</div>' +
+      '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;">' + (l.type||'Leave') + '</span>' +
+      '</div>';
+  });
+  document.getElementById('leavesList').innerHTML = html;
+}
+
+function renderPay(ym) {
+  var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym && s.check_out; });
+  var totalH = ms.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
+  var regH = ms.reduce(function(a,s){ return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0); },0);
+  var otH = ms.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); },0);
+  var rate = parseFloat(empData.rate)||0;
+  var basePay = regH * rate;
+  var otPay = otH * rate * 1.5;
+  var gross = basePay + otPay;
+  var lateCount = ms.filter(function(s){ return s.is_late; }).length;
+  document.getElementById('payCard').innerHTML =
+    '<div class="card">' +
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:#888;margin-bottom:12px;">PAY SUMMARY — ' + months[viewMonth.getMonth()].toUpperCase() + ' ' + viewMonth.getFullYear() + '</div>' +
+    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Shifts worked</span><span style="font-weight:600;">' + ms.length + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Total hours</span><span style="font-weight:600;">' + totalH.toFixed(1) + 'h</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Regular (' + regH.toFixed(1) + 'h × €' + rate.toFixed(2) + ')</span><span>€' + basePay.toFixed(2) + '</span></div>' +
+    (otH > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Overtime (' + otH.toFixed(1) + 'h × 1.5)</span><span>€' + otPay.toFixed(2) + '</span></div>' : '') +
+    (lateCount > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#dc2626;">Late arrivals</span><span style="color:#dc2626;">' + lateCount + 'x</span></div>' : '') +
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Gross Pay</span><span style="color:#1a56db;">€' + gross.toFixed(2) + '</span></div>' +
+    '</div>';
+}
+
+function logout() { empData = null; currentPin = ''; updateDots(); document.getElementById('portal').style.display = 'none'; document.getElementById('pinScreen').style.display = ''; document.getElementById('pinErr').textContent = ''; }
+</script>
+</body>
+</html>

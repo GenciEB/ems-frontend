@@ -1,15 +1,12 @@
 {
-  "name": "EMS Staff Manager",
-  "short_name": "EMS",
-  "description": "Employee Management System — track shifts, pay, and schedules",
-  "start_url": "/",
+  "name": "ShiftHQ — Staff Management",
+  "short_name": "ShiftHQ",
+  "description": "Staff management, shift tracking and payroll for small businesses",
+  "start_url": "/app.html",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#fafaf8",
-  "theme_color": "#fafaf8",
-  "scope": "/",
-  "lang": "en",
-  "categories": ["business", "productivity"],
+  "theme_color": "#1a56db",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
@@ -24,21 +21,23 @@
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
-      "name": "Check In",
+      "name": "Check In/Out",
       "short_name": "Check In",
-      "description": "Quick employee check in",
-      "url": "/?action=checkin",
+      "description": "Clock in or out",
+      "url": "/app.html#checkin",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View live dashboard",
-      "url": "/?action=dashboard",
+      "url": "/app.html#dash",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "en",
+  "dir": "ltr"
 }
