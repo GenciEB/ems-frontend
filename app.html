@@ -16,6 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#fafaf8;--bg2:#f2f1ee;--surface:#fff;--border:#e8e6e1;--border2:#d4d0c8;
@@ -298,6 +299,24 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
 <!-- MAIN APP -->
 <div id="app" style="display:none;flex-direction:column;height:100%;">
 
+
+<!-- SHIFT NOTE MODAL -->
+<div class="modal-ov" id="shiftNoteModal">
+  <div class="modal-card">
+    <div class="modal-title">Add Shift Note</div>
+    <div class="form-s">
+      <div class="field">
+        <label>Note</label>
+        <textarea id="shiftNoteText" placeholder="e.g. Covered for Sara, left early, excellent performance..." style="min-height:80px;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-p" onclick="saveShiftNote()">💾 Save Note</button>
+        <button class="btn btn-g" onclick="closeShiftNote()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- QR MODAL -->
 <div class="modal-ov" id="qrModal">
   <div class="modal-card" style="text-align:center;">
@@ -378,6 +397,7 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
         <div class="field"><label>Start Time</label><input type="time" id="empStart" value="09:00"></div>
         <div class="field"><label>End Time</label><input type="time" id="empEnd" value="17:00"></div>
       </div>
+      <div class="field"><label>Phone <span style="color:#bbb;font-size:9px;">(optional)</span></label><input type="tel" id="empPhone" placeholder="+355 69 123 4567"></div>
       <button type="button" class="btn btn-p" onclick="addEmp()">+ Add Employee</button>
     </div>
   </div>
@@ -416,7 +436,10 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
       </div>
     </div>
   </div>
-  <button type="button" class="btn btn-s" onclick="openSchedAdd()" style="margin-top:6px;">+ Assign Shift</button>
+  <div style="display:flex;gap:8px;margin-top:6px;">
+    <button type="button" class="btn btn-s" onclick="openSchedAdd()" style="flex:1;">+ Assign Shift</button>
+    <button type="button" class="btn btn-g" onclick="copyLastWeek()" style="flex:1;">📋 Copy Last Week</button>
+  </div>
 </div>
 
 <!-- PAYROLL -->
@@ -945,7 +968,7 @@ function renderCheckin() {
     html += '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
       '<div style="display:flex;align-items:center;gap:9px;"><div class="emp-avatar">'+emp.name[0]+'</div>' +
       '<div><div class="emp-name">'+esc(emp.name)+'</div><div class="emp-role-label">'+esc(emp.role||'')+'</div>' +
-      (shift ? '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+fmtTime(shift.check_in)+(shift.check_out?' → '+fmtTime(shift.check_out):'')+'</div>' : '') +
+      (shift ? '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+fmtTime(shift.check_in)+(shift.check_out?' → '+fmtTime(shift.check_out):'')+(shift.note?' · <em>'+esc(shift.note)+'</em>':'')+'</div>' : '') +
       '</div></div><div style="display:flex;gap:5px;align-items:center;">' +
       (status==='out' ? '<button class="btn btn-s" style="width:auto;padding:7px 11px;font-size:12px;" onclick="doCheckIn('+emp.id+')">Check In</button>' : '') +
       (status==='in' ? '<span class="badge bg">On shift</span><button class="btn btn-d" style="width:auto;padding:7px 11px;font-size:12px;" onclick="doCheckOut('+emp.id+')">Check Out</button>' : '') +
@@ -1012,15 +1035,16 @@ async function addEmp() {
   var rate = document.getElementById('empRate').value.trim();
   var start = document.getElementById('empStart').value;
   var end = document.getElementById('empEnd').value;
+  var phone = document.getElementById('empPhone').value.trim();
   if (!name) { toast('Enter employee name', 'error'); return; }
   if (!pin || pin.length < 4) { toast('PIN must be at least 4 digits', 'error'); return; }
   try {
     setSy('syncing');
-    var emp = await aPost('/api/employees', {business_id:BIZ_ID, name, role:role||'Staff', pin, rate:parseFloat(rate)||0, start_time:start, end_time:end});
+    var emp = await aPost('/api/employees', {business_id:BIZ_ID, name, role:role||'Staff', pin, rate:parseFloat(rate)||0, start_time:start, end_time:end, phone:phone||null});
     emps.push(emp); setSy('ok');
     logAudit('add', 'Employee added: ' + name, 'Manager');
     toast(name + ' added', 'success');
-    ['empName','empRole','empPin','empRate'].forEach(function(id){ document.getElementById(id).value = ''; });
+    ['empName','empRole','empPin','empRate','empPhone'].forEach(function(id){ document.getElementById(id).value = ''; });
     renderEmps(); populateSelects();
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
@@ -1031,7 +1055,7 @@ function renderEmps() {
   else emps.forEach(function(emp) {
     html += '<div class="emp-item"><div class="emp-avatar">'+emp.name[0]+'</div>' +
       '<div class="emp-info"><div class="emp-name">'+esc(emp.name)+'</div>' +
-      '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · €'+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+'</div></div>' +
+      '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · €'+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div></div>' +
       '<div style="display:flex;gap:5px;">' +
       '<button class="btn btn-s" style="width:auto;padding:5px 9px;font-size:11px;" onclick="showQR('+emp.id+')">QR</button>' +
       '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delEmp('+emp.id+')">✕</button>' +
@@ -1182,7 +1206,7 @@ function renderPayroll() {
     var gross=basePay+otPay+bonuses;
     html+='<div class="payslip"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
       '<div><div style="font-size:17px;font-weight:800;">'+esc(emp.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(emp.role||'')+'</div></div>'+
-      '<span class="badge bb">'+totalH.toFixed(1)+'h</span></div>'+
+      '<span class="badge bb">'+totalH.toFixed(1)+'h</span><button class="btn btn-s" style="width:auto;padding:5px 10px;font-size:11px;" onclick="downloadPayslip('+emp.id+',\''+ym+'\')" >📄 PDF</button></div>'+
       '<div class="payslip-row"><span>Regular ('+regH.toFixed(1)+'h × €'+rate.toFixed(2)+')</span><span>€'+basePay.toFixed(2)+'</span></div>'+
       (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(1)+'h × 1.5)</span><span>€'+otPay.toFixed(2)+'</span></div>':'')+
       (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+€'+bonuses.toFixed(2)+'</span></div>':'')+
@@ -1250,6 +1274,228 @@ function loadAudit(){if(!AUDIT_KEY)return[];try{var d=localStorage.getItem(AUDIT
 function logAudit(action,msg,who){if(!AUDIT_KEY)return;var log=loadAudit();log.unshift({action,msg,who,ts:new Date().toISOString()});if(log.length>50)log=log.slice(0,50);try{localStorage.setItem(AUDIT_KEY,JSON.stringify(log));}catch(e){}}
 function renderAuditLog(){var log=loadAudit();var html='';if(log.length===0){html='<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No activity yet</div>';}else log.slice(0,20).forEach(function(entry){var d=new Date(entry.ts),ts=d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');html+='<div class="audit-i action-'+(entry.action||'')+'"><div class="audit-ts">'+ts+'</div><div class="audit-msg">'+esc(entry.msg)+'</div><div class="audit-who">'+esc(entry.who||'System')+'</div></div>';});document.getElementById('auditLog').innerHTML=html;}
 
+
+
+
+
+// ── PDF PAYSLIPS ────────────────────────────────────────────────────────────
+function downloadPayslip(empId, ym) {
+  var emp = emps.find(function(e){ return e.id === empId; });
+  if (!emp) return;
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var monthName = months[parseInt(ym.split('-')[1]) - 1] + ' ' + ym.split('-')[0];
+
+  var ms = shfts.filter(function(s){ return s.emp_id === emp.id && s.date && s.date.slice(0,7) === ym && s.check_out; });
+  var totalH = ms.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); }, 0);
+  var regH = ms.reduce(function(a,s){ return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0); }, 0);
+  var otH = ms.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); }, 0);
+  var rate = parseFloat(emp.rate)||0;
+  var basePay = regH * rate;
+  var otPay = otH * rate * 1.5;
+  var bonuses = deds.filter(function(d){ return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); }, 0);
+  var deductions = deds.filter(function(d){ return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); }, 0);
+  var gross = basePay + otPay + bonuses;
+
+  try {
+    var doc = new window.jspdf.jsPDF();
+    var pageW = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(13, 13, 13);
+    doc.rect(0, 0, pageW, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ShiftHQ', 20, 22);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('PAYSLIP', pageW - 20, 22, { align: 'right' });
+
+    // Employee info
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(emp.name, 20, 58);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120, 120, 120);
+    doc.text(emp.role || 'Staff', 20, 66);
+    doc.text(BIZ_NAME, 20, 73);
+
+    // Period
+    doc.setTextColor(26, 86, 219);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Period: ' + monthName, pageW - 20, 58, { align: 'right' });
+    doc.setTextColor(120, 120, 120);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Generated: ' + new Date().toLocaleDateString(), pageW - 20, 66, { align: 'right' });
+
+    // Divider
+    doc.setDrawColor(232, 230, 225);
+    doc.line(20, 80, pageW - 20, 80);
+
+    // Pay details
+    var y = 95;
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Pay Summary', 20, y);
+    y += 12;
+
+    function payRow(label, value, color) {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(60, 60, 60);
+      doc.text(label, 25, y);
+      if (color) doc.setTextColor(color[0], color[1], color[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text(value, pageW - 25, y, { align: 'right' });
+      doc.setDrawColor(245, 244, 241);
+      doc.line(20, y + 3, pageW - 20, y + 3);
+      doc.setTextColor(0, 0, 0);
+      y += 12;
+    }
+
+    payRow('Regular Hours (' + regH.toFixed(1) + 'h × €' + rate.toFixed(2) + ')', '€' + basePay.toFixed(2));
+    if (otH > 0) payRow('Overtime (' + otH.toFixed(1) + 'h × 1.5)', '€' + otPay.toFixed(2));
+    if (bonuses > 0) payRow('Bonuses', '+€' + bonuses.toFixed(2), [22, 163, 74]);
+    if (deductions > 0) payRow('Deductions', '-€' + deductions.toFixed(2), [220, 38, 38]);
+
+    y += 4;
+    doc.setDrawColor(13, 13, 13);
+    doc.line(20, y, pageW - 20, y);
+    y += 10;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 86, 219);
+    doc.text('GROSS PAY', 25, y);
+    doc.text('€' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
+
+    // Shift summary
+    y += 20;
+    doc.setDrawColor(232, 230, 225);
+    doc.line(20, y, pageW - 20, y);
+    y += 12;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Shift Details', 20, y);
+    y += 10;
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(120, 120, 120);
+    doc.text('DATE', 25, y);
+    doc.text('CHECK IN', 75, y);
+    doc.text('CHECK OUT', 115, y);
+    doc.text('HOURS', pageW - 25, y, { align: 'right' });
+    y += 6;
+    doc.line(20, y, pageW - 20, y);
+    y += 6;
+
+    ms.slice(0, 20).forEach(function(s) {
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(40, 40, 40);
+      doc.text(s.date || '', 25, y);
+      doc.text(s.check_in || '—', 75, y);
+      doc.text(s.check_out || '—', 115, y);
+      if (s.is_late) doc.setTextColor(220, 38, 38);
+      doc.text((parseFloat(s.hours)||0).toFixed(1) + 'h', pageW - 25, y, { align: 'right' });
+      doc.setTextColor(40, 40, 40);
+      y += 8;
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(160, 160, 160);
+    doc.text('Generated by ShiftHQ · shifthq.app', pageW / 2, 285, { align: 'center' });
+
+    doc.save('payslip-' + emp.name.replace(/\s/g, '-') + '-' + ym + '.pdf');
+    toast('Payslip downloaded!', 'success');
+  } catch(e) {
+    toast('PDF failed: ' + e.message, 'error');
+    console.error(e);
+  }
+}
+
+// ── BULK SCHEDULE COPY ──────────────────────────────────────────────────────
+async function copyLastWeek() {
+  if (!confirm('Copy last week\'s schedule to next week?')) return;
+  var weekStart = getWeekStart(vSchedWeek);
+  var lastWeekStart = new Date(weekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+
+  // Get last week's schedules
+  var lastWeekScheds = scheds.filter(function(s) {
+    var d = new Date(s.date + 'T00:00:00');
+    var ls = lastWeekStart;
+    var le = new Date(ls); le.setDate(le.getDate() + 6);
+    return d >= ls && d <= le;
+  });
+
+  if (lastWeekScheds.length === 0) { toast('No shifts found last week to copy', 'warn'); return; }
+
+  try {
+    setSy('syncing');
+    var copied = 0;
+    for (var i = 0; i < lastWeekScheds.length; i++) {
+      var s = lastWeekScheds[i];
+      var oldDate = new Date(s.date + 'T00:00:00');
+      var newDate = new Date(oldDate);
+      newDate.setDate(newDate.getDate() + 7);
+      var newDateStr = dk(newDate);
+      // Check if shift already exists for that day
+      var exists = scheds.find(function(x){ return x.emp_id === s.emp_id && x.date === newDateStr; });
+      if (!exists) {
+        try {
+          var newSched = await aPost('/api/schedules', {
+            emp_id: s.emp_id,
+            date: newDateStr,
+            start_time: s.start_time,
+            end_time: s.end_time,
+            note: s.note || null,
+            business_id: BIZ_ID
+          });
+          scheds.push(newSched);
+          copied++;
+        } catch(e) {}
+      }
+    }
+    setSy('ok');
+    renderSchedule();
+    toast('Copied ' + copied + ' shifts to next week!', 'success');
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+
+// ── SHIFT NOTES ────────────────────────────────────────────────────────────
+var currentShiftId = null;
+function addShiftNote(shiftId) {
+  currentShiftId = shiftId;
+  var shift = shfts.find(function(s){ return s.id === shiftId; });
+  document.getElementById('shiftNoteText').value = shift && shift.note ? shift.note : '';
+  document.getElementById('shiftNoteModal').classList.add('open');
+}
+function closeShiftNote() {
+  document.getElementById('shiftNoteModal').classList.remove('open');
+  currentShiftId = null;
+}
+async function saveShiftNote() {
+  var note = document.getElementById('shiftNoteText').value.trim();
+  if (!currentShiftId) return;
+  try {
+    setSy('syncing');
+    await aPost('/api/shifts/' + currentShiftId + '/note', { note });
+    var shift = shfts.find(function(s){ return s.id === currentShiftId; });
+    if (shift) shift.note = note;
+    setSy('ok');
+    closeShiftNote();
+    renderCheckin();
+    toast('Note saved', 'success');
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
 
 // ── ANALYTICS ──────────────────────────────────────────────────────────────
 var chartInstances = {};
