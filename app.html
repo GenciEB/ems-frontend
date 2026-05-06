@@ -300,6 +300,33 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
 <div id="app" style="display:none;flex-direction:column;height:100%;">
 
 
+
+<!-- EMPLOYEE EDIT MODAL -->
+<div class="modal-ov" id="editEmpModal">
+  <div class="modal-card">
+    <div class="modal-title">Edit Employee</div>
+    <div class="form-s">
+      <div class="form-r">
+        <div class="field"><label>Name</label><input type="text" id="editEmpName" placeholder="Name"></div>
+        <div class="field"><label>Role</label><input type="text" id="editEmpRole" placeholder="Role"></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Pay Rate (€/hr)</label><input type="number" id="editEmpRate" placeholder="12.50" step="0.01"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="editEmpPhone" placeholder="+355 69..."></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Start Time</label><input type="time" id="editEmpStart"></div>
+        <div class="field"><label>End Time</label><input type="time" id="editEmpEnd"></div>
+      </div>
+      <div class="field"><label>New PIN <span style="color:#bbb;font-size:9px;">(leave blank to keep current)</span></label><input type="password" id="editEmpPin" placeholder="Leave blank to keep" inputmode="numeric" maxlength="6"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-p" onclick="saveEditEmp()">💾 Save Changes</button>
+        <button class="btn btn-g" onclick="closeEditEmp()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SHIFT NOTE MODAL -->
 <div class="modal-ov" id="shiftNoteModal">
   <div class="modal-card">
@@ -1041,10 +1068,13 @@ async function addEmp() {
   try {
     setSy('syncing');
     var emp = await aPost('/api/employees', {business_id:BIZ_ID, name, role:role||'Staff', pin, rate:parseFloat(rate)||0, start_time:start, end_time:end, phone:phone||null});
-    emps.push(emp); setSy('ok');
+    setSy('ok');
     logAudit('add', 'Employee added: ' + name, 'Manager');
     toast(name + ' added', 'success');
     ['empName','empRole','empPin','empRate','empPhone'].forEach(function(id){ document.getElementById(id).value = ''; });
+    // Re-fetch instead of blind push
+    var freshEmps = await aGet('/api/employees?business_id=' + BIZ_ID);
+    emps = freshEmps;
     renderEmps(); populateSelects();
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
@@ -1058,6 +1088,7 @@ function renderEmps() {
       '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · €'+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div></div>' +
       '<div style="display:flex;gap:5px;">' +
       '<button class="btn btn-s" style="width:auto;padding:5px 9px;font-size:11px;" onclick="showQR('+emp.id+')">QR</button>' +
+      '<button class="btn btn-g" style="width:auto;padding:5px 9px;font-size:11px;" onclick="openEditEmp('+emp.id+')">✏️</button>' +
       '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delEmp('+emp.id+')">✕</button>' +
       '</div></div>';
   });
@@ -1073,6 +1104,68 @@ async function delEmp(id) {
     emps = emps.filter(function(e){ return e.id!==id; });
     setSy('ok'); logAudit('delete', 'Employee removed: ' + (emp?emp.name:id), 'Manager');
     toast('Employee removed', 'warn'); renderEmps(); populateSelects(); renderDash();
+  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+}
+
+
+// ── EMPLOYEE EDIT ──────────────────────────────────────────────────────────
+var editingEmpId = null;
+
+function openEditEmp(empId) {
+  var emp = emps.find(function(e){ return e.id === empId; });
+  if (!emp) return;
+  editingEmpId = empId;
+  document.getElementById('editEmpName').value = emp.name || '';
+  document.getElementById('editEmpRole').value = emp.role || '';
+  document.getElementById('editEmpRate').value = emp.rate || '';
+  document.getElementById('editEmpPhone').value = emp.phone || '';
+  document.getElementById('editEmpStart').value = emp.start_time || '09:00';
+  document.getElementById('editEmpEnd').value = emp.end_time || '17:00';
+  document.getElementById('editEmpPin').value = '';
+  document.getElementById('editEmpModal').classList.add('open');
+}
+
+function closeEditEmp() {
+  document.getElementById('editEmpModal').classList.remove('open');
+  editingEmpId = null;
+}
+
+async function saveEditEmp() {
+  if (!editingEmpId) return;
+  var name = document.getElementById('editEmpName').value.trim();
+  var role = document.getElementById('editEmpRole').value.trim();
+  var rate = document.getElementById('editEmpRate').value.trim();
+  var phone = document.getElementById('editEmpPhone').value.trim();
+  var start = document.getElementById('editEmpStart').value;
+  var end = document.getElementById('editEmpEnd').value;
+  var pin = document.getElementById('editEmpPin').value.trim();
+
+  if (!name) { toast('Name cannot be empty', 'error'); return; }
+  if (rate && isNaN(parseFloat(rate))) { toast('Invalid rate', 'error'); return; }
+  if (pin && pin.length < 4) { toast('PIN must be at least 4 digits', 'error'); return; }
+
+  var body = { name, role, rate: rate ? parseFloat(rate) : undefined, phone: phone || null, start_time: start, end_time: end };
+  if (pin) body.pin = pin;
+
+  try {
+    setSy('syncing');
+    var updated = await fetch(API + '/api/employees/' + editingEmpId, {
+      method: 'PATCH',
+      headers: buildHeaders(),
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.json(); });
+
+    if (updated.error) { toast(updated.error, 'error'); setSy('ok'); return; }
+
+    // Update local array
+    var idx = emps.findIndex(function(e){ return e.id === editingEmpId; });
+    if (idx >= 0) emps[idx] = Object.assign(emps[idx], updated);
+
+    setSy('ok');
+    closeEditEmp();
+    renderEmps();
+    populateSelects();
+    toast('Employee updated!', 'success');
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
 

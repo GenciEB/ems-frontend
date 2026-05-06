@@ -169,6 +169,10 @@ async function doAction() {
       document.getElementById('successIcon').textContent = '👋';
       document.getElementById('successTitle').textContent = 'Checked Out!';
       document.getElementById('successSub').textContent = data.emp_name + ' · ' + data.hours + ' hours worked';
+    } else if (data.action === 'cooldown') {
+      document.getElementById('successIcon').textContent = '⏳';
+      document.getElementById('successTitle').textContent = 'Please Wait';
+      document.getElementById('successSub').textContent = 'You checked in very recently. Try again in a moment.';
     } else {
       document.getElementById('successIcon').textContent = '✓';
       document.getElementById('successTitle').textContent = 'Already Done';
