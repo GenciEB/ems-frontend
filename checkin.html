@@ -95,7 +95,7 @@ async function loadEmployee() {
     return;
   }
   try {
-    var r = await fetch(API + '/api/qr/' + token, { headers: { 'Content-Type': 'application/json' } });
+    var r = await fetch(API + '/api/qr/' + token, { headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY } });
     if (!r.ok) throw new Error('Invalid QR code');
     empData = await r.json();
     document.getElementById('loadingState').style.display = 'none';
@@ -118,7 +118,7 @@ async function loadEmployee() {
 async function checkShiftStatus() {
   try {
     var today = new Date().toISOString().slice(0,10);
-    var r = await fetch(API + '/api/shifts?business_id=' + empData.business_id + '&emp_id=' + empData.id, { headers: { 'Content-Type': 'application/json' } });
+    var r = await fetch(API + '/api/shifts?business_id=' + empData.business_id + '&emp_id=' + empData.id, { headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY } });
     var shifts = await r.json();
     var todayShift = shifts.find(function(s){ return s.date === today; });
     var btn = document.getElementById('actionBtn');
