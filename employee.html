@@ -5,33 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#fafaf8">
 <title>ShiftHQ — My Shifts</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Outfit',sans-serif;background:#fafaf8;color:#0d0d0d;min-height:100vh;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#fafaf8;color:#0d0d0d;min-height:100vh;}
 nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1px solid #e8e6e1;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .nav-logo{font-size:17px;font-weight:800;color:#0d0d0d;display:flex;align-items:center;gap:6px;}
-.nav-logo-dot{width:7px;height:7px;background:#1a56db;border-radius:50%;}
+.nav-logo-dot{width:7px;height:7px;background:#2154f4;border-radius:50%;}
 .container{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
 
 /* PIN LOGIN */
 #pinScreen{display:flex;flex-direction:column;align-items:center;padding:40px 20px;}
-.pin-avatar{width:72px;height:72px;border-radius:50%;background:#eff6ff;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#1a56db;margin:0 auto 12px;}
+.pin-avatar{width:72px;height:72px;border-radius:50%;background:#eff6ff;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#2154f4;margin:0 auto 12px;}
 .pin-name{font-size:22px;font-weight:800;margin-bottom:4px;text-align:center;}
 .pin-role{font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-bottom:24px;text-align:center;}
 .pin-input-wrap{display:flex;gap:8px;margin-bottom:16px;justify-content:center;}
 .pin-dot{width:14px;height:14px;border-radius:50%;background:#e8e6e1;transition:background .15s;}
-.pin-dot.filled{background:#1a56db;}
+.pin-dot.filled{background:#2154f4;}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;}
 .pin-btn{background:#fff;border:1.5px solid #e8e6e1;border-radius:12px;padding:16px;font-size:20px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;-webkit-tap-highlight-color:transparent;}
-.pin-btn:active{background:#eff6ff;border-color:#1a56db;}
+.pin-btn:active{background:#eff6ff;border-color:#2154f4;}
 .pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#dc2626;min-height:16px;text-align:center;}
 
 /* PORTAL */
 #portal{display:none;}
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
 .stat-box{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:12px;text-align:center;}
-.stat-v{font-size:20px;font-weight:800;color:#1a56db;}
+.stat-v{font-size:20px;font-weight:800;color:#2154f4;}
 .stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#888;margin-top:2px;}
 .section-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
 .shift-row{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
@@ -40,7 +40,7 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
 .badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;}
 .badge.done{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
 .badge.late{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
-.badge.active{background:#eff6ff;color:#1a56db;border:1px solid #bfdbfe;}
+.badge.active{background:#eff6ff;color:#2154f4;border:1px solid #bfdbfe;}
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .month-label{font-size:16px;font-weight:800;}
 .nav-btn{background:#f2f1ee;border:1px solid #e8e6e1;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#3d3d3d;}
@@ -48,9 +48,10 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
 .empty{text-align:center;padding:32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;}
 .leave-row{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
 .tab-row{display:flex;gap:6px;margin-bottom:16px;background:#f2f1ee;border-radius:10px;padding:4px;}
-.tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
 .tab.active{background:#fff;color:#0d0d0d;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
 </style>
+<link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
 
@@ -141,14 +142,14 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
     <div id="payCard"></div>
   </div>
 
-  <button onclick="logout()" style="width:100%;padding:11px;border:1px solid #e8e6e1;border-radius:10px;background:#fafaf8;font-family:'Outfit',sans-serif;font-size:13px;color:#888;cursor:pointer;margin-top:8px;">Sign Out</button>
+  <button onclick="logout()" style="width:100%;padding:11px;border:1px solid #e8e6e1;border-radius:10px;background:#fafaf8;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#888;cursor:pointer;margin-top:8px;">Sign Out</button>
 </div>
 
 </div>
 
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
-var API_KEY = 'shq_api_31qoTd8GkJFIqw4ftcnM9dpYkMWmmPhK';
+var EMP_TOKEN = null;
 var empData = null;
 var allShifts = [], allLeaves = [];
 var viewMonth = new Date();
@@ -179,43 +180,41 @@ function updateDots() {
 async function doVerify() {
   if (currentPin.length < 4) { document.getElementById('pinErr').textContent = 'Enter your PIN'; return; }
   var bizCode = document.getElementById('bizCodeEntry').value.trim().toLowerCase();
-  var empName = document.getElementById('empNameEntry').value.trim().toLowerCase();
+  var empName = document.getElementById('empNameEntry').value.trim();
   if (!bizCode) { document.getElementById('pinErr').textContent = 'Enter your business code'; return; }
   if (!empName) { document.getElementById('pinErr').textContent = 'Enter your name'; return; }
   try {
-    // Get employees for this business
-    var bizR = await fetch(API + '/api/business/' + bizCode, { headers: {'x-api-key': API_KEY} });
-    if (!bizR.ok) { document.getElementById('pinErr').textContent = 'Business not found'; currentPin = ''; updateDots(); return; }
-    var biz = await bizR.json();
-    var empsR = await fetch(API + '/api/employees?business_id=' + biz.id, { headers: {'x-api-key': API_KEY} });
-    var emps = await empsR.json();
-    // Find employee by name
-    var emp = emps.find(function(e){ return e.name.toLowerCase() === empName; });
-    if (!emp) { document.getElementById('pinErr').textContent = 'Employee not found'; currentPin = ''; updateDots(); return; }
-    // Verify PIN
     var verR = await fetch(API + '/api/employees/verify-pin', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':API_KEY},
-      body: JSON.stringify({emp_id: emp.id, pin: currentPin})
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({business_code: bizCode, name: empName, pin: currentPin})
     });
     var ver = await verR.json();
-    if (!ver.match) { document.getElementById('pinErr').textContent = 'Wrong PIN'; currentPin = ''; updateDots(); return; }
-    // Load portal
-    empData = emp;
-    empData.biz_id = biz.id;
-    empData.biz_name = biz.name;
+    if (verR.status === 404) { document.getElementById('pinErr').textContent = 'Employee not found'; currentPin = ''; updateDots(); return; }
+    if (!ver.match) { document.getElementById('pinErr').textContent = ver.error || 'Wrong PIN'; currentPin = ''; updateDots(); return; }
+    // Store scoped employee token for authenticated reads
+    EMP_TOKEN = ver.emp_token;
+    empData = ver.employee;
+    empData.biz_id = ver.employee.business_id;
+    empData.biz_name = bizCode.toUpperCase();
+    // Fetch business name (public route)
+    try {
+      var bizR = await fetch(API + '/api/business/' + bizCode);
+      if (bizR.ok) { var biz = await bizR.json(); empData.biz_name = biz.name; }
+    } catch(e) {}
     await loadPortalData();
     showPortal();
   } catch(e) { document.getElementById('pinErr').textContent = 'Connection error'; currentPin = ''; updateDots(); }
 }
 
 async function loadPortalData() {
-  var sr = await fetch(API + '/api/shifts?business_id=' + empData.biz_id, { headers: {'x-api-key': API_KEY} });
+  var h = {'x-emp-token': EMP_TOKEN};
+  var sr = await fetch(API + '/api/shifts?business_id=' + empData.biz_id, { headers: h });
   var allS = await sr.json();
-  allShifts = allS.filter(function(s){ return s.emp_id === empData.id; });
-  var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: {'x-api-key': API_KEY} });
+  allShifts = (Array.isArray(allS) ? allS : []).filter(function(s){ return s.emp_id === empData.id; });
+  var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: h });
   var allL = await lr.json();
-  allLeaves = allL.filter(function(l){ return l.emp_id === empData.id; });
+  allLeaves = (Array.isArray(allL) ? allL : []).filter(function(l){ return l.emp_id === empData.id; });
 }
 
 function showPortal() {
@@ -240,7 +239,7 @@ function renderStats() {
   document.getElementById('portalStats').innerHTML =
     '<div class="stat-box"><div class="stat-v">' + totalH.toFixed(0) + 'h</div><div class="stat-k">THIS MONTH</div></div>' +
     '<div class="stat-box"><div class="stat-v" style="color:#16a34a;">€' + grossPay.toFixed(0) + '</div><div class="stat-k">GROSS PAY</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:' + (onShift?'#1a56db':'#888') + ';">' + (onShift?'Yes':'No') + '</div><div class="stat-k">ON SHIFT</div></div>';
+    '<div class="stat-box"><div class="stat-v" style="color:' + (onShift?'#2154f4':'#888') + ';">' + (onShift?'Yes':'No') + '</div><div class="stat-k">ON SHIFT</div></div>';
 }
 
 function chMonth(dir) { viewMonth.setMonth(viewMonth.getMonth()+dir); renderMonth(); }
@@ -313,7 +312,7 @@ function renderPay(ym) {
     '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Regular (' + regH.toFixed(1) + 'h × €' + rate.toFixed(2) + ')</span><span>€' + basePay.toFixed(2) + '</span></div>' +
     (otH > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Overtime (' + otH.toFixed(1) + 'h × 1.5)</span><span>€' + otPay.toFixed(2) + '</span></div>' : '') +
     (lateCount > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#dc2626;">Late arrivals</span><span style="color:#dc2626;">' + lateCount + 'x</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Gross Pay</span><span style="color:#1a56db;">€' + gross.toFixed(2) + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Gross Pay</span><span style="color:#2154f4;">€' + gross.toFixed(2) + '</span></div>' +
     '</div>';
 }
 

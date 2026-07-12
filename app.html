@@ -789,7 +789,6 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 <script>
 'use strict';
 var API = 'https://ems-api-mgye.onrender.com';
-var API_KEY = 'shq_api_31qoTd8GkJFIqw4ftcnM9dpYkMWmmPhK';
 var BIZ_CODE = localStorage.getItem('ems_biz_code') || '';
 var BIZ_ID = localStorage.getItem('ems_biz_id') || '';
 var BIZ_NAME = localStorage.getItem('ems_biz_name') || '';
@@ -850,8 +849,6 @@ function setSy(s) { var d = document.getElementById('syncDot'); if (d) d.classNa
 function buildHeaders() {
   var h = {'Content-Type':'application/json'};
   if (SESSION_TOKEN) h['x-session-token'] = SESSION_TOKEN;
-  // Only send API key for non-authenticated requests
-  if (!SESSION_TOKEN) h['x-api-key'] = API_KEY;
   return h;
 }
 var authExpiredShown = false;
