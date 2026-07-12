@@ -1,8 +1,7 @@
-// ShiftHQ Service Worker v2
-const CACHE_NAME = 'shifthq-v2';
+// ShiftHQ Service Worker v3
+const CACHE_NAME = 'shifthq-v3';
 const STATIC_ASSETS = [
   '/app.html',
-  '/checkin.html',
   '/index.html'
 ];
 

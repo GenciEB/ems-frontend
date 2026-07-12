@@ -854,8 +854,8 @@ function buildHeaders() {
   if (!SESSION_TOKEN) h['x-api-key'] = API_KEY;
   return h;
 }
+var authExpiredShown = false;
 function handleAuthExpired() {
-  if (!SESSION_TOKEN) return; // already logged out, nothing to do
   localStorage.removeItem('ems_session_token');
   localStorage.removeItem('ems_is_mgr');
   SESSION_TOKEN = null;
@@ -870,7 +870,10 @@ function handleAuthExpired() {
       if (el && BIZ_CODE) el.value = BIZ_CODE;
     }, 50);
   }
-  toast('Session expired — please sign in again', 'error');
+  if (!authExpiredShown) {
+    authExpiredShown = true;
+    toast('Session expired — please sign in again', 'error');
+  }
 }
 async function aGet(path) { var r = await fetch(API + path, {headers: buildHeaders()}); if (r.status === 401) { handleAuthExpired(); throw new Error('Session expired'); } if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
 async function aPost(path, body) { var r = await fetch(API + path, {method:'POST',headers:buildHeaders(),body:JSON.stringify(body)}); if (r.status === 401) { handleAuthExpired(); throw new Error('Session expired'); } if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
@@ -918,7 +921,7 @@ async function doLogin() {
   try {
     setSy('syncing');
     var data = await aPost('/api/business/' + code + '/manager-login-password', {password});
-    SESSION_TOKEN = data.token;
+    SESSION_TOKEN = data.token; authExpiredShown = false;
     localStorage.setItem('ems_biz_code', data.biz_code);
     localStorage.setItem('ems_biz_name', data.biz_name);
     localStorage.setItem('ems_is_mgr', '1');
@@ -1948,38 +1951,36 @@ if (urlParams.get('upgraded') === '1') { currentPlan='pro'; toast('Welcome to Sh
 // Apply dark mode on load
 if (localStorage.getItem('shq_dark') === '1') document.body.classList.add('dark');
 
-if (BIZ_CODE && BIZ_ID) {
-  // Validate session token
-  if (SESSION_TOKEN) {
-    try {
-      var payload = JSON.parse(atob(SESSION_TOKEN.split('.')[1]));
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        // Token expired - clear manager status but keep business session
-        localStorage.removeItem('ems_session_token');
-        localStorage.removeItem('ems_is_mgr');
-        SESSION_TOKEN = null;
-        IS_MGR = false;
-        // Show login screen to re-authenticate
-        document.getElementById('loginScreen').classList.remove('hidden');
-        document.getElementById('app').style.display = 'none';
-        // Pre-fill business code
-        setTimeout(function(){
-          var el = document.getElementById('bizCodeInput');
-          if (el) el.value = BIZ_CODE;
-        }, 100);
-        startClock();
-      } else {
-        initApp();
-      }
-    } catch(e) {
-      localStorage.removeItem('ems_session_token');
-      SESSION_TOKEN = null;
-      IS_MGR = false;
-      initApp();
-    }
-  } else {
+function showLoginWithCode() {
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+  setTimeout(function(){
+    var el = document.getElementById('bizCodeInput');
+    if (el && BIZ_CODE) el.value = BIZ_CODE;
+  }, 100);
+  startClock();
+}
+
+if (BIZ_CODE && BIZ_ID && SESSION_TOKEN) {
+  // Validate session token expiry client-side
+  var tokenOk = false;
+  try {
+    var payload = JSON.parse(atob(SESSION_TOKEN.split('.')[1]));
+    tokenOk = !(payload.exp && payload.exp * 1000 < Date.now());
+  } catch(e) { tokenOk = false; }
+  if (tokenOk) {
     initApp();
+  } else {
+    // Token expired/invalid - clear it and ask to sign in again
+    localStorage.removeItem('ems_session_token');
+    localStorage.removeItem('ems_is_mgr');
+    SESSION_TOKEN = null;
+    IS_MGR = false;
+    showLoginWithCode();
   }
+} else if (BIZ_CODE && BIZ_ID) {
+  // Business known but no session at all - must sign in
+  showLoginWithCode();
 } else { startClock(); }
 </script>
 </body>
