@@ -854,9 +854,27 @@ function buildHeaders() {
   if (!SESSION_TOKEN) h['x-api-key'] = API_KEY;
   return h;
 }
-async function aGet(path) { var r = await fetch(API + path, {headers: buildHeaders()}); if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
-async function aPost(path, body) { var r = await fetch(API + path, {method:'POST',headers:buildHeaders(),body:JSON.stringify(body)}); if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
-async function aDel(path) { var r = await fetch(API + path, {method:'DELETE',headers:buildHeaders()}); if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
+function handleAuthExpired() {
+  if (!SESSION_TOKEN) return; // already logged out, nothing to do
+  localStorage.removeItem('ems_session_token');
+  localStorage.removeItem('ems_is_mgr');
+  SESSION_TOKEN = null;
+  IS_MGR = false;
+  var app = document.getElementById('app');
+  if (app) app.style.display = 'none';
+  var login = document.getElementById('loginScreen');
+  if (login) {
+    login.classList.remove('hidden');
+    setTimeout(function(){
+      var el = document.getElementById('bizCodeInput');
+      if (el && BIZ_CODE) el.value = BIZ_CODE;
+    }, 50);
+  }
+  toast('Session expired — please sign in again', 'error');
+}
+async function aGet(path) { var r = await fetch(API + path, {headers: buildHeaders()}); if (r.status === 401) { handleAuthExpired(); throw new Error('Session expired'); } if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
+async function aPost(path, body) { var r = await fetch(API + path, {method:'POST',headers:buildHeaders(),body:JSON.stringify(body)}); if (r.status === 401) { handleAuthExpired(); throw new Error('Session expired'); } if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
+async function aDel(path) { var r = await fetch(API + path, {method:'DELETE',headers:buildHeaders()}); if (r.status === 401) { handleAuthExpired(); throw new Error('Session expired'); } if (!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error(e.error || r.statusText); } return r.json(); }
 
 // ── CLOCK ──────────────────────────────────────────────────────────────────
 function startClock() {
@@ -1918,10 +1936,7 @@ function copyPortalLink() {
 // ── AUTO REFRESH ──────────────────────────────────────────────────────────────
 function startAutoRefresh() {
   setInterval(function() {
-    // Apply dark mode on load
-if (localStorage.getItem('shq_dark') === '1') document.body.classList.add('dark');
-
-if (BIZ_CODE && BIZ_ID) {
+    if (BIZ_CODE && BIZ_ID && SESSION_TOKEN) {
       loadAll();
     }
   }, 30000); // every 30 seconds
