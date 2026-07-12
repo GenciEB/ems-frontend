@@ -1115,6 +1115,8 @@ async function fixStuckShifts() {
     toast('Closed ' + (r.closed || 0) + ' stuck shift(s)', 'success');
   } catch(e) { setSy('error'); toast(e.message || 'Failed', 'error'); }
 }
+
+function openPinPad(empId, action) {
   pinTarget = empId;
   pinAction = action;
   pinEntry = '';
@@ -1315,9 +1317,6 @@ async function saveEditEmp() {
     populateSelects();
     toast('Employee updated!', 'success');
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
-}
-
-  else { navigator.clipboard.writeText(currentQRUrl).then(function(){ toast('Link copied!', 'success'); }); }
 }
 
 // ── SCHEDULE ────────────────────────────────────────────────────────────────
