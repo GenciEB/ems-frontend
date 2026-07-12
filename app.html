@@ -11,24 +11,29 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-XSS-Protection" content="1; mode=block">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="shortcut icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>ShiftHQ — Staff Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
-  --bg:#fafaf8;--bg2:#f2f1ee;--surface:#fff;--border:#e8e6e1;--border2:#d4d0c8;
-  --blue:#1a56db;--blue-dim:rgba(26,86,219,0.08);--blue2:#1a56db;
+  --bg:#fafaf8;--bg2:#f1f0ec;--surface:#fff;--border:#e9e7e2;--border2:#d4d0c8;
+  --blue:#2154f4;--blue-dim:rgba(33,84,244,0.08);--blue2:#2154f4;
+  --cyanx:#06b6d4;
+  --grad:linear-gradient(135deg,#2154f4 0%,#06b6d4 120%);
   --green:#16a34a;--green-dim:rgba(22,163,74,0.08);
   --red:#dc2626;--red-dim:rgba(220,38,38,0.08);
   --amber:#d97706;--amber-dim:rgba(217,119,6,0.08);
   --purple:#7c3aed;--purple-dim:rgba(124,58,237,0.08);
   --cyan:#0891b2;--cyan-dim:rgba(8,145,178,0.08);
-  --text:#0d0d0d;--text2:#3d3d3d;--text3:#888;
-  --body:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;
-  --radius:16px;--radius-sm:10px;--radius-lg:22px;
+  --text:#0d0d0d;--text2:#3d3d3d;--text3:#8a8880;
+  --body:'Plus Jakarta Sans',sans-serif;--display:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
+  --radius:18px;--radius-sm:12px;--radius-lg:24px;
+  --shadow-1:0 1px 2px rgba(13,13,13,.04),0 8px 24px -14px rgba(13,13,13,.14);
+  --shadow-2:0 2px 4px rgba(13,13,13,.05),0 16px 40px -16px rgba(13,13,13,.18);
   --sb:env(safe-area-inset-bottom);--st:env(safe-area-inset-top);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -239,6 +244,64 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
   .stat-grid{grid-template-columns:repeat(2,1fr);}
   .form-r{grid-template-columns:1fr;}
 }
+
+/* ═══════════ DESIGN REFRESH — precision timeclock ═══════════ */
+/* Display type on identity + numbers */
+.login-logo,.logo,.sh-title,.modal-title,.stat-v,#pinPadName,.mo-t{font-family:var(--display);letter-spacing:-0.01em;}
+.stat-v{font-size:22px;font-variant-numeric:tabular-nums;}
+.clock{font-variant-numeric:tabular-nums;}
+
+/* Glassier chrome */
+header{background:rgba(250,250,248,0.78);backdrop-filter:blur(20px) saturate(1.7);-webkit-backdrop-filter:blur(20px) saturate(1.7);border-bottom:1px solid rgba(13,13,13,0.06);}
+nav.bnav{background:rgba(250,250,248,0.84);backdrop-filter:blur(20px) saturate(1.7);-webkit-backdrop-filter:blur(20px) saturate(1.7);border-top:1px solid rgba(13,13,13,0.06);}
+.tb{border-radius:12px;margin:4px 2px;}
+.tb.active{color:var(--blue);background:var(--blue-dim);box-shadow:inset 0 0 0 1px rgba(33,84,244,0.14);}
+
+/* Cards: layered depth + smooth hover */
+.card,.sh,.emp-item,.stat-box{box-shadow:var(--shadow-1);border-color:var(--border);transition:box-shadow .2s ease,transform .2s ease;}
+.card[onclick]:active{transform:scale(0.985);}
+.sh{border-top:none;position:relative;overflow:hidden;}
+.sh::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+
+/* Buttons: gradient primary + tactile press */
+.btn{transition:transform .12s ease,box-shadow .15s ease,background .15s ease,filter .15s ease;}
+.btn:active{transform:scale(0.97);}
+.btn-p{background:var(--grad);box-shadow:0 4px 14px -6px rgba(33,84,244,0.5);}
+.btn-p:hover{background:var(--grad);filter:brightness(1.08);box-shadow:0 6px 18px -6px rgba(33,84,244,0.6);}
+.btn-s{border-color:rgba(33,84,244,0.2);}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(33,84,244,0.12);}
+
+/* Login: gradient bar matches */
+.login-card{box-shadow:var(--shadow-2);border-radius:var(--radius-lg);}
+.login-card::before{background:var(--grad);}
+.login-logo-dot{background:var(--grad);}
+.logo-dot{background:var(--grad);}
+
+/* PIN pad: premium tactile keys */
+#pinPadModal .modal-card{border-radius:28px 28px 0 0;}
+#pinPadModal button.btn-g{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 2px rgba(13,13,13,.06),0 4px 10px -6px rgba(13,13,13,.12);font-family:var(--display);transition:transform .1s ease,box-shadow .12s ease;}
+#pinPadModal button.btn-g:active{transform:scale(0.92);box-shadow:inset 0 2px 6px rgba(13,13,13,.12);}
+#pinPadModal button.btn-p{border-radius:16px;font-family:var(--display);}
+#pinPadModal button.btn-d{border-radius:16px;}
+#pinPadModal .pin-d{width:13px;height:13px;box-shadow:inset 0 1px 2px rgba(13,13,13,.08);}
+
+/* Badges + toast */
+.badge{font-weight:500;}
+.toast{border-radius:14px;backdrop-filter:blur(8px);box-shadow:0 12px 32px -8px rgba(0,0,0,0.35);}
+.modal-card{border-radius:26px 26px 0 0;box-shadow:0 -12px 48px rgba(0,0,0,0.14);}
+
+/* Dark mode parity for refresh */
+body.dark header{background:rgba(15,15,15,0.78);border-bottom-color:rgba(255,255,255,0.06);}
+body.dark nav.bnav{background:rgba(15,15,15,0.84);border-top-color:rgba(255,255,255,0.06);}
+body.dark .card,body.dark .sh,body.dark .emp-item,body.dark .stat-box{box-shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -14px rgba(0,0,0,.5);}
+body.dark #pinPadModal button.btn-g{background:#232323;border-color:#333;box-shadow:0 1px 2px rgba(0,0,0,.4);}
+body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
+
+/* A11y + motion respect */
+.btn:focus-visible,input:focus-visible,select:focus-visible,.tb:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+}
 </style>
 </head>
 <body>
@@ -344,16 +407,37 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
   </div>
 </div>
 
-<!-- QR MODAL -->
-<div class="modal-ov" id="qrModal">
+
+<!-- PIN PAD MODAL -->
+<div class="modal-ov" id="pinPadModal">
   <div class="modal-card" style="text-align:center;">
-    <div class="modal-title" id="qrModalName">QR Code</div>
-    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:16px;">Employee scans to check in/out</div>
-    <div id="qrCodeDiv" style="display:flex;justify-content:center;margin-bottom:16px;"></div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-p" onclick="shareQR()">📤 Share</button>
-      <button class="btn btn-g" onclick="closeQR()">Close</button>
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px;" id="pinPadName"></div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:20px;" id="pinPadAction"></div>
+    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:20px;">
+      <span class="pin-d" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border);transition:background .15s;"></span>
+      <span class="pin-d" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border);transition:background .15s;"></span>
+      <span class="pin-d" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border);transition:background .15s;"></span>
+      <span class="pin-d" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border);transition:background .15s;"></span>
+      <span class="pin-d" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border);transition:background .15s;"></span>
+      <span class="pin-d" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border);transition:background .15s;"></span>
     </div>
+    <div id="pinPadDots" style="display:none;"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;">
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('1')">1</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('2')">2</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('3')">3</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('4')">4</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('5')">5</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('6')">6</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('7')">7</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('8')">8</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('9')">9</button>
+      <button class="btn btn-d" style="font-size:16px;padding:16px;" onclick="pinKey('⌫')">⌫</button>
+      <button class="btn btn-g" style="font-size:20px;font-weight:700;padding:16px;" onclick="pinKey('0')">0</button>
+      <button class="btn btn-p" style="font-size:16px;padding:16px;" onclick="pinKey('✓')">✓</button>
+    </div>
+    <div class="login-err" id="pinPadErr"></div>
+    <button class="btn btn-g" style="max-width:240px;margin:0 auto;" onclick="document.getElementById('pinPadModal').classList.remove('open')">Cancel</button>
   </div>
 </div>
 
@@ -404,6 +488,11 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
 <div id="page-checkin" class="page">
   <div class="sh"><div class="sh-eye">All Staff</div><div class="sh-title">CHECK IN/OUT</div><div class="sh-sub">Tap your name and enter PIN</div></div>
   <div id="checkinList"></div>
+  <div id="staleWarn" style="display:none;margin-top:12px;padding:12px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;">
+    <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:6px;">⚠️ Some staff are stuck "on shift" from a previous day</div>
+    <div style="font-size:12px;color:#92400e;margin-bottom:8px;">This auto-closes those old shifts (8h default) so they can check in again and payroll calculates correctly.</div>
+    <button class="btn btn-p" style="width:auto;padding:8px 14px;font-size:12px;" onclick="fixStuckShifts()">Fix stuck check-ins</button>
+  </div>
 </div>
 
 <!-- EMPLOYEES -->
@@ -918,12 +1007,6 @@ async function loadAll() {
     emps = r[0]; shfts = r[1]; lvs = r[2]; deds = r[3]; scheds = r[4];
     setSy('ok');
     renderDash(); renderCheckin(); populateSelects();
-    // Generate QR tokens for employees missing one
-    if (emps.some(function(e){ return !e.qr_token; })) {
-      aPost('/api/business/' + BIZ_CODE + '/generate-qr-tokens', {}).then(function(){
-        return aGet('/api/employees?business_id=' + BIZ_ID);
-      }).then(function(e){ emps = e; }).catch(function(){});
-    }
   } catch(e) { setSy('error'); toast('Failed to load data', 'error'); }
 }
 
@@ -984,67 +1067,133 @@ async function reloadShifts() {
   } catch(e) { setSy('error'); }
 }
 
-// ── CHECK IN/OUT ────────────────────────────────────────────────────────────
+// ── CHECK IN/OUT (PIN PAD) ──────────────────────────────────────────────────
+var pinTarget = null;
+var pinAction = null;
+var pinEntry = '';
+
 function renderCheckin() {
   var today = dk(new Date());
   var html = '';
-  if (emps.length === 0) { html = '<div class="empty"><div class="ico">👥</div><p>No employees yet. Add staff first.</p></div>'; }
-  else emps.forEach(function(emp) {
-    var shift = shfts.find(function(s){ return s.emp_id===emp.id && s.date===today; });
-    var status = shift ? (shift.check_out ? 'done' : 'in') : 'out';
-    html += '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
-      '<div style="display:flex;align-items:center;gap:9px;"><div class="emp-avatar">'+emp.name[0]+'</div>' +
-      '<div><div class="emp-name">'+esc(emp.name)+'</div><div class="emp-role-label">'+esc(emp.role||'')+'</div>' +
-      (shift ? '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+fmtTime(shift.check_in)+(shift.check_out?' → '+fmtTime(shift.check_out):'')+(shift.note?' · <em>'+esc(shift.note)+'</em>':'')+'</div>' : '') +
-      '</div></div><div style="display:flex;gap:5px;align-items:center;">' +
-      (status==='out' ? '<button class="btn btn-s" style="width:auto;padding:7px 11px;font-size:12px;" onclick="doCheckIn('+emp.id+')">Check In</button>' : '') +
-      (status==='in' ? '<span class="badge bg">On shift</span><button class="btn btn-d" style="width:auto;padding:7px 11px;font-size:12px;" onclick="doCheckOut('+emp.id+')">Check Out</button>' : '') +
-      (status==='done' ? '<span class="badge bb">Done · '+(parseFloat(shift.hours)||0).toFixed(1)+'h</span>' : '') +
-      '</div></div>';
-  });
+  if (emps.length === 0) {
+    html = '<div class="empty"><div class="ico">👥</div><p>No employees yet. Add staff first.</p></div>';
+  } else {
+    html += '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-align:center;">TAP YOUR NAME TO CHECK IN / OUT</div>';
+    emps.forEach(function(emp) {
+      var shift = shfts.find(function(s){ return s.emp_id===emp.id && s.date===today; });
+      var status = shift ? (shift.check_out ? 'done' : 'in') : 'out';
+      var statusColor = status==='in' ? 'var(--green)' : status==='done' ? 'var(--blue)' : 'var(--border)';
+      var statusLabel = status==='in' ? '⏳ On shift since '+fmtTime(shift.check_in) : status==='done' ? '✓ Done · '+(parseFloat(shift.hours)||0).toFixed(1)+'h' : 'Not checked in yet';
+      var clickAction = status==='out' ? "openPinPad("+emp.id+",'checkin')" : status==='in' ? "openPinPad("+emp.id+",'checkout')" : '';
+      html += '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:'+(status==='done'?'default':'pointer')+';border-left:3px solid '+statusColor+';" onclick="'+clickAction+'">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+        '<div class="emp-avatar">'+emp.name[0].toUpperCase()+'</div>' +
+        '<div><div class="emp-name">'+esc(emp.name)+'</div>' +
+        '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+statusLabel+(shift&&shift.note?' · <em>'+esc(shift.note)+'</em>':'')+'</div></div></div>' +
+        (status==='done' && shift ? '<button class="btn btn-g" style="width:auto;padding:4px 8px;font-size:10px;" onclick="event.stopPropagation();addShiftNote('+shift.id+')">📝</button>' : '') +
+        (status==='out' ? '<span style="font-family:var(--mono);font-size:10px;color:var(--text3);">TAP →</span>' : '') +
+        (status==='in' ? '<span style="font-family:var(--mono);font-size:10px;color:var(--green);">TAP OUT →</span>' : '') +
+        '</div>';
+    });
+  }
   document.getElementById('checkinList').innerHTML = html;
+  // Detect stale open shifts (open, from before today) — only managers can fix
+  var todayStr = dk(new Date());
+  var hasStale = shfts.some(function(s){ return !s.check_out && s.check_in && s.date < todayStr; });
+  var warnEl = document.getElementById('staleWarn');
+  if (warnEl) warnEl.style.display = (hasStale && IS_MGR) ? 'block' : 'none';
 }
 
-async function doCheckIn(empId) {
-  var emp = emps.find(function(e){ return e.id===empId; });
-  if (!emp) return;
-  var pin = prompt('Enter PIN for ' + emp.name + ':');
-  if (!pin) return;
+async function fixStuckShifts() {
+  if (!IS_MGR) { toast('Manager access required', 'error'); return; }
   try {
     setSy('syncing');
-    var r = await aPost('/api/employees/verify-pin', {emp_id:empId, pin});
-    if (!r.match) { toast('Wrong PIN', 'error'); setSy('ok'); return; }
-    var now = new Date();
-    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    var s = await aPost('/api/shifts', {emp_id:empId, business_id:BIZ_ID, date:dk(now), check_in:timeStr});
-    shfts.push(s); setSy('ok');
-    logAudit('checkin', emp.name + ' checked in at ' + timeStr, emp.name);
-    toast(emp.name + ' checked in ✓', 'success');
-    renderCheckin(); renderDash();
-  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
-}
-
-async function doCheckOut(empId) {
-  var emp = emps.find(function(e){ return e.id===empId; });
-  var today = dk(new Date());
-  var shift = shfts.find(function(s){ return s.emp_id===empId && s.date===today && !s.check_out; });
-  if (!shift) return;
-  var pin = prompt('Enter PIN for ' + emp.name + ':');
-  if (!pin) return;
-  try {
-    setSy('syncing');
-    var r = await aPost('/api/employees/verify-pin', {emp_id:empId, pin});
-    if (!r.match) { toast('Wrong PIN', 'error'); setSy('ok'); return; }
-    var now = new Date();
-    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    var updated = await aPost('/api/shifts/' + shift.id + '/checkout', {check_out:timeStr});
-    var idx = shfts.findIndex(function(s){ return s.id===shift.id; });
-    if (idx >= 0) shfts[idx] = updated;
+    var r = await aPost('/api/shifts/close-stale', { business_id: BIZ_ID });
+    shfts = await aGet('/api/shifts?business_id=' + BIZ_ID);
     setSy('ok');
-    logAudit('checkout', emp.name + ' checked out at ' + timeStr, emp.name);
-    toast(emp.name + ' checked out · ' + (parseFloat(updated.hours)||0).toFixed(1) + 'h', 'success');
     renderCheckin(); renderDash();
-  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+    toast('Closed ' + (r.closed || 0) + ' stuck shift(s)', 'success');
+  } catch(e) { setSy('error'); toast(e.message || 'Failed', 'error'); }
+}
+  pinTarget = empId;
+  pinAction = action;
+  pinEntry = '';
+  var emp = emps.find(function(e){ return e.id === empId; });
+  document.getElementById('pinPadName').textContent = emp ? emp.name : '';
+  document.getElementById('pinPadAction').textContent = action === 'checkin' ? 'Enter PIN to Check In' : 'Enter PIN to Check Out';
+  document.getElementById('pinPadErr').textContent = '';
+  updatePinDots();
+  document.getElementById('pinPadModal').classList.add('open');
+}
+
+function pinKey(key) {
+  if (key === '⌫') {
+    pinEntry = pinEntry.slice(0, -1);
+  } else if (key === '✓') {
+    submitPin();
+    return;
+  } else if (pinEntry.length < 6) {
+    pinEntry += key;
+  }
+  updatePinDots();
+  if (pinEntry.length === 6) submitPin();
+}
+
+function updatePinDots() {
+  var dots = document.querySelectorAll('#pinPadModal .pin-d');
+  dots.forEach(function(d, i) {
+    d.style.background = i < pinEntry.length ? 'var(--blue)' : 'var(--border)';
+  });
+}
+
+async function submitPin() {
+  if (!pinEntry || pinEntry.length < 4) {
+    document.getElementById('pinPadErr').textContent = 'PIN must be at least 4 digits';
+    return;
+  }
+  var empId = pinTarget;
+  var action = pinAction;
+  var emp = emps.find(function(e){ return e.id === empId; });
+  if (!emp) return;
+  try {
+    setSy('syncing');
+    var r = await aPost('/api/employees/verify-pin', {emp_id: empId, pin: pinEntry});
+    if (!r.match) {
+      document.getElementById('pinPadErr').textContent = 'Wrong PIN — try again';
+      pinEntry = '';
+      updatePinDots();
+      setSy('ok');
+      return;
+    }
+    document.getElementById('pinPadModal').classList.remove('open');
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    if (action === 'checkin') {
+      var s = await aPost('/api/shifts', {emp_id: empId, business_id: BIZ_ID, date: dk(now), check_in: timeStr});
+      shfts.push(s);
+      logAudit('checkin', emp.name + ' checked in at ' + timeStr, emp.name);
+      toast(emp.name + ' checked in ✓', 'success');
+    } else {
+      var today = dk(now);
+      var shift = shfts.find(function(x){ return x.emp_id===empId && x.date===today && !x.check_out; });
+      if (shift) {
+        var updated = await aPost('/api/shifts/' + shift.id + '/checkout', {check_out: timeStr});
+        var idx = shfts.findIndex(function(x){ return x.id===shift.id; });
+        if (idx >= 0) shfts[idx] = updated;
+        logAudit('checkout', emp.name + ' checked out at ' + timeStr, emp.name);
+        toast(emp.name + ' checked out · ' + (parseFloat(updated.hours)||0).toFixed(1) + 'h', 'success');
+      }
+    }
+    setSy('ok');
+    pinEntry = '';
+    renderCheckin();
+    renderDash();
+  } catch(e) {
+    setSy('error');
+    document.getElementById('pinPadErr').textContent = e.message || 'Error';
+    pinEntry = '';
+    updatePinDots();
+  }
 }
 
 // ── EMPLOYEES ───────────────────────────────────────────────────────────────
@@ -1087,7 +1236,6 @@ function renderEmps() {
       '<div class="emp-info"><div class="emp-name">'+esc(emp.name)+'</div>' +
       '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · €'+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div></div>' +
       '<div style="display:flex;gap:5px;">' +
-      '<button class="btn btn-s" style="width:auto;padding:5px 9px;font-size:11px;" onclick="showQR('+emp.id+')">QR</button>' +
       '<button class="btn btn-g" style="width:auto;padding:5px 9px;font-size:11px;" onclick="openEditEmp('+emp.id+')">✏️</button>' +
       '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delEmp('+emp.id+')">✕</button>' +
       '</div></div>';
@@ -1169,22 +1317,6 @@ async function saveEditEmp() {
   } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
 }
 
-// ── QR CODES ────────────────────────────────────────────────────────────────
-function showQR(empId) {
-  var emp = emps.find(function(e){ return e.id===empId; });
-  if (!emp) return;
-  if (!emp.qr_token) { toast('Generating QR... please wait a moment and try again', 'warn'); return; }
-  var url = 'https://ems-frontend-five-tau.vercel.app/checkin.html?t=' + emp.qr_token;
-  currentQRUrl = url;
-  document.getElementById('qrModalName').textContent = emp.name + ' — QR Code';
-  var div = document.getElementById('qrCodeDiv');
-  div.innerHTML = '';
-  new QRCode(div, {text:url, width:200, height:200, colorDark:'#0d0d0d', colorLight:'#ffffff'});
-  document.getElementById('qrModal').classList.add('open');
-}
-function closeQR() { document.getElementById('qrModal').classList.remove('open'); }
-function shareQR() {
-  if (navigator.share) { navigator.share({title:'ShiftHQ Check-In', url:currentQRUrl}); }
   else { navigator.clipboard.writeText(currentQRUrl).then(function(){ toast('Link copied!', 'success'); }); }
 }
 
@@ -1806,22 +1938,34 @@ if (BIZ_CODE && BIZ_ID) {
   // Validate session token
   if (SESSION_TOKEN) {
     try {
-      // Check if JWT is expired by parsing payload
       var payload = JSON.parse(atob(SESSION_TOKEN.split('.')[1]));
       if (payload.exp && payload.exp * 1000 < Date.now()) {
-        // Token expired - clear and redirect to login
+        // Token expired - clear manager status but keep business session
         localStorage.removeItem('ems_session_token');
         localStorage.removeItem('ems_is_mgr');
         SESSION_TOKEN = null;
         IS_MGR = false;
+        // Show login screen to re-authenticate
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.getElementById('app').style.display = 'none';
+        // Pre-fill business code
+        setTimeout(function(){
+          var el = document.getElementById('bizCodeInput');
+          if (el) el.value = BIZ_CODE;
+        }, 100);
+        startClock();
+      } else {
+        initApp();
       }
     } catch(e) {
-      // Invalid token
       localStorage.removeItem('ems_session_token');
       SESSION_TOKEN = null;
+      IS_MGR = false;
+      initApp();
     }
+  } else {
+    initApp();
   }
-  initApp();
 } else { startClock(); }
 </script>
 </body>
