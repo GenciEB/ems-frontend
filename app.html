@@ -1449,8 +1449,8 @@ function renderPayroll() {
     html+='<div class="payslip"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
       '<div><div style="font-size:17px;font-weight:800;">'+esc(emp.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(emp.role||'')+'</div></div>'+
       '<span class="badge bb">'+totalH.toFixed(1)+'h</span><button class="btn btn-s" style="width:auto;padding:5px 10px;font-size:11px;" onclick="downloadPayslip('+emp.id+',\''+ym+'\')" >📄 PDF</button></div>'+
-      '<div class="payslip-row"><span>Regular ('+regH.toFixed(1)+'h × €'+rate.toFixed(2)+')</span><span>€'+basePay.toFixed(2)+'</span></div>'+
-      (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(1)+'h × 1.5)</span><span>€'+otPay.toFixed(2)+'</span></div>':'')+
+      '<div class="payslip-row"><span>Regular ('+regH.toFixed(2)+'h × €'+rate.toFixed(2)+')</span><span>€'+basePay.toFixed(2)+'</span></div>'+
+      (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>€'+otPay.toFixed(2)+'</span></div>':'')+
       (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+€'+bonuses.toFixed(2)+'</span></div>':'')+
       (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-€'+deductions.toFixed(2)+'</span></div>':'')+
       '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">GROSS PAY</span><span class="payslip-total">€'+gross.toFixed(2)+'</span></div>'+
