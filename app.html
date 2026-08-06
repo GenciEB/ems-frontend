@@ -1245,7 +1245,15 @@ async function addEmp() {
     var freshEmps = await aGet('/api/employees?business_id=' + BIZ_ID);
     emps = freshEmps;
     renderEmps(); populateSelects();
-  } catch(e) { setSy('error'); toast('Failed: ' + e.message, 'error'); }
+  } catch(e) {
+    setSy('error');
+    if (e.message && e.message.indexOf('Upgrade to Pro') !== -1) {
+      toast(e.message, 'error');
+      goNav('plans', document.querySelector('[data-page="plans"]'));
+    } else {
+      toast('Failed: ' + e.message, 'error');
+    }
+  }
 }
 
 function renderEmps() {
