@@ -110,6 +110,9 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
     </div>
   </div>
 
+  <!-- Check In / Out -->
+  <div id="clockCard" style="margin-bottom:18px;"></div>
+
   <!-- Stats -->
   <div class="stat-row" id="portalStats"></div>
 
@@ -151,11 +154,20 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
 var API = 'https://ems-api-mgye.onrender.com';
 var EMP_TOKEN = null;
 var empData = null;
-var allShifts = [], allLeaves = [];
+var allShifts = [], allLeaves = [], allDeds = [];
 var viewMonth = new Date();
 var currentPin = '';
 var currentTab = 'shifts';
 var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Remember the business code on this device (not sensitive — just a shop identifier) so a shared kiosk doesn't need retyping it every time
+(function(){
+  var saved = localStorage.getItem('shq_kiosk_biz_code');
+  if (saved) {
+    var el = document.getElementById('bizCodeEntry');
+    if (el) el.value = saved;
+  }
+})();
 
 function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
 function fmt(d) { if (!d) return '—'; var dt = new Date(d + 'T00:00:00'); var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate() + ' ' + m[dt.getMonth()]; }
@@ -194,6 +206,7 @@ async function doVerify() {
     if (!ver.match) { document.getElementById('pinErr').textContent = ver.error || 'Wrong PIN'; currentPin = ''; updateDots(); return; }
     // Store scoped employee token for authenticated reads
     EMP_TOKEN = ver.emp_token;
+    localStorage.setItem('shq_kiosk_biz_code', bizCode);
     empData = ver.employee;
     empData.biz_id = ver.employee.business_id;
     empData.biz_name = bizCode.toUpperCase();
@@ -215,6 +228,9 @@ async function loadPortalData() {
   var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: h });
   var allL = await lr.json();
   allLeaves = (Array.isArray(allL) ? allL : []).filter(function(l){ return l.emp_id === empData.id; });
+  var dr = await fetch(API + '/api/deductions?business_id=' + empData.biz_id, { headers: h });
+  var allD = await dr.json();
+  allDeds = (Array.isArray(allD) ? allD : []).filter(function(d){ return d.emp_id === empData.id; });
 }
 
 function showPortal() {
@@ -224,8 +240,62 @@ function showPortal() {
   document.getElementById('portalAvatar').textContent = empData.name[0].toUpperCase();
   document.getElementById('portalName').textContent = empData.name;
   document.getElementById('portalRole').textContent = (empData.role || 'Staff') + ' · ' + empData.biz_name;
+  renderClockCard();
   renderStats();
   renderMonth();
+}
+
+function renderClockCard() {
+  var today = dk(new Date());
+  var shift = allShifts.find(function(s){ return s.date === today; });
+  var el = document.getElementById('clockCard');
+  if (!shift) {
+    el.innerHTML =
+      '<button onclick="doClockIn()" style="width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#2154f4 0%,#06b6d4 120%);color:#fff;font-family:\'Space Grotesk\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px -6px rgba(33,84,244,.5);">▶ Check In</button>';
+  } else if (shift.check_in && !shift.check_out) {
+    el.innerHTML =
+      '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px;margin-bottom:10px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#16a34a;">⏳ On shift since ' + shift.check_in + '</div>' +
+      '<button onclick="doClockOut(' + shift.id + ')" style="width:100%;padding:18px;border-radius:14px;border:none;background:#dc2626;color:#fff;font-family:\'Space Grotesk\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">■ Check Out</button>';
+  } else {
+    el.innerHTML =
+      '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:14px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#2154f4;">✓ Today done · ' + shift.check_in + ' → ' + shift.check_out + ' (' + (parseFloat(shift.hours)||0).toFixed(2) + 'h)</div>';
+  }
+}
+
+async function doClockIn() {
+  try {
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    var r = await fetch(API + '/api/shifts', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-emp-token': EMP_TOKEN},
+      body: JSON.stringify({ emp_id: empData.id, business_id: empData.biz_id, date: dk(now), check_in: timeStr })
+    });
+    var s = await r.json();
+    if (!r.ok) { alert(s.error || 'Could not check in'); return; }
+    allShifts.push(s);
+    renderClockCard();
+    renderStats();
+  } catch(e) { alert('Connection error'); }
+}
+
+async function doClockOut(shiftId) {
+  try {
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    var r = await fetch(API + '/api/shifts/' + shiftId + '/checkout', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-emp-token': EMP_TOKEN},
+      body: JSON.stringify({ check_out: timeStr })
+    });
+    var updated = await r.json();
+    if (!r.ok) { alert(updated.error || 'Could not check out'); return; }
+    var idx = allShifts.findIndex(function(s){ return s.id === shiftId; });
+    if (idx >= 0) allShifts[idx] = updated;
+    renderClockCard();
+    renderStats();
+    renderMonth();
+  } catch(e) { alert('Connection error'); }
 }
 
 function renderStats() {
@@ -233,12 +303,16 @@ function renderStats() {
   var thisMonth = today.slice(0,7);
   var monthShifts = allShifts.filter(function(s){ return s.date && s.date.slice(0,7) === thisMonth && s.check_out; });
   var totalH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
+  var regH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0); },0);
+  var otH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); },0);
   var rate = parseFloat(empData.rate)||0;
-  var grossPay = totalH * rate;
+  var bonuses = allDeds.filter(function(d){ return d.month===thisMonth && d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
+  var deductions = allDeds.filter(function(d){ return d.month===thisMonth && d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
+  var netPay = (regH*rate) + (otH*rate*1.5) + bonuses - deductions;
   var onShift = allShifts.find(function(s){ return s.date===today && s.check_in && !s.check_out; });
   document.getElementById('portalStats').innerHTML =
     '<div class="stat-box"><div class="stat-v">' + totalH.toFixed(0) + 'h</div><div class="stat-k">THIS MONTH</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:#16a34a;">€' + grossPay.toFixed(0) + '</div><div class="stat-k">GROSS PAY</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:#16a34a;">L ' + netPay.toFixed(0) + '</div><div class="stat-k">PAY DUE</div></div>' +
     '<div class="stat-box"><div class="stat-v" style="color:' + (onShift?'#2154f4':'#888') + ';">' + (onShift?'Yes':'No') + '</div><div class="stat-k">ON SHIFT</div></div>';
 }
 
@@ -302,21 +376,37 @@ function renderPay(ym) {
   var rate = parseFloat(empData.rate)||0;
   var basePay = regH * rate;
   var otPay = otH * rate * 1.5;
-  var gross = basePay + otPay;
+  var bonuses = allDeds.filter(function(d){ return d.month===ym && d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
+  var deductions = allDeds.filter(function(d){ return d.month===ym && d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
+  var gross = basePay + otPay + bonuses - deductions;
   var lateCount = ms.filter(function(s){ return s.is_late; }).length;
   document.getElementById('payCard').innerHTML =
     '<div class="card">' +
     '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:#888;margin-bottom:12px;">PAY SUMMARY — ' + months[viewMonth.getMonth()].toUpperCase() + ' ' + viewMonth.getFullYear() + '</div>' +
     '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Shifts worked</span><span style="font-weight:600;">' + ms.length + '</span></div>' +
-    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Total hours</span><span style="font-weight:600;">' + totalH.toFixed(1) + 'h</span></div>' +
-    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Regular (' + regH.toFixed(1) + 'h × €' + rate.toFixed(2) + ')</span><span>€' + basePay.toFixed(2) + '</span></div>' +
-    (otH > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Overtime (' + otH.toFixed(1) + 'h × 1.5)</span><span>€' + otPay.toFixed(2) + '</span></div>' : '') +
+    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Total hours</span><span style="font-weight:600;">' + totalH.toFixed(2) + 'h</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Regular (' + regH.toFixed(2) + 'h × L ' + rate.toFixed(2) + ')</span><span>L ' + basePay.toFixed(2) + '</span></div>' +
+    (otH > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Overtime (' + otH.toFixed(2) + 'h × 1.5)</span><span>L ' + otPay.toFixed(2) + '</span></div>' : '') +
+    (bonuses > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#16a34a;">Bonuses</span><span style="color:#16a34a;">+L ' + bonuses.toFixed(2) + '</span></div>' : '') +
+    (deductions > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#dc2626;">Deductions</span><span style="color:#dc2626;">-L ' + deductions.toFixed(2) + '</span></div>' : '') +
     (lateCount > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#dc2626;">Late arrivals</span><span style="color:#dc2626;">' + lateCount + 'x</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Gross Pay</span><span style="color:#2154f4;">€' + gross.toFixed(2) + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Pay Due</span><span style="color:#2154f4;">L ' + gross.toFixed(2) + '</span></div>' +
     '</div>';
 }
 
-function logout() { empData = null; currentPin = ''; updateDots(); document.getElementById('portal').style.display = 'none'; document.getElementById('pinScreen').style.display = ''; document.getElementById('pinErr').textContent = ''; }
+function logout() {
+  empData = null;
+  EMP_TOKEN = null;
+  allShifts = [];
+  allLeaves = [];
+  allDeds = [];
+  currentPin = '';
+  updateDots();
+  document.getElementById('portal').style.display = 'none';
+  document.getElementById('pinScreen').style.display = '';
+  document.getElementById('pinErr').textContent = '';
+  document.getElementById('empNameEntry').value = '';
+}
 </script>
 </body>
 </html>

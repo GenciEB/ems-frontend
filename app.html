@@ -374,7 +374,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         <div class="field"><label>Role</label><input type="text" id="editEmpRole" placeholder="Role"></div>
       </div>
       <div class="form-r">
-        <div class="field"><label>Pay Rate (€/hr)</label><input type="number" id="editEmpRate" placeholder="12.50" step="0.01"></div>
+        <div class="field"><label>Pay Rate (L/hr)</label><input type="number" id="editEmpRate" placeholder="12.50" step="0.01"></div>
         <div class="field"><label>Phone</label><input type="tel" id="editEmpPhone" placeholder="+355 69..."></div>
       </div>
       <div class="form-r">
@@ -486,7 +486,15 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 
 <!-- CHECK IN/OUT -->
 <div id="page-checkin" class="page">
-  <div class="sh"><div class="sh-eye">All Staff</div><div class="sh-title">CHECK IN/OUT</div><div class="sh-sub">Tap your name and enter PIN</div></div>
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">CHECK IN/OUT</div><div class="sh-sub">Live status + manual override</div></div>
+  <div class="card" style="margin-bottom:14px;background:var(--blue-dim);border-color:rgba(33,84,244,0.2);">
+    <div style="font-weight:700;font-size:13px;margin-bottom:6px;">📱 Give staff their own check-in link</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Employees can check themselves in and out from their own phone or a shared device — without ever touching your manager login.</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-s" style="flex:1;font-size:12px;" onclick="copyKioskLink()">🔗 Copy staff link</button>
+    </div>
+  </div>
+  <div class="sh-sub" style="margin-bottom:8px;">Live status — tap a name to check in/out manually</div>
   <div id="checkinList"></div>
   <div id="staleWarn" style="display:none;margin-top:12px;padding:12px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;">
     <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:6px;">⚠️ Some staff are stuck "on shift" from a previous day</div>
@@ -498,6 +506,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 <!-- EMPLOYEES -->
 <div id="page-employees" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">STAFF</div><div class="sh-sub">Manage your team</div></div>
+
   <div class="card">
     <div class="card-lbl">Add Employee</div>
     <div class="form-s">
@@ -507,7 +516,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       </div>
       <div class="form-r">
         <div class="field"><label>PIN (for check-in)</label><input type="password" id="empPin" placeholder="4-6 digits" inputmode="numeric" maxlength="6"></div>
-        <div class="field"><label>Pay Rate (€/hr)</label><input type="number" id="empRate" placeholder="12.50" step="0.01"></div>
+        <div class="field"><label>Pay Rate (L/hr)</label><input type="number" id="empRate" placeholder="12.50" step="0.01"></div>
       </div>
       <div class="form-r">
         <div class="field"><label>Start Time</label><input type="time" id="empStart" value="09:00"></div>
@@ -599,7 +608,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       </div>
       <div class="form-r">
         <div class="field"><label>Type</label><select id="dedType"><option value="bonus">Bonus</option><option value="deduction">Deduction</option></select></div>
-        <div class="field"><label>Amount (€)</label><input type="number" id="dedAmount" placeholder="50.00" step="0.01"></div>
+        <div class="field"><label>Amount (L)</label><input type="number" id="dedAmount" placeholder="50.00" step="0.01"></div>
       </div>
       <div class="field"><label>Label</label><input type="text" id="dedLabel" placeholder="e.g. Performance bonus"></div>
       <button type="button" class="btn btn-p" onclick="addDed()">+ Add Entry</button>
@@ -815,7 +824,7 @@ var T = {
     security: 'SECURITY', analytics: 'ANALYTICS',
     onShift: 'On Shift Now', noShift: 'Nobody currently on shift',
     addEmp: 'Add Employee', signOut: 'Sign Out',
-    grossPay: 'GROSS PAY', thisMonth: 'THIS MONTH',
+    grossPay: 'PAY DUE', thisMonth: 'THIS MONTH',
     checkIn: 'Check In', checkOut: 'Check Out', done: 'Done'
   },
   sq: {
@@ -825,7 +834,7 @@ var T = {
     security: 'SIGURIA', analytics: 'STATISTIKA',
     onShift: 'Në Punë Tani', noShift: 'Askush në punë aktualisht',
     addEmp: 'Shto Punonjës', signOut: 'Dilni',
-    grossPay: 'PAGA BRUTO', thisMonth: 'KËTË MUAJ',
+    grossPay: 'PAGA NETO', thisMonth: 'KËTË MUAJ',
     checkIn: 'Hyrje', checkOut: 'Dalje', done: 'Kryer'
   }
 };
@@ -1076,7 +1085,7 @@ function renderDash() {
   document.getElementById('dashStats').innerHTML =
     '<div class="stat-box"><div class="stat-v">' + onShift.length + '</div><div class="stat-k">ON SHIFT</div></div>' +
     '<div class="stat-box"><div class="stat-v">' + wkH.toFixed(0) + 'h</div><div class="stat-k">THIS WEEK</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">€' + moPay.toFixed(0) + '</div><div class="stat-k">THIS MONTH</div></div>';
+    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">L ' + moPay.toFixed(0) + '</div><div class="stat-k">THIS MONTH</div></div>';
   var os = '<div class="card"><div class="card-lbl">On Shift Now</div>';
   if (onShift.length === 0) os += '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">Nobody currently on shift</div>';
   else onShift.forEach(function(s){ var emp=emps.find(function(e){return e.id===s.emp_id;}); os += '<div class="emp-item" style="margin-bottom:5px;"><div class="emp-avatar">'+(emp?emp.name[0]:'?')+'</div><div class="emp-info"><div class="emp-name">'+esc(emp?emp.name:'?')+'</div><div class="emp-role-label">Since '+fmtTime(s.check_in)+'</div></div><span class="badge bg">On shift</span></div>'; });
@@ -1111,7 +1120,6 @@ function renderCheckin() {
   if (emps.length === 0) {
     html = '<div class="empty"><div class="ico">👥</div><p>No employees yet. Add staff first.</p></div>';
   } else {
-    html += '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;text-align:center;">TAP YOUR NAME TO CHECK IN / OUT</div>';
     emps.forEach(function(emp) {
       var shift = shfts.find(function(s){ return s.emp_id===emp.id && s.date===today; });
       var status = shift ? (shift.check_out ? 'done' : 'in') : 'out';
@@ -1147,6 +1155,19 @@ async function fixStuckShifts() {
     renderCheckin(); renderDash();
     toast('Closed ' + (r.closed || 0) + ' stuck shift(s)', 'success');
   } catch(e) { setSy('error'); toast(e.message || 'Failed', 'error'); }
+}
+
+function copyKioskLink() {
+  var link = window.location.origin + '/employee.html';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(function(){
+      toast('Staff link copied — share it with your team', 'success');
+    }).catch(function(){
+      prompt('Copy this link for your staff:', link);
+    });
+  } else {
+    prompt('Copy this link for your staff:', link);
+  }
 }
 
 function openPinPad(empId, action) {
@@ -1277,7 +1298,7 @@ function renderEmps() {
   else emps.forEach(function(emp) {
     html += '<div class="emp-item"><div class="emp-avatar">'+emp.name[0]+'</div>' +
       '<div class="emp-info"><div class="emp-name">'+esc(emp.name)+'</div>' +
-      '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · €'+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div></div>' +
+      '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · L '+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div></div>' +
       '<div style="display:flex;gap:5px;">' +
       '<button class="btn btn-g" style="width:auto;padding:5px 9px;font-size:11px;" onclick="openEditEmp('+emp.id+')">✏️</button>' +
       '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delEmp('+emp.id+')">✕</button>' +
@@ -1468,15 +1489,15 @@ function renderPayroll() {
     var basePay=regH*rate, otPay=otH*rate*1.5;
     var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
-    var gross=basePay+otPay+bonuses;
+    var gross=basePay+otPay+bonuses-deductions;
     html+='<div class="payslip"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
       '<div><div style="font-size:17px;font-weight:800;">'+esc(emp.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(emp.role||'')+'</div></div>'+
       '<span class="badge bb">'+totalH.toFixed(2)+'h</span><button class="btn btn-s" style="width:auto;padding:5px 10px;font-size:11px;" onclick="downloadPayslip('+emp.id+',\''+ym+'\')" >📄 PDF</button></div>'+
-      '<div class="payslip-row"><span>Regular ('+regH.toFixed(2)+'h × €'+rate.toFixed(2)+')</span><span>€'+basePay.toFixed(2)+'</span></div>'+
-      (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>€'+otPay.toFixed(2)+'</span></div>':'')+
-      (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+€'+bonuses.toFixed(2)+'</span></div>':'')+
-      (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-€'+deductions.toFixed(2)+'</span></div>':'')+
-      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">GROSS PAY</span><span class="payslip-total">€'+gross.toFixed(2)+'</span></div>'+
+      '<div class="payslip-row"><span>Regular ('+regH.toFixed(2)+'h × L '+rate.toFixed(2)+')</span><span>L '+basePay.toFixed(2)+'</span></div>'+
+      (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>L '+otPay.toFixed(2)+'</span></div>':'')+
+      (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+L '+bonuses.toFixed(2)+'</span></div>':'')+
+      (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-L '+deductions.toFixed(2)+'</span></div>':'')+
+      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">PAY DUE</span><span class="payslip-total">L '+gross.toFixed(2)+'</span></div>'+
       '</div>';
   });
   document.getElementById('payrollList').innerHTML=html;
@@ -1509,7 +1530,7 @@ function renderDeds() {
   var sorted=deds.slice().sort(function(a,b){return b.month.localeCompare(a.month);});
   var html='';
   if(sorted.length===0){html='<div class="empty"><div class="ico">➖</div><p>No entries yet</p></div>';}
-  else sorted.forEach(function(d){var emp=emps.find(function(e){return e.id===d.emp_id;}); html+='<div class="card" style="display:flex;align-items:center;justify-content:space-between;"><div><div style="font-weight:600;">'+esc(emp?emp.name:'?')+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(d.month)+' · '+esc(d.label||d.type)+'</div></div><div style="display:flex;align-items:center;gap:5px;"><span class="badge '+(d.type==='bonus'?'bg':'br')+'">'+(d.type==='bonus'?'+':'-')+'€'+parseFloat(d.amount).toFixed(2)+'</span><button class="btn btn-d" style="width:auto;padding:4px 8px;font-size:10px;" onclick="delDed('+d.id+')">✕</button></div></div>';});
+  else sorted.forEach(function(d){var emp=emps.find(function(e){return e.id===d.emp_id;}); html+='<div class="card" style="display:flex;align-items:center;justify-content:space-between;"><div><div style="font-weight:600;">'+esc(emp?emp.name:'?')+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(d.month)+' · '+esc(d.label||d.type)+'</div></div><div style="display:flex;align-items:center;gap:5px;"><span class="badge '+(d.type==='bonus'?'bg':'br')+'">'+(d.type==='bonus'?'+':'-')+'L '+parseFloat(d.amount).toFixed(2)+'</span><button class="btn btn-d" style="width:auto;padding:4px 8px;font-size:10px;" onclick="delDed('+d.id+')">✕</button></div></div>';});
   document.getElementById('dedList').innerHTML=html;
 }
 async function delDed(id){try{setSy('syncing');await aDel('/api/deductions/'+id);deds=deds.filter(function(d){return d.id!==id;});setSy('ok');renderDeds();toast('Entry removed','warn');}catch(e){setSy('error');toast('Failed','error');}}
@@ -1520,7 +1541,7 @@ function getReportFilters() { var month=document.getElementById('reportMonth').v
 function buildCSV(headers,rows){var lines=[headers.join(',')];rows.forEach(function(row){lines.push(row.map(function(cell){var s=String(cell||'');if(s.includes(',')||s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(','));});return lines.join('\r\n');}
 function showPreview(title,headers,rows,csv,filename){currentCSV=csv;currentCSVName=filename;document.getElementById('reportPreviewTitle').textContent=title+' ('+rows.length+' rows)';var table=document.getElementById('reportPreviewTable');var html='<thead><tr>'+headers.map(function(h){return'<th style="padding:5px 7px;border-bottom:2px solid var(--border);text-align:left;color:var(--text3);white-space:nowrap;">'+h+'</th>';}).join('')+'</tr></thead><tbody>';rows.slice(0,8).forEach(function(row){html+='<tr>'+row.map(function(cell){return'<td style="padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap;">'+(cell||'—')+'</td>';}).join('')+'</tr>';});if(rows.length>8)html+='<tr><td colspan="'+headers.length+'" style="padding:5px;color:var(--text3);font-size:10px;">...and '+(rows.length-8)+' more</td></tr>';html+='</tbody>';table.innerHTML=html;document.getElementById('reportPreview').style.display='';document.getElementById('reportPreview').scrollIntoView({behavior:'smooth'});}
 function downloadCSV(){if(!currentCSV)return;var blob=new Blob([currentCSV],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=currentCSVName;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Downloaded: '+currentCSVName,'success');}
-function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (€/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (€)','OT Pay (€)','Bonuses (€)','Deductions (€)','Gross Pay (€)'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses;return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
+function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
 function exportShifts(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Role','Check In','Check Out','Hours','Late','Note'];var filtered=shfts.filter(function(s){return s.date&&s.date.slice(0,7)===f.month&&(f.empId?s.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(s){var emp=emps.find(function(e){return e.id===s.emp_id;});return[s.date,emp?emp.name:'?',emp?emp.role||'':'',s.check_in||'',s.check_out||'',(parseFloat(s.hours)||0).toFixed(2),s.is_late?'Yes':'No',s.note||''];});var csv=buildCSV(headers,rows);showPreview('Shifts — '+f.month,headers,rows,csv,'shifts-'+f.month+'.csv');}
 function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Days Worked','Total Hours','Days Leave','Attendance %'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var es=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var el=lvs.filter(function(l){return l.emp_id===emp.id&&l.date&&l.date.slice(0,7)===f.month;});var esc2=scheds.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month;});var totalH=es.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);var att=esc2.length>0?((es.length/esc2.length)*100).toFixed(0)+'%':'N/A';return[emp.name,emp.role||'',es.length,totalH.toFixed(1),el.length,att];});var csv=buildCSV(headers,rows);showPreview('Attendance — '+f.month,headers,rows,csv,'attendance-'+f.month+'.csv');}
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
@@ -1559,7 +1580,7 @@ function downloadPayslip(empId, ym) {
   var otPay = otH * rate * 1.5;
   var bonuses = deds.filter(function(d){ return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); }, 0);
   var deductions = deds.filter(function(d){ return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); }, 0);
-  var gross = basePay + otPay + bonuses;
+  var gross = basePay + otPay + bonuses - deductions;
 
   try {
     var doc = new window.jspdf.jsPDF();
@@ -1623,10 +1644,10 @@ function downloadPayslip(empId, ym) {
       y += 12;
     }
 
-    payRow('Regular Hours (' + regH.toFixed(1) + 'h × €' + rate.toFixed(2) + ')', '€' + basePay.toFixed(2));
-    if (otH > 0) payRow('Overtime (' + otH.toFixed(1) + 'h × 1.5)', '€' + otPay.toFixed(2));
-    if (bonuses > 0) payRow('Bonuses', '+€' + bonuses.toFixed(2), [22, 163, 74]);
-    if (deductions > 0) payRow('Deductions', '-€' + deductions.toFixed(2), [220, 38, 38]);
+    payRow('Regular Hours (' + regH.toFixed(2) + 'h × L ' + rate.toFixed(2) + ')', 'L ' + basePay.toFixed(2));
+    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × 1.5)', 'L ' + otPay.toFixed(2));
+    if (bonuses > 0) payRow('Bonuses', '+L ' + bonuses.toFixed(2), [22, 163, 74]);
+    if (deductions > 0) payRow('Deductions', '-L ' + deductions.toFixed(2), [220, 38, 38]);
 
     y += 4;
     doc.setDrawColor(13, 13, 13);
@@ -1635,8 +1656,8 @@ function downloadPayslip(empId, ym) {
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(26, 86, 219);
-    doc.text('GROSS PAY', 25, y);
-    doc.text('€' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
+    doc.text('PAY DUE', 25, y);
+    doc.text('L ' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
 
     // Shift summary
     y += 20;
@@ -1786,7 +1807,7 @@ function renderAnalytics() {
 
   document.getElementById('analyticsStats').innerHTML =
     '<div class="stat-box"><div class="stat-v">'+totalH.toFixed(0)+'h</div><div class="stat-k">TOTAL HOURS</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">€'+totalPay.toFixed(0)+'</div><div class="stat-k">PAYROLL COST</div></div>' +
+    '<div class="stat-box"><div class="stat-v" style="color:var(--green);">L '+totalPay.toFixed(0)+'</div><div class="stat-k">PAYROLL COST</div></div>' +
     '<div class="stat-box"><div class="stat-v" style="color:'+(lateCount>0?'var(--red)':'var(--green)')+';">'+lateCount+'</div><div class="stat-k">LATE ARRIVALS</div></div>' +
     '<div class="stat-box"><div class="stat-v">'+Math.min(attendRate,100)+'%</div><div class="stat-k">ATTENDANCE</div></div>';
 
@@ -1906,7 +1927,7 @@ function renderAnalytics() {
     data: {
       labels: payLabels,
       datasets: [{
-        label: 'Payroll €',
+        label: 'Payroll (L)',
         data: pay6,
         backgroundColor: 'rgba(8,145,178,0.8)',
         borderRadius: 6,
@@ -1917,7 +1938,7 @@ function renderAnalytics() {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, ticks: { callback: function(v){ return '€'+v; }, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { beginAtZero: true, ticks: { callback: function(v){ return 'L '+v; }, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
         x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
       }
     }
