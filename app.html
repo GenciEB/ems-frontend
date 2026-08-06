@@ -952,7 +952,12 @@ async function doRegister() {
     BIZ_CODE = biz.code; BIZ_ID = biz.id; BIZ_NAME = biz.name; IS_MGR = true;
     AUDIT_KEY = 'ems_audit_' + BIZ_CODE;
     initApp();
-    setTimeout(function(){ document.getElementById('onboardCode').textContent = BIZ_CODE; document.getElementById('onboardOv').style.display = 'flex'; }, 600);
+    var wantsPro = (typeof urlParams !== 'undefined' && urlParams.get('plan') === 'pro');
+    setTimeout(function(){
+      document.getElementById('onboardCode').textContent = BIZ_CODE;
+      document.getElementById('onboardOv').style.display = 'flex';
+      if (wantsPro) document.getElementById('onboardOv').setAttribute('data-goto-plans', '1');
+    }, 600);
   } catch(e) { setSy('error'); err.textContent = e.message || 'Code already taken'; }
 }
 
@@ -970,7 +975,17 @@ async function doForgot() {
   } catch(e) { err.textContent = e.message || 'Failed'; }
 }
 
-function closeOnboard() { document.getElementById('onboardOv').style.display = 'none'; goNav('employees', document.querySelector('[data-page="employees"]')); }
+function closeOnboard() {
+  var ov = document.getElementById('onboardOv');
+  var goPlans = ov && ov.getAttribute('data-goto-plans') === '1';
+  ov.style.display = 'none';
+  if (goPlans) {
+    goNav('plans', document.querySelector('[data-page="plans"]'));
+    toast('Choose Pro below to unlock unlimited staff', 'success');
+  } else {
+    goNav('employees', document.querySelector('[data-page="employees"]'));
+  }
+}
 
 function initApp() {
   document.getElementById('loginScreen').classList.add('hidden');
