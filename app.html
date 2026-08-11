@@ -387,8 +387,8 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         <div class="field"><label>Phone</label><input type="tel" id="editEmpPhone" placeholder="+355 69..."></div>
       </div>
       <div class="form-r">
-        <div class="field"><label>Start Time</label><input type="time" id="editEmpStart"></div>
-        <div class="field"><label>End Time</label><input type="time" id="editEmpEnd"></div>
+        <div class="field"><label>Start Time</label><input type="text" inputmode="numeric" id="editEmpStart" placeholder="09:00" maxlength="5" oninput="formatTimeInput(this)"></div>
+        <div class="field"><label>End Time</label><input type="text" inputmode="numeric" id="editEmpEnd" placeholder="17:00" maxlength="5" oninput="formatTimeInput(this)"></div>
       </div>
       <div class="field"><label>New PIN <span style="color:#bbb;font-size:9px;">(leave blank to keep current)</span></label><input type="password" id="editEmpPin" placeholder="Leave blank to keep" inputmode="numeric" maxlength="6"></div>
       <div style="display:flex;gap:8px;">
@@ -528,8 +528,8 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         <div class="field"><label>Pay Rate (L/hr)</label><input type="number" id="empRate" placeholder="12.50" step="0.01"></div>
       </div>
       <div class="form-r">
-        <div class="field"><label>Start Time</label><input type="time" id="empStart" value="09:00"></div>
-        <div class="field"><label>End Time</label><input type="time" id="empEnd" value="17:00"></div>
+        <div class="field"><label>Start Time</label><input type="text" inputmode="numeric" id="empStart" value="09:00" placeholder="09:00" maxlength="5" oninput="formatTimeInput(this)"></div>
+        <div class="field"><label>End Time</label><input type="text" inputmode="numeric" id="empEnd" value="17:00" placeholder="17:00" maxlength="5" oninput="formatTimeInput(this)"></div>
       </div>
       <div class="field"><label>Phone <span style="color:#bbb;font-size:9px;">(optional)</span></label><input type="tel" id="empPhone" placeholder="+355 69 123 4567"></div>
       <button type="button" class="btn btn-p" onclick="addEmp()">+ Add Employee</button>
@@ -560,8 +560,8 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         <div class="field"><label>Date</label><input type="date" id="schedDate"></div>
       </div>
       <div class="form-r">
-        <div class="field"><label>Start</label><input type="time" id="schedStart" value="09:00"></div>
-        <div class="field"><label>End</label><input type="time" id="schedEnd" value="17:00"></div>
+        <div class="field"><label>Start</label><input type="text" inputmode="numeric" id="schedStart" value="09:00" placeholder="09:00" maxlength="5" oninput="formatTimeInput(this)"></div>
+        <div class="field"><label>End</label><input type="text" inputmode="numeric" id="schedEnd" value="17:00" placeholder="17:00" maxlength="5" oninput="formatTimeInput(this)"></div>
       </div>
       <div class="field"><label>Note</label><input type="text" id="schedNote" placeholder="Optional…"></div>
       <div style="display:flex;gap:8px;">
@@ -859,6 +859,22 @@ function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt
 function fmt(d) { if (!d) return '—'; var dt = new Date(d + (d.includes('T') ? '' : 'T00:00:00')); var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate() + ' ' + m[dt.getMonth()]; }
 function fmtTime(t) { return t ? t.slice(0,5) : '—'; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// Auto-format a plain text field into HH:MM as the user types digits (replaces native <input type="time">
+// because iOS Safari's built-in time picker has a stubborn minimum width that overflows narrow grid columns)
+function formatTimeInput(el) {
+  var digits = el.value.replace(/\D/g, '').slice(0, 4);
+  if (digits.length >= 3) {
+    el.value = digits.slice(0, 2) + ':' + digits.slice(2);
+  } else {
+    el.value = digits;
+  }
+}
+// Validates "HH:MM" 24-hour format. Returns the cleaned value, or null if invalid.
+function validTime(val) {
+  var m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(val||'').trim());
+  if (!m) return null;
+  return String(m[1]).padStart(2,'0') + ':' + m[2];
+}
 function sanitizeInput(s) { return String(s||'').replace(/[<>]/g,'').trim().slice(0,500); }
 function toast(msg, type) { var w = document.getElementById('toastW'); var t = document.createElement('div'); t.className = 'toast' + (type ? ' '+type : ''); t.textContent = msg; w.appendChild(t); setTimeout(function(){ t.remove(); }, 2700); }
 function setSy(s) { var d = document.getElementById('syncDot'); if (d) d.className = 'sdot ' + s; }
@@ -1278,6 +1294,9 @@ async function addEmp() {
   var end = document.getElementById('empEnd').value;
   var phone = document.getElementById('empPhone').value.trim();
   if (!name) { toast('Enter employee name', 'error'); return; }
+  var vStart = validTime(start), vEnd = validTime(end);
+  if (!vStart || !vEnd) { toast('Start/End time must be in HH:MM format, e.g. 09:00', 'error'); return; }
+  start = vStart; end = vEnd;
   if (!pin || pin.length < 4) { toast('PIN must be at least 4 digits', 'error'); return; }
   try {
     setSy('syncing');
@@ -1364,6 +1383,9 @@ async function saveEditEmp() {
   if (!name) { toast('Name cannot be empty', 'error'); return; }
   if (rate && isNaN(parseFloat(rate))) { toast('Invalid rate', 'error'); return; }
   if (pin && pin.length < 4) { toast('PIN must be at least 4 digits', 'error'); return; }
+  var vStart2 = validTime(start), vEnd2 = validTime(end);
+  if (!vStart2 || !vEnd2) { toast('Start/End time must be in HH:MM format, e.g. 09:00', 'error'); return; }
+  start = vStart2; end = vEnd2;
 
   var body = { name, role, rate: rate ? parseFloat(rate) : undefined, phone: phone || null, start_time: start, end_time: end };
   if (pin) body.pin = pin;
@@ -1475,6 +1497,9 @@ function closeSchedAdd() { document.getElementById('schedAddCard').style.display
 async function saveSchedule() {
   var eid=parseInt(document.getElementById('schedEmp').value), date=document.getElementById('schedDate').value, start=document.getElementById('schedStart').value, end=document.getElementById('schedEnd').value, note=document.getElementById('schedNote').value.trim();
   if(!eid||!date||!start||!end){toast('Fill all fields','error');return;}
+  var vStart3 = validTime(start), vEnd3 = validTime(end);
+  if (!vStart3 || !vEnd3) { toast('Start/End time must be in HH:MM format, e.g. 09:00', 'error'); return; }
+  start = vStart3; end = vEnd3;
   if(start>=end){toast('End must be after start','error');return;}
   try { setSy('syncing'); var s=await aPost('/api/schedules',{emp_id:eid,date,start_time:start,end_time:end,note:note||null,business_id:BIZ_ID}); var idx=scheds.findIndex(function(x){return x.emp_id===eid&&x.date===date;}); if(idx>=0)scheds[idx]=s;else scheds.push(s); setSy('ok'); closeSchedAdd(); renderSchedule(); toast('Shift saved','success'); }
   catch(e){setSy('error');toast('Failed: '+e.message,'error');}
