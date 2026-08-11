@@ -338,15 +338,23 @@ function showTab(tab, btn) {
 
 function renderShifts(ym) {
   var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var rate = parseFloat(empData.rate)||0;
   var html = '';
   if (ms.length === 0) { html = '<div class="empty">No shifts this month</div>'; }
   else ms.forEach(function(s) {
     var status = s.check_out ? (s.is_late ? 'late' : 'done') : (s.check_in ? 'active' : 'done');
     var label = s.check_out ? (s.is_late ? 'Late' : 'Done') : 'On shift';
     var hours = s.check_out ? (parseFloat(s.hours)||0).toFixed(1) + 'h' : '—';
+    var dayPay = '';
+    if (s.check_out) {
+      var regH = parseFloat(s.regular_hours) || parseFloat(s.hours) || 0;
+      var otH = parseFloat(s.ot_hours) || 0;
+      var pay = (regH*rate) + (otH*rate*1.5);
+      dayPay = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#16a34a;margin-top:2px;">L ' + pay.toFixed(0) + '</div>';
+    }
     html += '<div class="shift-row">' +
       '<div><div class="shift-date">' + fmt(s.date) + '</div>' +
-      '<div class="shift-time">' + (s.check_in||'—') + (s.check_out?' → '+s.check_out:'') + (s.is_late?' · <span style="color:#dc2626;">+'+s.late_minutes+'m late</span>':'') + '</div></div>' +
+      '<div class="shift-time">' + (s.check_in||'—') + (s.check_out?' → '+s.check_out:'') + (s.is_late?' · <span style="color:#dc2626;">+'+s.late_minutes+'m late</span>':'') + '</div>' + dayPay + '</div>' +
       '<div style="display:flex;align-items:center;gap:7px;">' +
       '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#888;">' + hours + '</span>' +
       '<span class="badge ' + status + '">' + label + '</span>' +
