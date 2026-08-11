@@ -88,7 +88,7 @@ header{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-botto
 .sdot.syncing{background:var(--amber);animation:pulse .8s infinite;}
 
 /* BOTTOM NAV */
-nav.bnav{background:rgba(250,250,248,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding-bottom:min(var(--sb),10px);position:fixed;bottom:0;left:0;right:0;z-index:90;overflow-x:auto;}
+nav.bnav{background:rgba(250,250,248,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);position:fixed;bottom:0;left:0;right:0;z-index:90;overflow-x:auto;}
 nav.bnav::-webkit-scrollbar{display:none;}
 .tb{flex-shrink:0;min-width:58px;padding:9px 4px 7px;border:none;background:transparent;color:var(--text3);font-family:var(--mono);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;-webkit-tap-highlight-color:transparent;}
 .tb .ic{font-size:17px;}
@@ -243,6 +243,15 @@ body.dark .filter-row .af.active{background:rgba(59,130,246,0.15);}
 @media(max-width:600px){
   .stat-grid{grid-template-columns:repeat(2,1fr);}
   .form-r{grid-template-columns:1fr;}
+}
+
+/* Prevent iOS native time-picker minimum width from overflowing its grid column */
+.field{min-width:0;}
+input[type="time"]{min-width:0;-webkit-min-logical-width:0;}
+
+/* On tablets/wider screens, all bottom-nav tabs fit without scrolling — center them instead of leaving dead space */
+@media(min-width:700px){
+  nav.bnav{justify-content:center;}
 }
 
 /* ═══════════ DESIGN REFRESH — precision timeclock ═══════════ */
