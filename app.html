@@ -699,7 +699,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
   <div class="sh"><div class="sh-eye">Subscription</div><div class="sh-title">PLANS</div><div class="sh-sub">Choose the right plan</div></div>
   <div class="card" style="border-left:3px solid var(--blue);margin-bottom:14px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:3px;">CURRENT PLAN</div><div id="currentPlanName" style="font-size:20px;font-weight:800;color:var(--blue);">FREE</div></div>
+      <div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:3px;">CURRENT PLAN</div><div id="currentPlanName" style="font-size:20px;font-weight:800;color:var(--blue);">FREE</div><div id="currentPlanExpiryLabel" style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;"></div></div>
       <div style="text-align:right;"><div id="empUsage" style="font-family:var(--mono);font-size:10px;color:var(--text2);"></div><div style="width:90px;height:4px;background:var(--bg2);border-radius:3px;margin-top:5px;overflow:hidden;"><div id="empBarFill" style="height:100%;background:var(--blue);border-radius:3px;transition:width .3s;"></div></div></div>
     </div>
   </div>
@@ -815,6 +815,7 @@ var SESSION_TOKEN = localStorage.getItem('ems_session_token') || null;
 var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
+var currentPlanExpiry = null;
 var FREE_EMP_LIMIT = 5;
 var payMonth = new Date();
 var vSchedWeek = new Date();
@@ -1078,7 +1079,7 @@ async function loadAll() {
 }
 
 async function loadPlan() {
-  try { var r = await aGet('/api/business/' + BIZ_CODE + '/plan'); currentPlan = r.plan || 'free'; } catch(e) { currentPlan = 'free'; }
+  try { var r = await aGet('/api/business/' + BIZ_CODE + '/plan'); currentPlan = r.plan || 'free'; currentPlanExpiry = r.pro_expires_at || null; } catch(e) { currentPlan = 'free'; currentPlanExpiry = null; }
 }
 
 function isPro() { return currentPlan === 'pro'; }
@@ -1581,7 +1582,7 @@ function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
 
 // ── PLANS ────────────────────────────────────────────────────────────────────
-function renderPlans(){var used=emps.length;document.getElementById('currentPlanName').textContent=isPro()?'PRO':'FREE';document.getElementById('empUsage').textContent=used+' / '+(isPro()?'∞':FREE_EMP_LIMIT)+' employees';var pct=isPro()?50:Math.min(100,(used/FREE_EMP_LIMIT)*100);document.getElementById('empBarFill').style.width=pct+'%';document.getElementById('empBarFill').style.background=pct>=100?'var(--red)':'var(--blue)';if(isPro()){document.getElementById('planFreeCard').style.opacity='0.5';document.getElementById('planFreeBtn').textContent='Downgrade';}}
+function renderPlans(){var used=emps.length;document.getElementById('currentPlanName').textContent=isPro()?'PRO':'FREE';document.getElementById('empUsage').textContent=used+' / '+(isPro()?'∞':FREE_EMP_LIMIT)+' employees';var pct=isPro()?50:Math.min(100,(used/FREE_EMP_LIMIT)*100);document.getElementById('empBarFill').style.width=pct+'%';document.getElementById('empBarFill').style.background=pct>=100?'var(--red)':'var(--blue)';if(isPro()){document.getElementById('planFreeCard').style.opacity='0.5';document.getElementById('planFreeBtn').textContent='Downgrade';}var expEl=document.getElementById('currentPlanExpiryLabel');if(expEl){if(isPro()&&currentPlanExpiry){var d=new Date(currentPlanExpiry);expEl.textContent='Pro until '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}else{expEl.textContent='';}}}
 async function startUpgrade(){try{setSy('syncing');toast('Redirecting to checkout...','success');var r=await aPost('/api/stripe/create-checkout',{business_code:BIZ_CODE});setSy('ok');if(r.url)window.location.href=r.url;else toast('Could not start checkout','error');}catch(e){setSy('error');toast('Error: '+e.message,'error');}}
 async function saveNotifyEmail(){var email=document.getElementById('notifyEmail').value.trim();if(!email||!email.includes('@')){toast('Enter valid email','error');return;}localStorage.setItem('ems_notify_email',email);try{await aPost('/api/business/'+BIZ_CODE+'/notify-email',{email});}catch(e){}document.getElementById('notifyMsg').textContent='✓ Got it! We\'ll notify you.';document.getElementById('notifyEmail').value='';toast('Thanks!','success');}
 
