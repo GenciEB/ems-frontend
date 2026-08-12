@@ -417,6 +417,32 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 </div>
 
 
+<!-- UPGRADE TO PRO MODAL (manual payment) -->
+<div class="modal-ov" id="upgradeModal">
+  <div class="modal-card">
+    <div class="modal-title">Upgrade to Pro — L 1000/month</div>
+    <div class="form-s">
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
+        Pro is activated manually — no card required. Send payment using the details below, then let us know it's done.
+      </div>
+      <div class="card" style="background:var(--bg2);margin-bottom:14px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">BANK TRANSFER TO</div>
+        <div style="font-size:14px;font-weight:700;">[Your bank account holder name]</div>
+        <div style="font-family:var(--mono);font-size:13px;margin-top:4px;">[Your IBAN here]</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:10px;">REFERENCE — include this so we know it's you</div>
+        <div id="upgradeRefCode" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--blue);"></div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
+        Once we confirm the transfer, Pro is activated on your account within 24 hours and stays active for 30 days from that point.
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=ShiftHQ%20Pro%20payment%20sent">✉️ I've sent it — notify us</a>
+        <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PIN PAD MODAL -->
 <div class="modal-ov" id="pinPadModal">
   <div class="modal-card" style="text-align:center;">
@@ -1583,7 +1609,13 @@ function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date
 
 // ── PLANS ────────────────────────────────────────────────────────────────────
 function renderPlans(){var used=emps.length;document.getElementById('currentPlanName').textContent=isPro()?'PRO':'FREE';document.getElementById('empUsage').textContent=used+' / '+(isPro()?'∞':FREE_EMP_LIMIT)+' employees';var pct=isPro()?50:Math.min(100,(used/FREE_EMP_LIMIT)*100);document.getElementById('empBarFill').style.width=pct+'%';document.getElementById('empBarFill').style.background=pct>=100?'var(--red)':'var(--blue)';if(isPro()){document.getElementById('planFreeCard').style.opacity='0.5';document.getElementById('planFreeBtn').textContent='Downgrade';}var expEl=document.getElementById('currentPlanExpiryLabel');if(expEl){if(isPro()&&currentPlanExpiry){var d=new Date(currentPlanExpiry);expEl.textContent='Pro until '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}else{expEl.textContent='';}}}
-async function startUpgrade(){try{setSy('syncing');toast('Redirecting to checkout...','success');var r=await aPost('/api/stripe/create-checkout',{business_code:BIZ_CODE});setSy('ok');if(r.url)window.location.href=r.url;else toast('Could not start checkout','error');}catch(e){setSy('error');toast('Error: '+e.message,'error');}}
+function startUpgrade() {
+  document.getElementById('upgradeRefCode').textContent = BIZ_CODE.toUpperCase();
+  document.getElementById('upgradeModal').classList.add('open');
+}
+function closeUpgradeModal() {
+  document.getElementById('upgradeModal').classList.remove('open');
+}
 async function saveNotifyEmail(){var email=document.getElementById('notifyEmail').value.trim();if(!email||!email.includes('@')){toast('Enter valid email','error');return;}localStorage.setItem('ems_notify_email',email);try{await aPost('/api/business/'+BIZ_CODE+'/notify-email',{email});}catch(e){}document.getElementById('notifyMsg').textContent='✓ Got it! We\'ll notify you.';document.getElementById('notifyEmail').value='';toast('Thanks!','success');}
 
 // ── SECURITY ─────────────────────────────────────────────────────────────────
