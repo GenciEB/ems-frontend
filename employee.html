@@ -236,13 +236,14 @@ async function loadPortalData() {
 function showPortal() {
   document.getElementById('pinScreen').style.display = 'none';
   document.getElementById('portal').style.display = '';
-  document.getElementById('navName').textContent = empData.name;
-  document.getElementById('portalAvatar').textContent = empData.name[0].toUpperCase();
-  document.getElementById('portalName').textContent = empData.name;
-  document.getElementById('portalRole').textContent = (empData.role || 'Staff') + ' · ' + empData.biz_name;
-  renderClockCard();
-  renderStats();
-  renderMonth();
+  var displayName = (empData && empData.name) ? empData.name : 'You';
+  document.getElementById('navName').textContent = displayName;
+  document.getElementById('portalAvatar').textContent = displayName[0] ? displayName[0].toUpperCase() : '?';
+  document.getElementById('portalName').textContent = displayName;
+  document.getElementById('portalRole').textContent = (empData.role || 'Staff') + ' · ' + (empData.biz_name || '');
+  try { renderClockCard(); } catch(e) { console.error('renderClockCard failed:', e); alert('Check-in card error: ' + e.message); }
+  try { renderStats(); } catch(e) { console.error('renderStats failed:', e); alert('Stats error: ' + e.message); }
+  try { renderMonth(); } catch(e) { console.error('renderMonth failed:', e); alert('Shifts/Pay error: ' + e.message); }
 }
 
 function renderClockCard() {
