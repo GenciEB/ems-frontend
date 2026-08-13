@@ -28,7 +28,7 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
 .pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#dc2626;min-height:16px;text-align:center;}
 
 /* PORTAL */
-#portal{display:none;}
+#portal{display:none;padding:16px 16px 80px;overflow-y:auto;}
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
 .stat-box{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:12px;text-align:center;}
 .stat-v{font-size:20px;font-weight:800;color:#2154f4;}
@@ -222,15 +222,21 @@ async function doVerify() {
 
 async function loadPortalData() {
   var h = {'x-emp-token': EMP_TOKEN};
-  var sr = await fetch(API + '/api/shifts?business_id=' + empData.biz_id, { headers: h });
-  var allS = await sr.json();
-  allShifts = (Array.isArray(allS) ? allS : []).filter(function(s){ return s.emp_id === empData.id; });
-  var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: h });
-  var allL = await lr.json();
-  allLeaves = (Array.isArray(allL) ? allL : []).filter(function(l){ return l.emp_id === empData.id; });
-  var dr = await fetch(API + '/api/deductions?business_id=' + empData.biz_id, { headers: h });
-  var allD = await dr.json();
-  allDeds = (Array.isArray(allD) ? allD : []).filter(function(d){ return d.emp_id === empData.id; });
+  try {
+    var sr = await fetch(API + '/api/shifts?business_id=' + empData.biz_id, { headers: h });
+    var allS = await sr.json();
+    allShifts = (Array.isArray(allS) ? allS : []).filter(function(s){ return s.emp_id === empData.id; });
+  } catch(e) { console.error('Failed to load shifts:', e); allShifts = []; }
+  try {
+    var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: h });
+    var allL = await lr.json();
+    allLeaves = (Array.isArray(allL) ? allL : []).filter(function(l){ return l.emp_id === empData.id; });
+  } catch(e) { console.error('Failed to load leaves:', e); allLeaves = []; }
+  try {
+    var dr = await fetch(API + '/api/deductions?business_id=' + empData.biz_id, { headers: h });
+    var allD = await dr.json();
+    allDeds = (Array.isArray(allD) ? allD : []).filter(function(d){ return d.emp_id === empData.id; });
+  } catch(e) { console.error('Failed to load deductions:', e); allDeds = []; }
 }
 
 function showPortal() {
