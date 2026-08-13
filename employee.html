@@ -3,53 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#fafaf8">
+<meta name="theme-color" content="#0d0d0d">
 <title>ShiftHQ — My Shifts</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#fafaf8;color:#0d0d0d;min-height:100vh;}
-nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1px solid #e8e6e1;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.nav-logo{font-size:17px;font-weight:800;color:#0d0d0d;display:flex;align-items:center;gap:6px;}
-.nav-logo-dot{width:7px;height:7px;background:#2154f4;border-radius:50%;}
-.container{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
+html,body{height:100%;overflow-x:hidden;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d0d0d;color:#f0f0ee;min-height:100vh;}
 
-/* PIN LOGIN */
-#pinScreen{display:flex;flex-direction:column;align-items:center;padding:40px 20px;}
-.pin-avatar{width:72px;height:72px;border-radius:50%;background:#eff6ff;border:2px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#2154f4;margin:0 auto 12px;}
-.pin-name{font-size:22px;font-weight:800;margin-bottom:4px;text-align:center;}
-.pin-role{font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-bottom:24px;text-align:center;}
-.pin-input-wrap{display:flex;gap:8px;margin-bottom:16px;justify-content:center;}
-.pin-dot{width:14px;height:14px;border-radius:50%;background:#e8e6e1;transition:background .15s;}
-.pin-dot.filled{background:#2154f4;}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;}
-.pin-btn{background:#fff;border:1.5px solid #e8e6e1;border-radius:12px;padding:16px;font-size:20px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;-webkit-tap-highlight-color:transparent;}
-.pin-btn:active{background:#eff6ff;border-color:#2154f4;}
-.pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#dc2626;min-height:16px;text-align:center;}
+/* NAV */
+nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.07);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
+.nav-logo-dot{width:7px;height:7px;background:linear-gradient(135deg,#2154f4,#06b6d4);border-radius:50%;}
+#navName{font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;}
+
+/* LOGIN SCREEN */
+#pinScreen{display:flex;flex-direction:column;align-items:center;padding:48px 20px 40px;min-height:calc(100vh - 56px);}
+.login-heading{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center;}
+.login-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;margin-bottom:32px;text-align:center;letter-spacing:0.5px;}
+.field-group{width:100%;max-width:300px;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.field-input{background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:12px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 14px;outline:none;width:100%;transition:border-color .15s;}
+.field-input:focus{border-color:#2154f4;}
+.field-input::placeholder{color:#444;}
+.pin-dots{display:flex;gap:10px;margin-bottom:28px;justify-content:center;}
+.pin-dot{width:13px;height:13px;border-radius:50%;background:#2a2a2a;transition:background .15s;}
+.pin-dot.filled{background:linear-gradient(135deg,#2154f4,#06b6d4);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;}
+.pin-btn{background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:14px;padding:18px;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;color:#f0f0ee;cursor:pointer;transition:all .12s;text-align:center;-webkit-tap-highlight-color:transparent;}
+.pin-btn:active{background:#2154f4;border-color:#2154f4;transform:scale(0.95);}
+.pin-btn-ok{background:linear-gradient(135deg,#2154f4,#06b6d4);border-color:transparent;color:#fff;font-size:14px;}
+.pin-btn-back{color:#555;font-size:18px;}
+.pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ef4444;min-height:18px;text-align:center;margin-top:16px;}
 
 /* PORTAL */
-#portal{display:none;padding:16px 16px 80px;overflow-y:auto;}
-.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
-.stat-box{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:12px;text-align:center;}
-.stat-v{font-size:20px;font-weight:800;color:#2154f4;}
-.stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#888;margin-top:2px;}
-.section-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
-.shift-row{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
-.shift-date{font-weight:600;font-size:13px;}
-.shift-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;margin-top:2px;}
-.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;}
-.badge.done{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
-.badge.late{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
-.badge.active{background:#eff6ff;color:#2154f4;border:1px solid #bfdbfe;}
+#portal{display:none;padding:0 0 80px;}
+
+/* Hero card — the main identity moment */
+.portal-hero{background:linear-gradient(135deg,#111827 0%,#1e3a5f 100%);border-bottom:1px solid rgba(33,84,244,0.2);padding:24px 20px;position:relative;overflow:hidden;}
+.portal-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(33,84,244,0.15) 0%,transparent 70%);pointer-events:none;}
+.hero-identity{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.hero-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#2154f4,#06b6d4);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;}
+.hero-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;line-height:1.1;}
+.hero-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b8fc9;margin-top:3px;letter-spacing:0.5px;}
+.hero-biz{font-family:'JetBrains Mono',monospace;font-size:9px;color:#445;margin-top:2px;letter-spacing:1px;text-transform:uppercase;}
+
+/* Clock card — the main action */
+#clockCard{}
+.clock-in-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#2154f4,#06b6d4);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px -8px rgba(33,84,244,0.6);transition:transform .12s,filter .12s;-webkit-tap-highlight-color:transparent;}
+.clock-in-btn:active{transform:scale(0.97);}
+.clock-out-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#dc2626,#f97316);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px -8px rgba(220,38,38,0.5);transition:transform .12s;-webkit-tap-highlight-color:transparent;}
+.clock-out-btn:active{transform:scale(0.97);}
+.shift-status-bar{background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.shift-status-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;animation:pulse 2s infinite;}
+.shift-status-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;}
+.done-bar{background:rgba(33,84,244,0.1);border:1px solid rgba(33,84,244,0.2);border-radius:12px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b8fc9;text-align:center;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* Stats */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:16px 20px 0;}
+.stat-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:14px 10px;text-align:center;}
+.stat-v{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#2154f4;font-variant-numeric:tabular-nums;}
+.stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#555;margin-top:4px;letter-spacing:0.5px;}
+
+/* Tabs */
+.tab-section{padding:0 20px;}
+.tab-row{display:flex;gap:6px;margin:16px 0 14px;background:#1a1a1a;border-radius:12px;padding:4px;}
+.tab{flex:1;padding:9px;border-radius:9px;border:none;background:transparent;color:#555;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+.tab.active{background:#2a2a2a;color:#f0f0ee;}
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.month-label{font-size:16px;font-weight:800;}
-.nav-btn{background:#f2f1ee;border:1px solid #e8e6e1;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#3d3d3d;}
-.card{background:#fff;border:1px solid #e8e6e1;border-radius:14px;padding:14px;margin-bottom:12px;}
-.empty{text-align:center;padding:32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;}
-.leave-row{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
-.tab-row{display:flex;gap:6px;margin-bottom:16px;background:#f2f1ee;border-radius:10px;padding:4px;}
-.tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
-.tab.active{background:#fff;color:#0d0d0d;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.month-label{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;}
+.nav-btn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#888;}
+
+/* Shift rows */
+.shift-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.shift-date{font-weight:700;font-size:13px;color:#f0f0ee;}
+.shift-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#555;margin-top:2px;}
+.shift-pay{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4ade80;margin-top:2px;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 9px;border-radius:20px;font-weight:600;}
+.badge.done{background:rgba(22,163,74,0.12);color:#4ade80;border:1px solid rgba(22,163,74,0.2);}
+.badge.late{background:rgba(220,38,38,0.12);color:#f87171;border:1px solid rgba(220,38,38,0.2);}
+.badge.active{background:rgba(33,84,244,0.12);color:#6b8fc9;border:1px solid rgba(33,84,244,0.2);}
+.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:16px;margin-bottom:10px;}
+.empty{text-align:center;padding:40px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#444;}
+.leave-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.signout-btn{width:calc(100% - 40px);margin:20px 20px 0;padding:13px;border:1px solid #2a2a2a;border-radius:12px;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#555;cursor:pointer;}
 </style>
 <link rel="icon" href="favicon.png" type="image/png">
 </head>
@@ -64,17 +101,13 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
 
 <!-- PIN SCREEN -->
 <div id="pinScreen">
-  <div style="text-align:center;margin-bottom:24px;">
-    <div style="font-size:13px;color:#888;font-family:'JetBrains Mono',monospace;margin-bottom:16px;">Enter your PIN to view your shifts</div>
-    <div class="field" style="max-width:280px;margin:0 auto 12px;">
-      <input type="text" id="bizCodeEntry" placeholder="Business code (e.g. mycafe)" style="background:#fafaf8;border:1.5px solid #e8e6e1;border-radius:10px;color:#0d0d0d;font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px 12px;outline:none;width:100%;" autocapitalize="none" spellcheck="false">
-    </div>
-    <div class="field" style="max-width:280px;margin:0 auto 16px;">
-      <input type="text" id="empNameEntry" placeholder="Your name (e.g. Sara)" style="background:#fafaf8;border:1.5px solid #e8e6e1;border-radius:10px;color:#0d0d0d;font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px 12px;outline:none;width:100%;">
-    </div>
+  <div class="login-heading">Welcome back</div>
+  <div class="login-sub">ENTER YOUR CODE TO CLOCK IN</div>
+  <div class="field-group">
+    <input type="text" id="bizCodeEntry" placeholder="Business code" class="field-input" autocapitalize="none" spellcheck="false">
+    <input type="text" id="empNameEntry" placeholder="Your name" class="field-input">
   </div>
-
-  <div class="pin-input-wrap" id="pinDots">
+  <div class="pin-dots" id="pinDots">
     <div class="pin-dot" id="d0"></div>
     <div class="pin-dot" id="d1"></div>
     <div class="pin-dot" id="d2"></div>
@@ -82,7 +115,6 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
     <div class="pin-dot" id="d4"></div>
     <div class="pin-dot" id="d5"></div>
   </div>
-
   <div class="pin-pad">
     <button class="pin-btn" onclick="pinPress('1')">1</button>
     <button class="pin-btn" onclick="pinPress('2')">2</button>
@@ -93,62 +125,56 @@ nav{background:rgba(250,250,248,0.95);backdrop-filter:blur(16px);border-bottom:1
     <button class="pin-btn" onclick="pinPress('7')">7</button>
     <button class="pin-btn" onclick="pinPress('8')">8</button>
     <button class="pin-btn" onclick="pinPress('9')">9</button>
-    <button class="pin-btn" onclick="pinPress('C')" style="font-size:14px;color:#888;">⌫</button>
+    <button class="pin-btn pin-btn-back" onclick="pinPress('C')">⌫</button>
     <button class="pin-btn" onclick="pinPress('0')">0</button>
-    <button class="pin-btn" onclick="pinPress('OK')" style="background:#0d0d0d;color:#fff;border-color:#0d0d0d;font-size:13px;">OK</button>
+    <button class="pin-btn pin-btn-ok" onclick="pinPress('OK')">OK</button>
   </div>
   <div class="pin-err" id="pinErr"></div>
 </div>
 
 <!-- PORTAL -->
 <div id="portal">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-    <div class="pin-avatar" id="portalAvatar"></div>
-    <div>
-      <div style="font-size:20px;font-weight:800;" id="portalName"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;" id="portalRole"></div>
+
+  <!-- Hero identity card -->
+  <div class="portal-hero">
+    <div class="hero-identity">
+      <div class="hero-avatar" id="portalAvatar"></div>
+      <div>
+        <div class="hero-name" id="portalName"></div>
+        <div class="hero-role" id="portalRole"></div>
+        <div class="hero-biz" id="portalBiz"></div>
+      </div>
     </div>
+    <!-- Check In / Out button -->
+    <div id="clockCard"></div>
   </div>
 
-  <!-- Check In / Out -->
-  <div id="clockCard" style="margin-bottom:18px;"></div>
-
-  <!-- Stats -->
+  <!-- Stats strip -->
   <div class="stat-row" id="portalStats"></div>
 
-  <!-- Tabs -->
-  <div class="tab-row">
-    <button class="tab active" onclick="showTab('shifts',this)">Shifts</button>
-    <button class="tab" onclick="showTab('leaves',this)">Leave</button>
-    <button class="tab" onclick="showTab('pay',this)">Pay</button>
+  <!-- Tabs + content -->
+  <div class="tab-section">
+    <div class="tab-row">
+      <button class="tab active" onclick="showTab('shifts',this)">Shifts</button>
+      <button class="tab" onclick="showTab('leaves',this)">Leave</button>
+      <button class="tab" onclick="showTab('pay',this)">Pay</button>
+    </div>
+
+    <div class="month-nav">
+      <button class="nav-btn" onclick="chMonth(-1)">‹</button>
+      <div class="month-label" id="monthLabel"></div>
+      <button class="nav-btn" onclick="chMonth(1)">›</button>
+    </div>
+
+    <div id="tab-shifts"><div id="shiftsList"></div></div>
+    <div id="tab-leaves" style="display:none;"><div id="leavesList"></div></div>
+    <div id="tab-pay" style="display:none;"><div id="payCard"></div></div>
   </div>
 
-  <!-- Month nav -->
-  <div class="month-nav">
-    <button class="nav-btn" onclick="chMonth(-1)">‹</button>
-    <div class="month-label" id="monthLabel"></div>
-    <button class="nav-btn" onclick="chMonth(1)">›</button>
-  </div>
-
-  <!-- Shifts tab -->
-  <div id="tab-shifts">
-    <div id="shiftsList"></div>
-  </div>
-
-  <!-- Leave tab -->
-  <div id="tab-leaves" style="display:none;">
-    <div id="leavesList"></div>
-  </div>
-
-  <!-- Pay tab -->
-  <div id="tab-pay" style="display:none;">
-    <div id="payCard"></div>
-  </div>
-
-  <button onclick="logout()" style="width:100%;padding:11px;border:1px solid #e8e6e1;border-radius:10px;background:#fafaf8;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#888;cursor:pointer;margin-top:8px;">Sign Out</button>
+  <button class="signout-btn" onclick="logout()">Sign out</button>
 </div>
 
-</div>
+
 
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
@@ -246,7 +272,9 @@ function showPortal() {
   document.getElementById('navName').textContent = displayName;
   document.getElementById('portalAvatar').textContent = displayName[0] ? displayName[0].toUpperCase() : '?';
   document.getElementById('portalName').textContent = displayName;
-  document.getElementById('portalRole').textContent = (empData.role || 'Staff') + ' · ' + (empData.biz_name || '');
+  document.getElementById('portalRole').textContent = (empData.role || 'Staff').toUpperCase();
+  var bizEl = document.getElementById('portalBiz');
+  if (bizEl) bizEl.textContent = empData.biz_name || '';
   try { renderClockCard(); } catch(e) { console.error('renderClockCard failed:', e); alert('Check-in card error: ' + e.message); }
   try { renderStats(); } catch(e) { console.error('renderStats failed:', e); alert('Stats error: ' + e.message); }
   try { renderMonth(); } catch(e) { console.error('renderMonth failed:', e); alert('Shifts/Pay error: ' + e.message); }
@@ -256,16 +284,17 @@ function renderClockCard() {
   var today = dk(new Date());
   var shift = allShifts.find(function(s){ return s.date === today; });
   var el = document.getElementById('clockCard');
+  if (!el) return;
   if (!shift) {
-    el.innerHTML =
-      '<button onclick="doClockIn()" style="width:100%;padding:18px;border-radius:14px;border:none;background:linear-gradient(135deg,#2154f4 0%,#06b6d4 120%);color:#fff;font-family:\'Space Grotesk\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px -6px rgba(33,84,244,.5);">▶ Check In</button>';
+    el.innerHTML = '<button class="clock-in-btn" onclick="doClockIn()">▶ Clock In</button>';
   } else if (shift.check_in && !shift.check_out) {
+    var since = shift.check_in ? shift.check_in.slice(0,5) : '';
     el.innerHTML =
-      '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px;margin-bottom:10px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#16a34a;">⏳ On shift since ' + shift.check_in + '</div>' +
-      '<button onclick="doClockOut(' + shift.id + ')" style="width:100%;padding:18px;border-radius:14px;border:none;background:#dc2626;color:#fff;font-family:\'Space Grotesk\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">■ Check Out</button>';
+      '<div class="shift-status-bar"><div class="shift-status-dot"></div><div class="shift-status-text">ON SHIFT SINCE ' + since + '</div></div>' +
+      '<button class="clock-out-btn" onclick="doClockOut(' + shift.id + ')">■ Clock Out</button>';
   } else {
-    el.innerHTML =
-      '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:14px;text-align:center;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#2154f4;">✓ Today done · ' + shift.check_in + ' → ' + shift.check_out + ' (' + (parseFloat(shift.hours)||0).toFixed(2) + 'h)</div>';
+    var hrs = (parseFloat(shift.hours)||0).toFixed(2);
+    el.innerHTML = '<div class="done-bar">✓ Done today · ' + shift.check_in.slice(0,5) + ' → ' + shift.check_out.slice(0,5) + ' · ' + hrs + 'h</div>';
   }
 }
 
