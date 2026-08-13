@@ -2050,7 +2050,7 @@ function startAutoRefresh() {
     if (BIZ_CODE && BIZ_ID && SESSION_TOKEN) {
       loadAll();
     }
-  }, 30000); // every 30 seconds
+  }, 15000); // every 15 seconds — faster so employee check-ins via their own link appear promptly
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
