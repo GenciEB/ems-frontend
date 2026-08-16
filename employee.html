@@ -193,6 +193,34 @@ var months = ['January','February','March','April','May','June','July','August',
     var el = document.getElementById('bizCodeEntry');
     if (el) el.value = saved;
   }
+  // Restore employee session if still valid (token not expired)
+  var savedToken = localStorage.getItem('shq_emp_token');
+  var savedEmp = localStorage.getItem('shq_emp_data');
+  if (savedToken && savedEmp) {
+    try {
+      // Check token expiry without verifying signature (client-side only)
+      var payload = JSON.parse(atob(savedToken.split('.')[1]));
+      if (payload.exp && payload.exp * 1000 > Date.now()) {
+        EMP_TOKEN = savedToken;
+        empData = JSON.parse(savedEmp);
+        // Re-fetch data and restore portal
+        loadPortalData().then(function(){
+          showPortal();
+        }).catch(function(){
+          // Session restore failed — clear and show login
+          localStorage.removeItem('shq_emp_token');
+          localStorage.removeItem('shq_emp_data');
+        });
+      } else {
+        // Token expired — clear it
+        localStorage.removeItem('shq_emp_token');
+        localStorage.removeItem('shq_emp_data');
+      }
+    } catch(e) {
+      localStorage.removeItem('shq_emp_token');
+      localStorage.removeItem('shq_emp_data');
+    }
+  }
 })();
 
 function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
@@ -233,6 +261,8 @@ async function doVerify() {
     // Store scoped employee token for authenticated reads
     EMP_TOKEN = ver.emp_token;
     localStorage.setItem('shq_kiosk_biz_code', bizCode);
+    localStorage.setItem('shq_emp_token', EMP_TOKEN);
+    localStorage.setItem('shq_emp_data', JSON.stringify(ver.employee));
     empData = ver.employee;
     empData.biz_id = ver.employee.business_id;
     empData.biz_name = bizCode.toUpperCase();
@@ -445,6 +475,8 @@ function logout() {
   allLeaves = [];
   allDeds = [];
   currentPin = '';
+  localStorage.removeItem('shq_emp_token');
+  localStorage.removeItem('shq_emp_data');
   updateDots();
   document.getElementById('portal').style.display = 'none';
   document.getElementById('pinScreen').style.display = '';
