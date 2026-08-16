@@ -132,6 +132,9 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
   <div class="pin-err" id="pinErr"></div>
 </div>
 
+
+</div><!-- end container -->
+
 <!-- PORTAL -->
 <div id="portal">
 
@@ -145,8 +148,9 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
         <div class="hero-biz" id="portalBiz"></div>
       </div>
     </div>
+    <div id="portalGreeting" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b8fc9;margin-bottom:16px;letter-spacing:0.5px;"></div>
     <!-- Check In / Out button -->
-    <div id="clockCard"></div>
+    <div id="clockCard"><button class="clock-in-btn" onclick="doClockIn()">▶ Clock In</button></div>
   </div>
 
   <!-- Stats strip -->
@@ -305,9 +309,14 @@ function showPortal() {
   document.getElementById('portalRole').textContent = (empData.role || 'Staff').toUpperCase();
   var bizEl = document.getElementById('portalBiz');
   if (bizEl) bizEl.textContent = empData.biz_name || '';
-  try { renderClockCard(); } catch(e) { console.error('renderClockCard failed:', e); alert('Check-in card error: ' + e.message); }
-  try { renderStats(); } catch(e) { console.error('renderStats failed:', e); alert('Stats error: ' + e.message); }
-  try { renderMonth(); } catch(e) { console.error('renderMonth failed:', e); alert('Shifts/Pay error: ' + e.message); }
+  // Greeting based on time of day
+  var h = new Date().getHours();
+  var greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  var greetEl = document.getElementById('portalGreeting');
+  if (greetEl) greetEl.textContent = greet + ', ' + displayName.split(' ')[0] + '. Have a great shift! 👋';
+  try { renderClockCard(); } catch(e) { console.error('renderClockCard failed:', e); }
+  try { renderStats(); } catch(e) { console.error('renderStats failed:', e); }
+  try { renderMonth(); } catch(e) { console.error('renderMonth failed:', e); }
 }
 
 function renderClockCard() {
@@ -486,3 +495,5 @@ function logout() {
 </script>
 </body>
 </html>
+
+
