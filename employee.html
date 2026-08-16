@@ -10,13 +10,13 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow-x:hidden;}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d0d0d;color:#f0f0ee;min-height:100vh;}
-
+ 
 /* NAV */
 nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.07);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
 .nav-logo-dot{width:7px;height:7px;background:linear-gradient(135deg,#2154f4,#06b6d4);border-radius:50%;}
 #navName{font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;}
-
+ 
 /* LOGIN SCREEN */
 #pinScreen{display:flex;flex-direction:column;align-items:center;padding:48px 20px 40px;min-height:calc(100vh - 56px);}
 .login-heading{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center;}
@@ -34,10 +34,10 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
 .pin-btn-ok{background:linear-gradient(135deg,#2154f4,#06b6d4);border-color:transparent;color:#fff;font-size:14px;}
 .pin-btn-back{color:#555;font-size:18px;}
 .pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ef4444;min-height:18px;text-align:center;margin-top:16px;}
-
+ 
 /* PORTAL */
 #portal{display:none;padding:0 0 80px;}
-
+ 
 /* Hero card — the main identity moment */
 .portal-hero{background:linear-gradient(135deg,#111827 0%,#1e3a5f 100%);border-bottom:1px solid rgba(33,84,244,0.2);padding:24px 20px;position:relative;overflow:hidden;}
 .portal-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(33,84,244,0.15) 0%,transparent 70%);pointer-events:none;}
@@ -46,7 +46,7 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
 .hero-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;line-height:1.1;}
 .hero-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b8fc9;margin-top:3px;letter-spacing:0.5px;}
 .hero-biz{font-family:'JetBrains Mono',monospace;font-size:9px;color:#445;margin-top:2px;letter-spacing:1px;text-transform:uppercase;}
-
+ 
 /* Clock card — the main action */
 #clockCard{}
 .clock-in-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#2154f4,#06b6d4);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px -8px rgba(33,84,244,0.6);transition:transform .12s,filter .12s;-webkit-tap-highlight-color:transparent;}
@@ -58,13 +58,13 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
 .shift-status-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;}
 .done-bar{background:rgba(33,84,244,0.1);border:1px solid rgba(33,84,244,0.2);border-radius:12px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b8fc9;text-align:center;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-
+ 
 /* Stats */
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:16px 20px 0;}
 .stat-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:14px 10px;text-align:center;}
 .stat-v{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#2154f4;font-variant-numeric:tabular-nums;}
 .stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#555;margin-top:4px;letter-spacing:0.5px;}
-
+ 
 /* Tabs */
 .tab-section{padding:0 20px;}
 .tab-row{display:flex;gap:6px;margin:16px 0 14px;background:#1a1a1a;border-radius:12px;padding:4px;}
@@ -73,7 +73,7 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .month-label{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;}
 .nav-btn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#888;}
-
+ 
 /* Shift rows */
 .shift-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
 .shift-date{font-weight:700;font-size:13px;color:#f0f0ee;}
@@ -91,14 +91,14 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
 <link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
-
+ 
 <nav>
   <div class="nav-logo"><div class="nav-logo-dot"></div>ShiftHQ</div>
   <div id="navName" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;"></div>
 </nav>
-
+ 
 <div class="container">
-
+ 
 <!-- PIN SCREEN -->
 <div id="pinScreen">
   <div class="login-heading">Welcome back</div>
@@ -131,13 +131,13 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
   </div>
   <div class="pin-err" id="pinErr"></div>
 </div>
-
-
+ 
+ 
 </div><!-- end container -->
-
+ 
 <!-- PORTAL -->
 <div id="portal">
-
+ 
   <!-- Hero identity card -->
   <div class="portal-hero">
     <div class="hero-identity">
@@ -152,10 +152,10 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
     <!-- Check In / Out button -->
     <div id="clockCard"><button class="clock-in-btn" onclick="doClockIn()">▶ Clock In</button></div>
   </div>
-
+ 
   <!-- Stats strip -->
   <div class="stat-row" id="portalStats"></div>
-
+ 
   <!-- Tabs + content -->
   <div class="tab-section">
     <div class="tab-row">
@@ -163,23 +163,23 @@ nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px s
       <button class="tab" onclick="showTab('leaves',this)">Leave</button>
       <button class="tab" onclick="showTab('pay',this)">Pay</button>
     </div>
-
+ 
     <div class="month-nav">
       <button class="nav-btn" onclick="chMonth(-1)">‹</button>
       <div class="month-label" id="monthLabel"></div>
       <button class="nav-btn" onclick="chMonth(1)">›</button>
     </div>
-
+ 
     <div id="tab-shifts"><div id="shiftsList"></div></div>
     <div id="tab-leaves" style="display:none;"><div id="leavesList"></div></div>
     <div id="tab-pay" style="display:none;"><div id="payCard"></div></div>
   </div>
-
+ 
   <button class="signout-btn" onclick="logout()">Sign out</button>
 </div>
-
-
-
+ 
+ 
+ 
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
 var EMP_TOKEN = null;
@@ -189,7 +189,7 @@ var viewMonth = new Date();
 var currentPin = '';
 var currentTab = 'shifts';
 var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
+ 
 // Remember the business code on this device (not sensitive — just a shop identifier) so a shared kiosk doesn't need retyping it every time
 (function(){
   var saved = localStorage.getItem('shq_kiosk_biz_code');
@@ -226,10 +226,10 @@ var months = ['January','February','March','April','May','June','July','August',
     }
   }
 })();
-
+ 
 function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
 function fmt(d) { if (!d) return '—'; var dt = new Date(d + 'T00:00:00'); var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate() + ' ' + m[dt.getMonth()]; }
-
+ 
 // PIN entry
 function pinPress(key) {
   var err = document.getElementById('pinErr');
@@ -240,13 +240,13 @@ function pinPress(key) {
   updateDots();
   if (currentPin.length === 6) doVerify();
 }
-
+ 
 function updateDots() {
   for (var i = 0; i < 6; i++) {
     document.getElementById('d' + i).classList.toggle('filled', i < currentPin.length);
   }
 }
-
+ 
 async function doVerify() {
   if (currentPin.length < 4) { document.getElementById('pinErr').textContent = 'Enter your PIN'; return; }
   var bizCode = document.getElementById('bizCodeEntry').value.trim().toLowerCase();
@@ -279,7 +279,7 @@ async function doVerify() {
     showPortal();
   } catch(e) { document.getElementById('pinErr').textContent = 'Connection error'; currentPin = ''; updateDots(); }
 }
-
+ 
 async function loadPortalData() {
   var h = {'x-emp-token': EMP_TOKEN};
   try {
@@ -298,7 +298,7 @@ async function loadPortalData() {
     allDeds = (Array.isArray(allD) ? allD : []).filter(function(d){ return d.emp_id === empData.id; });
   } catch(e) { console.error('Failed to load deductions:', e); allDeds = []; }
 }
-
+ 
 function showPortal() {
   document.getElementById('pinScreen').style.display = 'none';
   document.getElementById('portal').style.display = '';
@@ -318,7 +318,7 @@ function showPortal() {
   try { renderStats(); } catch(e) { console.error('renderStats failed:', e); }
   try { renderMonth(); } catch(e) { console.error('renderMonth failed:', e); }
 }
-
+ 
 function renderClockCard() {
   var today = dk(new Date());
   var shift = allShifts.find(function(s){ return s.date === today; });
@@ -336,7 +336,7 @@ function renderClockCard() {
     el.innerHTML = '<div class="done-bar">✓ Done today · ' + shift.check_in.slice(0,5) + ' → ' + shift.check_out.slice(0,5) + ' · ' + hrs + 'h</div>';
   }
 }
-
+ 
 async function doClockIn() {
   try {
     var now = new Date();
@@ -353,7 +353,7 @@ async function doClockIn() {
     renderStats();
   } catch(e) { alert('Connection error'); }
 }
-
+ 
 async function doClockOut(shiftId) {
   try {
     var now = new Date();
@@ -372,7 +372,7 @@ async function doClockOut(shiftId) {
     renderMonth();
   } catch(e) { alert('Connection error'); }
 }
-
+ 
 function renderStats() {
   var today = dk(new Date());
   var thisMonth = today.slice(0,7);
@@ -390,9 +390,9 @@ function renderStats() {
     '<div class="stat-box"><div class="stat-v" style="color:#16a34a;">L ' + netPay.toFixed(0) + '</div><div class="stat-k">PAY DUE</div></div>' +
     '<div class="stat-box"><div class="stat-v" style="color:' + (onShift?'#2154f4':'#888') + ';">' + (onShift?'Yes':'No') + '</div><div class="stat-k">ON SHIFT</div></div>';
 }
-
+ 
 function chMonth(dir) { viewMonth.setMonth(viewMonth.getMonth()+dir); renderMonth(); }
-
+ 
 function renderMonth() {
   document.getElementById('monthLabel').textContent = months[viewMonth.getMonth()] + ' ' + viewMonth.getFullYear();
   var ym = viewMonth.getFullYear() + '-' + String(viewMonth.getMonth()+1).padStart(2,'0');
@@ -400,7 +400,7 @@ function renderMonth() {
   else if (currentTab === 'leaves') renderLeaves(ym);
   else renderPay(ym);
 }
-
+ 
 function showTab(tab, btn) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
@@ -410,7 +410,7 @@ function showTab(tab, btn) {
   document.getElementById('tab-pay').style.display = tab==='pay' ? '' : 'none';
   renderMonth();
 }
-
+ 
 function renderShifts(ym) {
   var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
   var rate = parseFloat(empData.rate)||0;
@@ -437,7 +437,7 @@ function renderShifts(ym) {
   });
   document.getElementById('shiftsList').innerHTML = html;
 }
-
+ 
 function renderLeaves(ym) {
   var ml = allLeaves.filter(function(l){ return l.date && l.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
   var html = '';
@@ -450,7 +450,7 @@ function renderLeaves(ym) {
   });
   document.getElementById('leavesList').innerHTML = html;
 }
-
+ 
 function renderPay(ym) {
   var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym && s.check_out; });
   var totalH = ms.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
@@ -476,7 +476,7 @@ function renderPay(ym) {
     '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Pay Due</span><span style="color:#2154f4;">L ' + gross.toFixed(2) + '</span></div>' +
     '</div>';
 }
-
+ 
 function logout() {
   empData = null;
   EMP_TOKEN = null;
@@ -495,5 +495,3 @@ function logout() {
 </script>
 </body>
 </html>
-
-
