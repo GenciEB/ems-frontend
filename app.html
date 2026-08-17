@@ -1060,6 +1060,7 @@ function initApp() {
   roleEl.className = IS_MGR ? 'hdr-role manager' : 'hdr-role employee';
   startClock();
   loadAll();
+  loadPlan().then(function(){ renderPlans(); });
   startAutoRefresh();
   var langBtn = document.getElementById('langBtn');
   if (langBtn) langBtn.textContent = LANG === 'en' ? 'SQ' : 'EN';
@@ -2054,8 +2055,9 @@ function startAutoRefresh() {
   setInterval(function() {
     if (BIZ_CODE && BIZ_ID && SESSION_TOKEN) {
       loadAll();
+      loadPlan().then(function(){ renderPlans(); });
     }
-  }, 15000); // every 15 seconds — faster so employee check-ins via their own link appear promptly
+  }, 15000); // every 15 seconds
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
