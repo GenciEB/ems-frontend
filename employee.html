@@ -237,8 +237,8 @@ updateKioskSwitch();
     if (el) el.value = saved;
   }
   // Restore employee session if still valid — but NOT in kiosk mode (shared device always shows login)
-  var savedToken = localStorage.getItem('shq_emp_token');
-  var savedEmp = localStorage.getItem('shq_emp_data');
+  var savedToken = sessionStorage.getItem('shq_emp_token');
+  var savedEmp = sessionStorage.getItem('shq_emp_data');
   if (!kioskMode && savedToken && savedEmp) {
     try {
       var payload = JSON.parse(atob(savedToken.split('.')[1]));
@@ -251,18 +251,18 @@ updateKioskSwitch();
         loadPortalData().then(function(){
           showPortal();
         }).catch(function(){
-          localStorage.removeItem('shq_emp_token');
-          localStorage.removeItem('shq_emp_data');
+          sessionStorage.removeItem('shq_emp_token');
+          sessionStorage.removeItem('shq_emp_data');
           var ps2 = document.getElementById('pinScreen');
           if (ps2) ps2.style.display = '';
         });
       } else {
-        localStorage.removeItem('shq_emp_token');
-        localStorage.removeItem('shq_emp_data');
+        sessionStorage.removeItem('shq_emp_token');
+        sessionStorage.removeItem('shq_emp_data');
       }
     } catch(e) {
-      localStorage.removeItem('shq_emp_token');
-      localStorage.removeItem('shq_emp_data');
+      sessionStorage.removeItem('shq_emp_token');
+      sessionStorage.removeItem('shq_emp_data');
     }
   }
 })();
@@ -305,8 +305,8 @@ async function doVerify() {
     // Store scoped employee token for authenticated reads
     EMP_TOKEN = ver.emp_token;
     localStorage.setItem('shq_kiosk_biz_code', bizCode);
-    localStorage.setItem('shq_emp_token', EMP_TOKEN);
-    localStorage.setItem('shq_emp_data', JSON.stringify(ver.employee));
+    sessionStorage.setItem('shq_emp_token', EMP_TOKEN);
+    sessionStorage.setItem('shq_emp_data', JSON.stringify(ver.employee));
     empData = ver.employee;
     empData.biz_id = ver.employee.business_id;
     empData.biz_name = bizCode.toUpperCase();
@@ -562,8 +562,8 @@ function logout() {
   allLeaves = [];
   allDeds = [];
   currentPin = '';
-  localStorage.removeItem('shq_emp_token');
-  localStorage.removeItem('shq_emp_data');
+  sessionStorage.removeItem('shq_emp_token');
+  sessionStorage.removeItem('shq_emp_data');
   updateDots();
   document.getElementById('portal').style.display = 'none';
   document.getElementById('pinScreen').style.display = '';
