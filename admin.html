@@ -3,404 +3,322 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EMS — Owner Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>ShiftHQ Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#060e1e;
-  --surface:rgba(10,22,48,0.85);
-  --surface2:rgba(14,28,58,0.9);
-  --border:rgba(59,130,246,0.15);
-  --border2:rgba(59,130,246,0.3);
-  --blue:#3b82f6;
-  --blue2:#60a5fa;
-  --cyan:#06b6d4;
-  --green:#34d399;
-  --red:#f87171;
-  --amber:#fbbf24;
-  --purple:#a78bfa;
-  --text:#e8f0ff;
-  --text2:#6b82a8;
-  --text3:#3d5070;
-  --display:'Syne',sans-serif;
-  --body:'DM Sans',sans-serif;
-  --mono:'DM Mono',monospace;
-  --glass:blur(20px) saturate(180%);
-}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;font-family:var(--body);color:var(--text);}
-body{
-  background-image:
-    linear-gradient(160deg,rgba(2,6,20,0.92) 0%,rgba(4,10,30,0.88) 100%),
-    url('https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1400&q=75');
-  background-size:cover;
-  background-position:center;
-  min-height:100vh;
-}
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(59,130,246,0.2) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(6,182,212,0.12) 0%, transparent 60%);
-}
+html,body{height:100%;background:#0a0a0a;color:#f0f0ee;font-family:'Plus Jakarta Sans',sans-serif;}
+.nav{background:#111;border-bottom:1px solid #1e1e1e;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
+.nav-dot{width:7px;height:7px;background:#f59e0b;border-radius:50%;}
+.nav-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:4px;padding:2px 6px;letter-spacing:1px;}
 
-/* ── LOGIN ── */
-#loginWrap{
-  position:fixed;inset:0;z-index:100;
-  display:flex;align-items:center;justify-content:center;padding:20px;
-}
-#loginWrap.hidden{display:none;}
-.login-box{
-  background:rgba(10,22,48,0.92);
-  backdrop-filter:var(--glass);
-  border:1px solid var(--border2);
-  border-radius:24px;
-  padding:36px 28px;
-  width:100%;max-width:360px;
-  position:relative;overflow:hidden;
-  box-shadow:0 24px 80px rgba(0,0,0,0.5);
-}
-.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--cyan),transparent);}
-.login-logo{font-family:var(--display);font-size:48px;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg,#60a5fa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;}
-.login-sub{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:3px;text-align:center;margin-bottom:28px;}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-label{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;}
-input{background:rgba(14,28,58,0.8);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:14px;padding:11px 14px;outline:none;width:100%;transition:border-color .2s;}
-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,0.12);}
-.btn-login{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;border:none;border-radius:10px;padding:13px;font-family:var(--body);font-size:14px;font-weight:700;width:100%;cursor:pointer;margin-top:8px;transition:opacity .15s;}
-.btn-login:active{opacity:.8;}
-.login-err{font-family:var(--mono);font-size:11px;color:var(--red);min-height:16px;text-align:center;margin-top:8px;}
+/* LOGIN */
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:40px 20px;}
+.login-box{width:100%;max-width:340px;background:#111;border:1px solid #1e1e1e;border-radius:18px;padding:32px 24px;}
+.login-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+.login-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:#444;letter-spacing:1px;margin-bottom:24px;}
+.field{margin-bottom:14px;}
+.field label{font-family:'JetBrains Mono',monospace;font-size:9px;color:#555;letter-spacing:1px;display:block;margin-bottom:5px;}
+.field input{width:100%;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:13px;padding:11px 13px;outline:none;transition:border-color .15s;}
+.field input:focus{border-color:#f59e0b;}
+.btn-login{width:100%;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;}
+.btn-login:active{opacity:.9;}
+.login-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ef4444;min-height:16px;margin-top:10px;text-align:center;}
 
-/* ── DASHBOARD ── */
-#dashWrap{display:none;position:relative;z-index:1;min-height:100vh;}
-#dashWrap.show{display:block;}
-header{
-  background:rgba(6,14,30,0.88);
-  backdrop-filter:var(--glass);
-  border-bottom:1px solid var(--border);
-  padding:16px 24px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:10;
-}
-.hdr-logo{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,#60a5fa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hdr-sub{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
-.btn-logout{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red);font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer;}
+/* ADMIN PANEL */
+#adminScreen{display:none;padding:20px;max-width:900px;margin:0 auto;}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px;}
+.page-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:#444;letter-spacing:1px;margin-bottom:20px;}
 
-main{padding:24px;max-width:1100px;margin:0 auto;}
+/* Stats bar */
+.stat-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{background:#111;border:1px solid #1e1e1e;border-radius:13px;padding:14px 16px;}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:#444;margin-top:2px;letter-spacing:.5px;}
 
-/* ── STATS ── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
-.stat{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;overflow:hidden;}
-.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.4),rgba(6,182,212,0.2),transparent);}
-.stat-v{font-family:var(--display);font-size:36px;font-weight:800;letter-spacing:2px;color:var(--blue2);}
-.stat-k{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+/* Business list */
+.biz-card{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.biz-info{flex:1;min-width:0;}
+.biz-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.biz-code{font-family:'JetBrains Mono',monospace;font-size:10px;color:#555;margin-top:2px;}
+.biz-meta{font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:4px;}
+.plan-pro{color:#4ade80;}
+.plan-free{color:#555;}
+.plan-expiring{color:#f59e0b;}
+.plan-expired{color:#ef4444;}
+.biz-actions{display:flex;gap:7px;flex-shrink:0;}
+.btn-pro{padding:8px 14px;border:none;border-radius:9px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.btn-pro:hover{opacity:.9;}
+.btn-free{padding:8px 14px;border:1px solid #2a2a2a;border-radius:9px;background:transparent;color:#888;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap;}
+.btn-free:hover{border-color:#555;color:#f0f0ee;}
+.badge-pro{background:rgba(22,163,74,.12);color:#4ade80;border:1px solid rgba(22,163,74,.2);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border-radius:20px;}
+.badge-free{background:#1a1a1a;color:#555;border:1px solid #2a2a2a;font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border-radius:20px;}
+.badge-expiring{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border-radius:20px;}
 
-/* ── SECTION ── */
-.section{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;}
-.section-title{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
-.search-box{background:rgba(14,28,58,0.7);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 12px;outline:none;width:200px;}
-.search-box:focus{border-color:var(--blue);}
+/* Days input */
+.days-row{display:flex;align-items:center;gap:6px;}
+.days-inp{width:60px;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 9px;outline:none;text-align:center;}
+.days-inp:focus{border-color:#16a34a;}
 
-/* ── TABLE ── */
-table{width:100%;border-collapse:collapse;}
-th{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
-td{padding:12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(59,130,246,0.04);}
-.biz-name{font-weight:600;font-size:14px;}
-.biz-code{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;}
-.badge{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:20px;display:inline-block;}
-.badge.free{background:rgba(107,130,168,0.15);color:var(--text2);border:1px solid rgba(107,130,168,0.2);}
-.badge.pro{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(6,182,212,0.1));color:var(--cyan);border:1px solid rgba(6,182,212,0.3);}
-.btn-sm{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:7px;border:none;cursor:pointer;transition:all .15s;}
-.btn-upgrade{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(6,182,212,0.1));color:var(--blue2);border:1px solid rgba(59,130,246,0.3);}
-.btn-upgrade:hover{background:linear-gradient(135deg,rgba(59,130,246,0.35),rgba(6,182,212,0.2));}
-.btn-downgrade{background:rgba(107,130,168,0.1);color:var(--text2);border:1px solid rgba(107,130,168,0.2);}
-.btn-delete{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2);}
-.btn-delete:hover{background:rgba(248,113,113,0.2);}
-.emp-count{font-family:var(--mono);font-size:12px;}
-.reg-date{font-family:var(--mono);font-size:11px;color:var(--text2);}
-
-/* ── NOTIFY EMAILS ── */
-.email-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
-.email-item:last-child{border-bottom:none;}
-.email-addr{font-family:var(--mono);font-size:12px;color:var(--blue2);}
-.email-biz{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;}
-
-/* ── TOAST ── */
-.toast-w{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
-.toast{background:rgba(10,22,48,0.95);backdrop-filter:blur(12px);border:1px solid var(--border2);border-top:2px solid var(--blue);border-radius:12px;padding:10px 18px;font-family:var(--mono);font-size:12px;color:var(--text);box-shadow:0 12px 40px rgba(0,0,0,0.6);animation:su .25s cubic-bezier(.34,1.56,.64,1),tout .3s 2.3s ease forwards;white-space:nowrap;}
-.toast.success{border-top-color:var(--green);}
-.toast.error{border-top-color:var(--red);}
-.toast.warn{border-top-color:var(--amber);}
-@keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes tout{from{opacity:1}to{opacity:0}}
-
-/* ── EMPTY ── */
-.empty{text-align:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:12px;}
-
-/* ── RESPONSIVE ── */
-@media(max-width:700px){
-  .stats{grid-template-columns:repeat(2,1fr);}
-  table{font-size:11px;}
-  td,th{padding:8px 6px;}
-  .search-box{width:130px;}
-}
+.empty{text-align:center;padding:48px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#333;}
+.toast-wrap{position:fixed;bottom:24px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999;}
+.toast{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;animation:slideIn .2s ease;}
+.toast.ok{border-color:rgba(22,163,74,.4);color:#4ade80;}
+.toast.err{border-color:rgba(239,68,68,.4);color:#f87171;}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.refresh-btn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;padding:8px 14px;color:#888;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;float:right;}
+.refresh-btn:hover{color:#f0f0ee;border-color:#555;}
+.signout-btn{background:transparent;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:#333;cursor:pointer;padding:4px 8px;}
+.signout-btn:hover{color:#888;}
+.search-inp{width:100%;background:#111;border:1.5px solid #1e1e1e;border-radius:10px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 14px;outline:none;margin-bottom:14px;transition:border-color .15s;}
+.search-inp:focus{border-color:#f59e0b;}
+.search-inp::placeholder{color:#333;}
 </style>
 </head>
 <body>
 
-<div class="toast-w" id="toastW"></div>
+<nav class="nav">
+  <div class="nav-logo"><div class="nav-dot"></div>ShiftHQ <span class="nav-tag">ADMIN</span></div>
+  <button class="signout-btn" id="signoutBtn" style="display:none;" onclick="adminSignOut()">Sign out</button>
+</nav>
 
 <!-- LOGIN -->
-<div id="loginWrap">
+<div id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">EMS</div>
-    <div class="login-sub">OWNER DASHBOARD</div>
+    <div class="login-title">Admin Access</div>
+    <div class="login-sub">SHIFTHQ INTERNAL · RESTRICTED</div>
     <div class="field">
-      <label>Admin Password</label>
-      <input type="password" id="adminPwd" placeholder="Enter admin password…" onkeydown="if(event.key==='Enter')doLogin()">
+      <label>ADMIN KEY</label>
+      <input type="password" id="adminKeyInput" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="btn-login" onclick="doLogin()">Access Dashboard →</button>
+    <button class="btn-login" onclick="doLogin()">Access Panel</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashWrap">
-  <header>
-    <div>
-      <div class="hdr-logo">EMS</div>
-      <div class="hdr-sub">OWNER DASHBOARD</div>
-    </div>
-    <button class="btn-logout" onclick="doLogout()">⏏ Logout</button>
-  </header>
+<!-- ADMIN PANEL -->
+<div id="adminScreen">
+  <div class="page-title">Businesses <button class="refresh-btn" onclick="loadBusinesses()">↻ Refresh</button></div>
+  <div class="page-sub" id="lastRefresh"></div>
 
-  <main>
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-v" id="statTotal">—</div>
-        <div class="stat-k">Total Businesses</div>
-      </div>
-      <div class="stat" style="--blue2:var(--cyan);">
-        <div class="stat-v" id="statPro" style="color:var(--cyan);">—</div>
-        <div class="stat-k">Pro Plans</div>
-      </div>
-      <div class="stat">
-        <div class="stat-v" id="statFree" style="color:var(--text2);">—</div>
-        <div class="stat-k">Free Plans</div>
-      </div>
-      <div class="stat">
-        <div class="stat-v" id="statEmps" style="color:var(--green);">—</div>
-        <div class="stat-k">Total Employees</div>
-      </div>
-    </div>
+  <div class="stat-bar">
+    <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">TOTAL BUSINESSES</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#4ade80;" id="statPro">—</div><div class="stat-lbl">PRO ACTIVE</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#f59e0b;" id="statExpiring">—</div><div class="stat-lbl">EXPIRING IN 7 DAYS</div></div>
+  </div>
 
-    <!-- Businesses table -->
-    <div class="section">
-      <div class="section-title">
-        <span>All Businesses</span>
-        <input class="search-box" type="text" id="searchBox" placeholder="Search…" oninput="filterBiz()">
-      </div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Plan</th>
-              <th>Employees</th>
-              <th>Registered</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="bizTable"></tbody>
-        </table>
-      </div>
-      <div id="bizEmpty" class="empty" style="display:none;">No businesses yet</div>
-    </div>
+  <input type="text" class="search-inp" id="searchInp" placeholder="Search by name or code..." oninput="renderList()">
 
-    <!-- Notify emails -->
-    <div class="section">
-      <div class="section-title">Upgrade Interest (Notify Me Emails)</div>
-      <div id="emailList"></div>
-      <div id="emailEmpty" class="empty" style="display:none;">No emails collected yet</div>
-    </div>
-  </main>
+  <div id="bizList"></div>
 </div>
 
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
-'use strict';
 var API = 'https://ems-api-mgye.onrender.com';
-var API_KEY = 'ems-aP7kNx3QvL9mRt2Wz8Yc5Jd';
-var ADMIN_KEY = 'ems-admin-Hq4BnXe6Ks1Vf0Yw3Mg';
-var allBizData = [];
+var ADMIN_KEY = '';
+var businesses = [];
 
-function toast(msg, type){
-  var w = document.getElementById('toastW');
-  var t = document.createElement('div');
-  t.className = 'toast' + (type ? ' '+type : '');
-  t.textContent = msg;
-  w.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 2700);
-}
-
-async function apiFetch(method, path, body){
-  var opts = {
-    method: method,
-    headers: {'Content-Type':'application/json','x-api-key':API_KEY,'x-admin-key':ADMIN_KEY}
-  };
-  if(body) opts.body = JSON.stringify(body);
-  var res = await fetch(API + path, opts);
-  if(!res.ok){ var e = await res.json().catch(function(){return {};}); throw new Error(e.error||res.statusText); }
-  return res.json();
-}
-
-// ── AUTH ──
-async function doLogin(){
-  var pwd = document.getElementById('adminPwd').value.trim();
-  if(!pwd){ document.getElementById('loginErr').textContent = 'Enter password'; return; }
-  // Verify against backend - don't check client-side
-  try{
-    var res = await fetch(API+'/api/admin/businesses', {
-      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'x-admin-key':pwd}
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  var key = document.getElementById('adminKeyInput').value.trim();
+  var err = document.getElementById('loginErr');
+  if (!key) { err.textContent = 'Enter admin key'; return; }
+  err.textContent = 'Verifying...';
+  try {
+    var r = await fetch(API + '/api/admin/businesses', {
+      headers: { 'x-admin-key': key }
     });
-    if(!res.ok){ document.getElementById('loginErr').textContent = 'Incorrect password'; return; }
-    ADMIN_KEY = pwd; // Store for subsequent requests
-    sessionStorage.setItem('ems_admin_auth', '1');
-    sessionStorage.setItem('ems_admin_key', pwd);
-    document.getElementById('loginWrap').classList.add('hidden');
-    document.getElementById('dashWrap').classList.add('show');
-    loadDashboard();
-  }catch(e){
-    document.getElementById('loginErr').textContent = 'Connection error — try again';
-  }
+    if (!r.ok) { err.textContent = 'Invalid admin key'; return; }
+    ADMIN_KEY = key;
+    sessionStorage.setItem('shq_admin_key', key);
+    showPanel();
+    var data = await r.json();
+    businesses = data;
+    renderStats();
+    renderList();
+    updateTimestamp();
+  } catch(e) { err.textContent = 'Connection error: ' + e.message; }
 }
 
-function doLogout(){
-  sessionStorage.removeItem('ems_admin_auth');
-  sessionStorage.removeItem('ems_admin_key');
-  document.getElementById('loginWrap').classList.remove('hidden');
-  document.getElementById('dashWrap').classList.remove('show');
-  document.getElementById('adminPwd').value = '';
+function adminSignOut() {
+  ADMIN_KEY = '';
+  sessionStorage.removeItem('shq_admin_key');
+  document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('signoutBtn').style.display = 'none';
+  document.getElementById('adminKeyInput').value = '';
 }
 
-// Auto-login if session active
-if(sessionStorage.getItem('ems_admin_auth') === '1'){
-  ADMIN_KEY = sessionStorage.getItem('ems_admin_key') || ADMIN_KEY;
-  document.getElementById('loginWrap').classList.add('hidden');
-  document.getElementById('dashWrap').classList.add('show');
-  loadDashboard();
+function showPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminScreen').style.display = 'block';
+  document.getElementById('signoutBtn').style.display = 'block';
 }
 
-// ── LOAD DATA ──
-async function loadDashboard(){
-  try{
-    var data = await apiFetch('GET', '/api/admin/businesses');
-    allBizData = data;
-    renderStats(data);
-    renderBizTable(data);
-    renderEmails(data);
-  }catch(e){
-    toast('Failed to load: '+e.message, 'error');
-  }
+// ── LOAD DATA ─────────────────────────────────────────────────────────────────
+async function loadBusinesses() {
+  try {
+    var r = await fetch(API + '/api/admin/businesses', { headers: { 'x-admin-key': ADMIN_KEY } });
+    if (!r.ok) { toast('Failed to load', 'err'); return; }
+    businesses = await r.json();
+    renderStats();
+    renderList();
+    updateTimestamp();
+  } catch(e) { toast('Connection error', 'err'); }
 }
 
-function renderStats(data){
-  var pro = data.filter(function(b){return b.plan==='pro';}).length;
-  var free = data.filter(function(b){return b.plan==='free'||!b.plan;}).length;
-  var totalEmps = data.reduce(function(a,b){return a+(b.emp_count||0);},0);
-  document.getElementById('statTotal').textContent = data.length;
-  document.getElementById('statPro').textContent = pro;
-  document.getElementById('statFree').textContent = free;
-  document.getElementById('statEmps').textContent = totalEmps;
+function updateTimestamp() {
+  var n = new Date();
+  document.getElementById('lastRefresh').textContent =
+    'Last updated ' + pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
 }
 
-function renderBizTable(data){
-  var tbody = document.getElementById('bizTable');
-  var empty = document.getElementById('bizEmpty');
-  if(data.length === 0){
-    tbody.innerHTML = '';
-    empty.style.display = '';
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats() {
+  var now = new Date();
+  var in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  var pro = businesses.filter(function(b) { return b.plan === 'pro'; });
+  var expiring = pro.filter(function(b) {
+    if (!b.pro_expires_at) return false;
+    var exp = new Date(b.pro_expires_at);
+    return exp > now && exp <= in7;
+  });
+  document.getElementById('statTotal').textContent = businesses.length;
+  document.getElementById('statPro').textContent = pro.length;
+  document.getElementById('statExpiring').textContent = expiring.length;
+}
+
+// ── RENDER LIST ───────────────────────────────────────────────────────────────
+function renderList() {
+  var q = document.getElementById('searchInp').value.trim().toLowerCase();
+  var filtered = businesses.filter(function(b) {
+    if (!q) return true;
+    return (b.name||'').toLowerCase().includes(q) || (b.code||'').toLowerCase().includes(q);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('bizList').innerHTML = '<div class="empty">No businesses found</div>';
     return;
   }
-  empty.style.display = 'none';
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  tbody.innerHTML = data.map(function(b){
-    var d = new Date(b.created_at);
-    var dateStr = d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+
+  var now = new Date();
+  var in3 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  var in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  var html = filtered.map(function(b) {
     var isPro = b.plan === 'pro';
-    return '<tr id="biz-row-'+b.id+'">'+
-      '<td><div class="biz-name">'+escHtml(b.name)+'</div><div class="biz-code">'+escHtml(b.code)+'</div></td>'+
-      '<td><span class="badge '+(isPro?'pro':'free')+'">'+(isPro?'PRO':'FREE')+'</span></td>'+
-      '<td><span class="emp-count">'+b.emp_count+'</span></td>'+
-      '<td><span class="reg-date">'+dateStr+'</span></td>'+
-      '<td style="display:flex;gap:6px;flex-wrap:wrap;">'+
-        (isPro
-          ? '<button class="btn-sm btn-downgrade" onclick="setPlan('+b.id+',\'free\')">↓ Free</button>'
-          : '<button class="btn-sm btn-upgrade" onclick="setPlan('+b.id+',\'pro\')">↑ Pro</button>'
-        )+
-        '<button class="btn-sm btn-delete" onclick="deleteBiz('+b.id+',\''+escHtml(b.name)+'\')">✕ Delete</button>'+
-      '</td>'+
-    '</tr>';
-  }).join('');
-}
+    var expDate = b.pro_expires_at ? new Date(b.pro_expires_at) : null;
+    var expired = expDate && expDate < now;
+    var expiring3 = expDate && expDate > now && expDate <= in3;
+    var expiring7 = expDate && expDate > now && expDate <= in7;
 
-function renderEmails(data){
-  var list = document.getElementById('emailList');
-  var empty = document.getElementById('emailEmpty');
-  var withEmail = data.filter(function(b){return b.notify_email;});
-  if(withEmail.length === 0){
-    list.innerHTML = '';
-    empty.style.display = '';
-    return;
-  }
-  empty.style.display = 'none';
-  list.innerHTML = withEmail.map(function(b){
-    return '<div class="email-item">'+
-      '<div><div class="email-addr">'+escHtml(b.notify_email)+'</div>'+
-      '<div class="email-biz">'+escHtml(b.name)+' · '+escHtml(b.code)+'</div></div>'+
-      '<a href="mailto:'+escHtml(b.notify_email)+'" style="font-family:var(--mono);font-size:11px;color:var(--blue2);text-decoration:none;">✉ Email</a>'+
+    var badge = isPro && !expired
+      ? (expiring3
+          ? '<span class="badge-expiring">⚠ EXPIRING SOON</span>'
+          : '<span class="badge-pro">PRO</span>')
+      : '<span class="badge-free">FREE</span>';
+
+    var meta = '';
+    if (isPro && expDate && !expired) {
+      var daysLeft = Math.ceil((expDate - now) / (1000*60*60*24));
+      var cls = expiring3 ? 'plan-expiring' : 'plan-pro';
+      meta = '<span class="' + cls + '">Pro until ' + expDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' (' + daysLeft + ' days)</span>';
+    } else if (isPro && expired) {
+      meta = '<span class="plan-expired">Pro expired — auto-downgraded</span>';
+    } else {
+      meta = '<span class="plan-free">Free plan</span>';
+    }
+
+    var actions = '';
+    if (!isPro || expired) {
+      actions += '<div class="days-row">' +
+        '<input type="number" class="days-inp" id="days_'+b.id+'" value="30" min="1" max="365">' +
+        '<button class="btn-pro" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\')">▶ Activate Pro</button>' +
+        '</div>';
+    } else {
+      actions += '<button class="btn-free" onclick="deactivatePro('+b.id+',\''+escAttr(b.name)+'\')">Revert to Free</button>';
+    }
+
+    return '<div class="biz-card" id="biz_'+b.id+'">' +
+      '<div class="biz-info">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<div class="biz-name">' + esc(b.name||'Unnamed') + '</div>' +
+          badge +
+        '</div>' +
+        '<div class="biz-code">Code: ' + esc(b.code||'—') + (b.notify_email ? ' · ' + esc(b.notify_email) : '') + '</div>' +
+        '<div class="biz-meta">' + meta + '</div>' +
+      '</div>' +
+      '<div class="biz-actions">' + actions + '</div>' +
     '</div>';
   }).join('');
+
+  document.getElementById('bizList').innerHTML = html;
 }
 
-function filterBiz(){
-  var q = document.getElementById('searchBox').value.toLowerCase();
-  var filtered = allBizData.filter(function(b){
-    return b.name.toLowerCase().includes(q) || b.code.toLowerCase().includes(q);
-  });
-  renderBizTable(filtered);
+// ── ACTIVATE PRO ─────────────────────────────────────────────────────────────
+async function activatePro(id, name) {
+  var daysEl = document.getElementById('days_' + id);
+  var days = daysEl ? parseInt(daysEl.value) || 30 : 30;
+  if (days < 1 || days > 365) { toast('Days must be between 1 and 365', 'err'); return; }
+  try {
+    var r = await fetch(API + '/api/admin/businesses/' + id + '/plan', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+      body: JSON.stringify({ plan: 'pro', days: days })
+    });
+    var d = await r.json();
+    if (!r.ok) { toast('Failed: ' + (d.error||r.status), 'err'); return; }
+    toast('✅ ' + name + ' activated Pro for ' + days + ' days', 'ok');
+    await loadBusinesses();
+  } catch(e) { toast('Connection error', 'err'); }
 }
 
-// ── ACTIONS ──
-async function setPlan(id, plan){
-  try{
-    var result = await apiFetch('PATCH', '/api/admin/businesses/'+id+'/plan', {plan: plan});
-    // Update local data
-    var biz = allBizData.find(function(b){return b.id===id;});
-    if(biz) biz.plan = plan;
-    renderStats(allBizData);
-    renderBizTable(allBizData);
-    toast(result.name+' → '+plan.toUpperCase(), 'success');
-  }catch(e){ toast('Failed: '+e.message, 'error'); }
+// ── DEACTIVATE PRO ────────────────────────────────────────────────────────────
+async function deactivatePro(id, name) {
+  if (!confirm('Revert ' + name + ' to Free plan?')) return;
+  try {
+    var r = await fetch(API + '/api/admin/businesses/' + id + '/plan', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+      body: JSON.stringify({ plan: 'free' })
+    });
+    var d = await r.json();
+    if (!r.ok) { toast('Failed: ' + (d.error||r.status), 'err'); return; }
+    toast('↩ ' + name + ' reverted to Free', 'ok');
+    await loadBusinesses();
+  } catch(e) { toast('Connection error', 'err'); }
 }
 
-async function deleteBiz(id, name){
-  if(!confirm('Delete "'+name+'"? This will remove ALL employees, shifts and data. This cannot be undone.')) return;
-  try{
-    await apiFetch('DELETE', '/api/admin/businesses/'+id);
-    allBizData = allBizData.filter(function(b){return b.id!==id;});
-    renderStats(allBizData);
-    renderBizTable(allBizData);
-    renderEmails(allBizData);
-    toast(name+' deleted', 'warn');
-  }catch(e){ toast('Failed: '+e.message, 'error'); }
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function pad(n) { return String(n).padStart(2,'0'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return String(s||'').replace(/'/g,'\\\''); }
+
+function toast(msg, type) {
+  var w = document.getElementById('toastWrap');
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type||'');
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3500);
 }
 
-function escHtml(str){
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ── SESSION RESTORE ───────────────────────────────────────────────────────────
+(function() {
+  var saved = sessionStorage.getItem('shq_admin_key');
+  if (saved) {
+    ADMIN_KEY = saved;
+    showPanel();
+    loadBusinesses();
+  }
+})();
+
+// Auto-refresh every 60 seconds while panel is open
+setInterval(function() {
+  if (ADMIN_KEY) loadBusinesses();
+}, 60000);
 </script>
 </body>
 </html>
