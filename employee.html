@@ -241,21 +241,22 @@ updateKioskSwitch();
   var savedEmp = localStorage.getItem('shq_emp_data');
   if (!kioskMode && savedToken && savedEmp) {
     try {
-      // Check token expiry without verifying signature (client-side only)
       var payload = JSON.parse(atob(savedToken.split('.')[1]));
       if (payload.exp && payload.exp * 1000 > Date.now()) {
+        // Token valid — hide login screen IMMEDIATELY (no flash) before async data load
+        var ps = document.getElementById('pinScreen');
+        if (ps) ps.style.display = 'none';
         EMP_TOKEN = savedToken;
         empData = JSON.parse(savedEmp);
-        // Re-fetch data and restore portal
         loadPortalData().then(function(){
           showPortal();
         }).catch(function(){
-          // Session restore failed — clear and show login
           localStorage.removeItem('shq_emp_token');
           localStorage.removeItem('shq_emp_data');
+          var ps2 = document.getElementById('pinScreen');
+          if (ps2) ps2.style.display = '';
         });
       } else {
-        // Token expired — clear it
         localStorage.removeItem('shq_emp_token');
         localStorage.removeItem('shq_emp_data');
       }
@@ -397,6 +398,8 @@ function showKioskSuccess(icon, title, sub) {
 }
 
 async function doClockIn() {
+  var btn = document.querySelector('.clock-in-btn');
+  if (btn) { btn.textContent = 'Clocking in...'; btn.disabled = true; }
   try {
     var now = new Date();
     var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
@@ -406,7 +409,11 @@ async function doClockIn() {
       body: JSON.stringify({ emp_id: empData.id, business_id: empData.biz_id, date: dk(now), check_in: timeStr })
     });
     var s = await r.json();
-    if (!r.ok) { alert(s.error || 'Could not check in'); return; }
+    if (!r.ok) {
+      alert('Check-in failed: ' + (s.error || 'Unknown error') + ' (status ' + r.status + ')');
+      if (btn) { btn.textContent = '▶ Clock In'; btn.disabled = false; }
+      return;
+    }
     allShifts.push(s);
     if (kioskMode) {
       showKioskSuccess('✅', 'Clocked in at ' + timeStr, empData.name + ' · ' + (empData.role || 'Staff'));
@@ -414,7 +421,10 @@ async function doClockIn() {
       renderClockCard();
       renderStats();
     }
-  } catch(e) { alert('Connection error'); }
+  } catch(e) {
+    alert('Connection error: ' + e.message + '. Check your internet connection.');
+    if (btn) { btn.textContent = '▶ Clock In'; btn.disabled = false; }
+  }
 }
 
 async function doClockOut(shiftId) {
