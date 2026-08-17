@@ -2,576 +2,485 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0d0d0d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ShiftHQ — My Shifts</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow-x:hidden;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d0d0d;color:#f0f0ee;min-height:100vh;}
+html,body{height:100%;background:#0d0d0d;color:#f0f0ee;font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;}
 
-/* NAV */
-nav{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.07);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
-.nav-logo-dot{width:7px;height:7px;background:linear-gradient(135deg,#2154f4,#06b6d4);border-radius:50%;}
-#navName{font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;}
+/* ── NAV ── */
+.nav{background:#111;border-bottom:1px solid #1e1e1e;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:50;}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
+.nav-dot{width:7px;height:7px;background:#2154f4;border-radius:50%;}
+.nav-emp{font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;}
 
-/* LOGIN SCREEN */
-#pinScreen{display:flex;flex-direction:column;align-items:center;padding:48px 20px 40px;min-height:calc(100vh - 56px);}
-.login-heading{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center;}
-.login-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;margin-bottom:32px;text-align:center;letter-spacing:0.5px;}
-.field-group{width:100%;max-width:300px;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
-.field-input{background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:12px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 14px;outline:none;width:100%;transition:border-color .15s;}
-.field-input:focus{border-color:#2154f4;}
-.field-input::placeholder{color:#444;}
-.pin-dots{display:flex;gap:10px;margin-bottom:28px;justify-content:center;}
-.pin-dot{width:13px;height:13px;border-radius:50%;background:#2a2a2a;transition:background .15s;}
-.pin-dot.filled{background:linear-gradient(135deg,#2154f4,#06b6d4);}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;}
-.pin-btn{background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:14px;padding:18px;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;color:#f0f0ee;cursor:pointer;transition:all .12s;text-align:center;-webkit-tap-highlight-color:transparent;}
-.pin-btn:active{background:#2154f4;border-color:#2154f4;transform:scale(0.95);}
-.pin-btn-ok{background:linear-gradient(135deg,#2154f4,#06b6d4);border-color:transparent;color:#fff;font-size:14px;}
-.pin-btn-back{color:#555;font-size:18px;}
-.pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ef4444;min-height:18px;text-align:center;margin-top:16px;}
+/* ── LOGIN SCREEN ── */
+#loginScreen{display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px;min-height:calc(100vh - 52px);}
+.login-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px;color:#fff;}
+.login-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:#444;letter-spacing:1px;margin-bottom:28px;}
+.inp{width:100%;max-width:300px;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:11px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 14px;outline:none;margin-bottom:10px;transition:border-color .15s;}
+.inp:focus{border-color:#2154f4;}
+.inp::placeholder{color:#444;}
+.dots{display:flex;gap:10px;margin:16px 0 22px;}
+.dot{width:13px;height:13px;border-radius:50%;background:#222;transition:background .15s;}
+.dot.on{background:#2154f4;}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:280px;}
+.k{background:#1a1a1a;border:1.5px solid #222;border-radius:13px;padding:17px;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;color:#f0f0ee;cursor:pointer;text-align:center;transition:all .1s;-webkit-tap-highlight-color:transparent;}
+.k:active,.k:focus{background:#2154f4;border-color:#2154f4;outline:none;}
+.k-ok{background:linear-gradient(135deg,#2154f4,#06b6d4);border-color:transparent;color:#fff;font-size:13px;font-weight:700;}
+.k-del{color:#555;font-size:18px;}
+.pin-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ef4444;min-height:18px;text-align:center;margin-top:14px;}
+.kiosk-row{display:flex;align-items:center;gap:8px;margin-top:22px;cursor:pointer;}
+.kiosk-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:#333;letter-spacing:1px;}
+.sw{width:34px;height:18px;background:#222;border-radius:9px;position:relative;transition:background .2s;flex-shrink:0;}
+.sw.on{background:#2154f4;}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#555;transition:transform .2s,background .2s;}
+.sw.on::after{transform:translateX(16px);background:#fff;}
 
-/* PORTAL */
-#portal{display:none;padding:0 0 80px;}
+/* ── PORTAL ── */
+#portalScreen{display:none;}
 
-/* Hero card — the main identity moment */
-.portal-hero{background:linear-gradient(135deg,#111827 0%,#1e3a5f 100%);border-bottom:1px solid rgba(33,84,244,0.2);padding:24px 20px;position:relative;overflow:hidden;}
-.portal-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(33,84,244,0.15) 0%,transparent 70%);pointer-events:none;}
-.hero-identity{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
-.hero-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#2154f4,#06b6d4);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;}
-.hero-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;line-height:1.1;}
-.hero-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b8fc9;margin-top:3px;letter-spacing:0.5px;}
-.hero-biz{font-family:'JetBrains Mono',monospace;font-size:9px;color:#445;margin-top:2px;letter-spacing:1px;text-transform:uppercase;}
+/* Hero */
+.hero{background:linear-gradient(160deg,#111827 0%,#0f2044 60%,#1a1040 100%);padding:22px 18px 20px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(33,84,244,.18) 0%,transparent 70%);pointer-events:none;}
+.hero-top{display:flex;align-items:center;gap:13px;margin-bottom:10px;}
+.avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#2154f4,#06b6d4);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;}
+.emp-name{font-family:'Space Grotesp',sans-serif;font-size:21px;font-weight:700;color:#fff;}
+.emp-role{font-family:'JetBrains Mono',monospace;font-size:9px;color:#6b8fc9;margin-top:2px;letter-spacing:1px;}
+.emp-biz{font-family:'JetBrains Mono',monospace;font-size:8px;color:#333;margin-top:1px;letter-spacing:1px;}
+.greeting{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a7ab5;margin-bottom:16px;}
 
-/* Clock card — the main action */
-#clockCard{}
-.clock-in-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#2154f4,#06b6d4);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px -8px rgba(33,84,244,0.6);transition:transform .12s,filter .12s;-webkit-tap-highlight-color:transparent;}
-.clock-in-btn:active{transform:scale(0.97);}
-.clock-out-btn{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(135deg,#dc2626,#f97316);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px -8px rgba(220,38,38,0.5);transition:transform .12s;-webkit-tap-highlight-color:transparent;}
-.clock-out-btn:active{transform:scale(0.97);}
-.shift-status-bar{background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.shift-status-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;animation:pulse 2s infinite;}
-.shift-status-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;}
-.done-bar{background:rgba(33,84,244,0.1);border:1px solid rgba(33,84,244,0.2);border-radius:12px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b8fc9;text-align:center;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+/* Clock button */
+.btn-in{display:block;width:100%;padding:17px;border:none;border-radius:14px;background:linear-gradient(135deg,#2154f4,#06b6d4);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;cursor:pointer;text-align:center;box-shadow:0 8px 24px -8px rgba(33,84,244,.55);transition:transform .12s;-webkit-tap-highlight-color:transparent;}
+.btn-in:active{transform:scale(0.97);}
+.btn-out{display:block;width:100%;padding:17px;border:none;border-radius:14px;background:linear-gradient(135deg,#dc2626,#f97316);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;cursor:pointer;text-align:center;box-shadow:0 8px 24px -8px rgba(220,38,38,.5);transition:transform .12s;-webkit-tap-highlight-color:transparent;}
+.btn-out:active{transform:scale(0.97);}
+.on-shift-bar{background:rgba(22,163,74,.12);border:1px solid rgba(22,163,74,.25);border-radius:11px;padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;gap:8px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.on-shift-txt{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;}
+.done-bar{background:rgba(33,84,244,.1);border:1px solid rgba(33,84,244,.2);border-radius:11px;padding:11px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b8fc9;text-align:center;}
 
 /* Stats */
-.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:16px 20px 0;}
-.stat-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:14px 10px;text-align:center;}
-.stat-v{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#2154f4;font-variant-numeric:tabular-nums;}
-.stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#555;margin-top:4px;letter-spacing:0.5px;}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px 18px;}
+.stat{background:#151515;border:1px solid #1e1e1e;border-radius:13px;padding:13px 8px;text-align:center;}
+.stat-v{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#2154f4;}
+.stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:#444;margin-top:3px;letter-spacing:.5px;}
 
 /* Tabs */
-.tab-section{padding:0 20px;}
-.tab-row{display:flex;gap:6px;margin:16px 0 14px;background:#1a1a1a;border-radius:12px;padding:4px;}
+.tab-area{padding:0 18px 80px;}
+.tab-row{display:flex;gap:5px;margin:12px 0 12px;background:#151515;border-radius:11px;padding:3px;}
 .tab{flex:1;padding:9px;border-radius:9px;border:none;background:transparent;color:#555;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
-.tab.active{background:#2a2a2a;color:#f0f0ee;}
-.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.month-label{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;}
-.nav-btn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#888;}
+.tab.active{background:#222;color:#f0f0ee;}
+.mnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.mlabel{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff;}
+.mbtn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;width:30px;height:30px;color:#888;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.row{background:#151515;border:1px solid #1e1e1e;border-radius:11px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;}
+.row-date{font-weight:700;font-size:13px;color:#f0f0ee;}
+.row-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#444;margin-top:2px;}
+.row-pay{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4ade80;margin-top:2px;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 9px;border-radius:20px;}
+.bdone{background:rgba(22,163,74,.1);color:#4ade80;border:1px solid rgba(22,163,74,.2);}
+.blate{background:rgba(220,38,38,.1);color:#f87171;border:1px solid rgba(220,38,38,.2);}
+.bactive{background:rgba(33,84,244,.1);color:#6b8fc9;border:1px solid rgba(33,84,244,.2);}
+.card{background:#151515;border:1px solid #1e1e1e;border-radius:13px;padding:15px;margin-bottom:9px;}
+.card-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #1e1e1e;font-size:13px;}
+.card-row:last-child{border-bottom:none;}
+.card-total{display:flex;justify-content:space-between;padding:9px 0 4px;font-size:15px;font-weight:800;border-top:2px solid #222;margin-top:4px;}
+.empty{text-align:center;padding:36px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#333;}
+.signout{display:block;width:100%;padding:12px;border:1px solid #1e1e1e;border-radius:11px;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#444;cursor:pointer;margin-top:8px;}
 
-/* Shift rows */
-.shift-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
-.shift-date{font-weight:700;font-size:13px;color:#f0f0ee;}
-.shift-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:#555;margin-top:2px;}
-.shift-pay{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4ade80;margin-top:2px;}
-.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 9px;border-radius:20px;font-weight:600;}
-.badge.done{background:rgba(22,163,74,0.12);color:#4ade80;border:1px solid rgba(22,163,74,0.2);}
-.badge.late{background:rgba(220,38,38,0.12);color:#f87171;border:1px solid rgba(220,38,38,0.2);}
-.badge.active{background:rgba(33,84,244,0.12);color:#6b8fc9;border:1px solid rgba(33,84,244,0.2);}
-.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:16px;margin-bottom:10px;}
-.empty{text-align:center;padding:40px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#444;}
-.leave-row{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
-.signout-btn{width:calc(100% - 40px);margin:20px 20px 0;padding:13px;border:1px solid #2a2a2a;border-radius:12px;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#555;cursor:pointer;}
-/* Kiosk mode */
-.kiosk-toggle{display:flex;align-items:center;gap:8px;margin-top:24px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.kiosk-toggle-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#444;letter-spacing:0.5px;}
-.kiosk-switch{width:36px;height:20px;background:#2a2a2a;border-radius:10px;position:relative;transition:background .2s;flex-shrink:0;}
-.kiosk-switch.on{background:#2154f4;}
-.kiosk-switch::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s;}
-.kiosk-switch.on::after{transform:translateX(16px);}
-/* Success overlay shown in kiosk mode after clock-in/out */
-#kioskSuccess{display:none;position:fixed;inset:0;background:#0d0d0d;z-index:999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
-#kioskSuccess.show{display:flex;}
-.kiosk-success-icon{font-size:64px;margin-bottom:20px;}
-.kiosk-success-title{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:8px;}
-.kiosk-success-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;margin-bottom:32px;}
-.kiosk-countdown{font-family:'JetBrains Mono',monospace;font-size:11px;color:#333;}
+/* Kiosk success */
+#kioskOv{display:none;position:fixed;inset:0;background:#0d0d0d;z-index:999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;}
+#kioskOv.show{display:flex;}
+.k-icon{font-size:64px;margin-bottom:18px;}
+.k-title{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:6px;}
+.k-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;margin-bottom:24px;}
+.k-cd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#2a2a2a;}
 </style>
-<link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
 
-<nav>
-  <div class="nav-logo"><div class="nav-logo-dot"></div>ShiftHQ</div>
-  <div id="navName" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;"></div>
+<nav class="nav">
+  <div class="nav-logo"><div class="nav-dot"></div>ShiftHQ</div>
+  <div class="nav-emp" id="navEmp"></div>
 </nav>
 
-<div class="container">
-
-<!-- PIN SCREEN -->
-<div id="pinScreen">
-  <div class="login-heading">Welcome back</div>
-  <div class="login-sub">ENTER YOUR CODE TO CLOCK IN</div>
-  <div class="field-group">
-    <input type="text" id="bizCodeEntry" placeholder="Business code" class="field-input" autocapitalize="none" spellcheck="false">
-    <input type="text" id="empNameEntry" placeholder="Your name" class="field-input">
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-title">Welcome back</div>
+  <div class="login-sub">ENTER YOUR DETAILS TO CLOCK IN</div>
+  <input type="text" id="bizCode" class="inp" placeholder="Business code" autocapitalize="none" spellcheck="false">
+  <input type="text" id="empName" class="inp" placeholder="Your name">
+  <div class="dots" id="dots">
+    <div class="dot" id="d0"></div><div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div><div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div><div class="dot" id="d5"></div>
   </div>
-  <div class="pin-dots" id="pinDots">
-    <div class="pin-dot" id="d0"></div>
-    <div class="pin-dot" id="d1"></div>
-    <div class="pin-dot" id="d2"></div>
-    <div class="pin-dot" id="d3"></div>
-    <div class="pin-dot" id="d4"></div>
-    <div class="pin-dot" id="d5"></div>
-  </div>
-  <div class="pin-pad">
-    <button class="pin-btn" onclick="pinPress('1')">1</button>
-    <button class="pin-btn" onclick="pinPress('2')">2</button>
-    <button class="pin-btn" onclick="pinPress('3')">3</button>
-    <button class="pin-btn" onclick="pinPress('4')">4</button>
-    <button class="pin-btn" onclick="pinPress('5')">5</button>
-    <button class="pin-btn" onclick="pinPress('6')">6</button>
-    <button class="pin-btn" onclick="pinPress('7')">7</button>
-    <button class="pin-btn" onclick="pinPress('8')">8</button>
-    <button class="pin-btn" onclick="pinPress('9')">9</button>
-    <button class="pin-btn pin-btn-back" onclick="pinPress('C')">⌫</button>
-    <button class="pin-btn" onclick="pinPress('0')">0</button>
-    <button class="pin-btn pin-btn-ok" onclick="pinPress('OK')">OK</button>
+  <div class="pad">
+    <button class="k" onclick="kp('1')">1</button><button class="k" onclick="kp('2')">2</button><button class="k" onclick="kp('3')">3</button>
+    <button class="k" onclick="kp('4')">4</button><button class="k" onclick="kp('5')">5</button><button class="k" onclick="kp('6')">6</button>
+    <button class="k" onclick="kp('7')">7</button><button class="k" onclick="kp('8')">8</button><button class="k" onclick="kp('9')">9</button>
+    <button class="k k-del" onclick="kp('DEL')">⌫</button><button class="k" onclick="kp('0')">0</button><button class="k k-ok" onclick="kp('OK')">OK</button>
   </div>
   <div class="pin-err" id="pinErr"></div>
-  <!-- Kiosk mode toggle — manager enables this once on a shared counter device -->
-  <div class="kiosk-toggle" onclick="toggleKiosk()">
-    <div class="kiosk-switch" id="kioskSwitch"></div>
-    <div class="kiosk-toggle-label">KIOSK MODE (shared device)</div>
+  <div class="kiosk-row" onclick="toggleKiosk()">
+    <div class="sw" id="sw"></div>
+    <div class="kiosk-label">KIOSK MODE (shared counter device)</div>
   </div>
 </div>
-
-<!-- Kiosk success overlay — shown after clock-in/out before auto-resetting -->
-<div id="kioskSuccess">
-  <div class="kiosk-success-icon" id="kioskSuccessIcon">✅</div>
-  <div class="kiosk-success-title" id="kioskSuccessTitle"></div>
-  <div class="kiosk-success-sub" id="kioskSuccessSub"></div>
-  <div class="kiosk-countdown" id="kioskCountdown"></div>
-</div>
-
-
-</div><!-- end container -->
 
 <!-- PORTAL -->
-<div id="portal">
-
-  <!-- Hero identity card -->
-  <div class="portal-hero">
-    <div class="hero-identity">
-      <div class="hero-avatar" id="portalAvatar"></div>
+<div id="portalScreen">
+  <div class="hero">
+    <div class="hero-top">
+      <div class="avatar" id="av"></div>
       <div>
-        <div class="hero-name" id="portalName"></div>
-        <div class="hero-role" id="portalRole"></div>
-        <div class="hero-biz" id="portalBiz"></div>
+        <div class="emp-name" id="pName"></div>
+        <div class="emp-role" id="pRole"></div>
+        <div class="emp-biz" id="pBiz"></div>
       </div>
     </div>
-    <div id="portalGreeting" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b8fc9;margin-bottom:16px;letter-spacing:0.5px;"></div>
-    <!-- Check In / Out button -->
-    <div id="clockCard"><button class="clock-in-btn" onclick="doClockIn()">▶ Clock In</button></div>
+    <div class="greeting" id="pGreeting"></div>
+    <div id="clockCard">
+      <button class="btn-in" onclick="clockIn()">▶ Clock In</button>
+    </div>
   </div>
 
-  <!-- Stats strip -->
-  <div class="stat-row" id="portalStats"></div>
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-v">—</div><div class="stat-k">THIS MONTH</div></div>
+    <div class="stat"><div class="stat-v">—</div><div class="stat-k">TAKE HOME</div></div>
+    <div class="stat"><div class="stat-v">—</div><div class="stat-k">ON SHIFT</div></div>
+  </div>
 
-  <!-- Tabs + content -->
-  <div class="tab-section">
+  <div class="tab-area">
     <div class="tab-row">
-      <button class="tab active" onclick="showTab('shifts',this)">Shifts</button>
-      <button class="tab" onclick="showTab('leaves',this)">Leave</button>
-      <button class="tab" onclick="showTab('pay',this)">Pay</button>
+      <button class="tab active" onclick="switchTab('shifts',this)">Shifts</button>
+      <button class="tab" onclick="switchTab('leaves',this)">Leave</button>
+      <button class="tab" onclick="switchTab('pay',this)">Pay</button>
     </div>
-
-    <div class="month-nav">
-      <button class="nav-btn" onclick="chMonth(-1)">‹</button>
-      <div class="month-label" id="monthLabel"></div>
-      <button class="nav-btn" onclick="chMonth(1)">›</button>
+    <div class="mnav">
+      <button class="mbtn" onclick="chMonth(-1)">‹</button>
+      <div class="mlabel" id="mLabel"></div>
+      <button class="mbtn" onclick="chMonth(1)">›</button>
     </div>
-
-    <div id="tab-shifts"><div id="shiftsList"></div></div>
-    <div id="tab-leaves" style="display:none;"><div id="leavesList"></div></div>
-    <div id="tab-pay" style="display:none;"><div id="payCard"></div></div>
+    <div id="tabContent"></div>
+    <button class="signout" onclick="signOut()">Sign out</button>
   </div>
-
-  <button class="signout-btn" onclick="logout()">Sign out</button>
 </div>
 
-
+<!-- KIOSK SUCCESS -->
+<div id="kioskOv">
+  <div class="k-icon" id="kIcon"></div>
+  <div class="k-title" id="kTitle"></div>
+  <div class="k-sub" id="kSub"></div>
+  <div class="k-cd" id="kCd"></div>
+</div>
 
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
-var EMP_TOKEN = null;
-var empData = null;
-var allShifts = [], allLeaves = [], allDeds = [];
-var viewMonth = new Date();
-var currentPin = '';
-var currentTab = 'shifts';
-var kioskMode = localStorage.getItem('shq_kiosk_mode') === '1';
-var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var TOKEN = null;
+var emp = null;
+var shifts = [], leaves = [], deds = [];
+var pin = '';
+var tab = 'shifts';
+var vm = new Date();
+var kiosk = localStorage.getItem('shq_kiosk') === '1';
+var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-function toggleKiosk() {
-  kioskMode = !kioskMode;
-  localStorage.setItem('shq_kiosk_mode', kioskMode ? '1' : '0');
-  updateKioskSwitch();
-}
-function updateKioskSwitch() {
-  var sw = document.getElementById('kioskSwitch');
-  if (sw) { if (kioskMode) sw.classList.add('on'); else sw.classList.remove('on'); }
-}
-updateKioskSwitch();
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function dk(d){ var x=new Date(d); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmtd(d){ if(!d) return '—'; var x=new Date(d+'T00:00:00'); return x.getDate()+' '+mo[x.getMonth()]; }
+function now(){ var n=new Date(); return pad(n.getHours())+':'+pad(n.getMinutes()); }
 
-// Remember the business code on this device (not sensitive — just a shop identifier) so a shared kiosk doesn't need retyping it every time
-(function(){
-  var saved = localStorage.getItem('shq_kiosk_biz_code');
-  if (saved) {
-    var el = document.getElementById('bizCodeEntry');
-    if (el) el.value = saved;
-  }
-  // Restore employee session if still valid — but NOT in kiosk mode (shared device always shows login)
-  var savedToken = sessionStorage.getItem('shq_emp_token');
-  var savedEmp = sessionStorage.getItem('shq_emp_data');
-  if (!kioskMode && savedToken && savedEmp) {
-    try {
-      var payload = JSON.parse(atob(savedToken.split('.')[1]));
-      if (payload.exp && payload.exp * 1000 > Date.now()) {
-        // Token valid — hide login screen IMMEDIATELY (no flash) before async data load
-        var ps = document.getElementById('pinScreen');
-        if (ps) ps.style.display = 'none';
-        EMP_TOKEN = savedToken;
-        empData = JSON.parse(savedEmp);
-        loadPortalData().then(function(){
-          showPortal();
-        }).catch(function(){
-          sessionStorage.removeItem('shq_emp_token');
-          sessionStorage.removeItem('shq_emp_data');
-          var ps2 = document.getElementById('pinScreen');
-          if (ps2) ps2.style.display = '';
-        });
-      } else {
-        sessionStorage.removeItem('shq_emp_token');
-        sessionStorage.removeItem('shq_emp_data');
-      }
-    } catch(e) {
-      sessionStorage.removeItem('shq_emp_token');
-      sessionStorage.removeItem('shq_emp_data');
-    }
-  }
-})();
+// ── KIOSK TOGGLE ─────────────────────────────────────────────────────────────
+function toggleKiosk(){ kiosk=!kiosk; localStorage.setItem('shq_kiosk', kiosk?'1':'0'); renderSw(); }
+function renderSw(){ var s=document.getElementById('sw'); if(!s)return; if(kiosk)s.classList.add('on'); else s.classList.remove('on'); }
+renderSw();
 
-function dk(d) { var dt = new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }
-function fmt(d) { if (!d) return '—'; var dt = new Date(d + 'T00:00:00'); var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate() + ' ' + m[dt.getMonth()]; }
-
-// PIN entry
-function pinPress(key) {
+// ── PIN PAD ───────────────────────────────────────────────────────────────────
+function kp(k){
   var err = document.getElementById('pinErr');
   err.textContent = '';
-  if (key === 'C') { currentPin = currentPin.slice(0,-1); }
-  else if (key === 'OK') { doVerify(); return; }
-  else if (currentPin.length < 6) { currentPin += key; }
+  if(k==='DEL'){ pin=pin.slice(0,-1); }
+  else if(k==='OK'){ doVerify(); return; }
+  else if(pin.length<6){ pin+=k; }
   updateDots();
-  if (currentPin.length === 6) doVerify();
 }
-
-function updateDots() {
-  for (var i = 0; i < 6; i++) {
-    document.getElementById('d' + i).classList.toggle('filled', i < currentPin.length);
+function updateDots(){
+  for(var i=0;i<6;i++){
+    var d=document.getElementById('d'+i);
+    if(d){ if(i<pin.length)d.classList.add('on'); else d.classList.remove('on'); }
   }
 }
 
-async function doVerify() {
-  if (currentPin.length < 4) { document.getElementById('pinErr').textContent = 'Enter your PIN'; return; }
-  var bizCode = document.getElementById('bizCodeEntry').value.trim().toLowerCase();
-  var empName = document.getElementById('empNameEntry').value.trim();
-  if (!bizCode) { document.getElementById('pinErr').textContent = 'Enter your business code'; return; }
-  if (!empName) { document.getElementById('pinErr').textContent = 'Enter your name'; return; }
+// ── VERIFY / LOGIN ────────────────────────────────────────────────────────────
+async function doVerify(){
+  var code=document.getElementById('bizCode').value.trim().toLowerCase();
+  var name=document.getElementById('empName').value.trim();
+  var err=document.getElementById('pinErr');
+  if(!code||!name||!pin){ err.textContent='Fill in all fields and PIN'; return; }
+  err.textContent='Verifying...';
   try {
-    var verR = await fetch(API + '/api/employees/verify-pin', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({business_code: bizCode, name: empName, pin: currentPin})
+    var r = await fetch(API+'/api/employees/verify-pin',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({business_code:code,name,pin})
     });
-    var ver = await verR.json();
-    if (verR.status === 404) { document.getElementById('pinErr').textContent = 'Employee not found'; currentPin = ''; updateDots(); return; }
-    if (!ver.match) { document.getElementById('pinErr').textContent = ver.error || 'Wrong PIN'; currentPin = ''; updateDots(); return; }
-    // Store scoped employee token for authenticated reads
-    EMP_TOKEN = ver.emp_token;
-    localStorage.setItem('shq_kiosk_biz_code', bizCode);
-    sessionStorage.setItem('shq_emp_token', EMP_TOKEN);
-    sessionStorage.setItem('shq_emp_data', JSON.stringify(ver.employee));
-    empData = ver.employee;
-    empData.biz_id = ver.employee.business_id;
-    empData.biz_name = bizCode.toUpperCase();
-    // Fetch business name (public route)
-    try {
-      var bizR = await fetch(API + '/api/business/' + bizCode);
-      if (bizR.ok) { var biz = await bizR.json(); empData.biz_name = biz.name; }
-    } catch(e) {}
-    await loadPortalData();
+    var data = await r.json();
+    if(!r.ok||!data.valid){ err.textContent=data.error||'Wrong PIN or name'; pin=''; updateDots(); return; }
+    TOKEN = data.emp_token;
+    emp = data.employee;
+    emp.biz_id = emp.business_id;
+    // Try to get business name
+    try{
+      var br=await fetch(API+'/api/business/'+code);
+      if(br.ok){var bd=await br.json();emp.biz_name=bd.name||code.toUpperCase();}
+    }catch(e){emp.biz_name=code.toUpperCase();}
+    localStorage.setItem('shq_kiosk_biz_code', code);
+    sessionStorage.setItem('shq_emp_token', TOKEN);
+    sessionStorage.setItem('shq_emp_data', JSON.stringify(emp));
+    await loadData();
     showPortal();
-  } catch(e) { document.getElementById('pinErr').textContent = 'Connection error'; currentPin = ''; updateDots(); }
+  } catch(e){ err.textContent='Connection error. Try again.'; pin=''; updateDots(); }
 }
 
-async function loadPortalData() {
-  var h = {'x-emp-token': EMP_TOKEN};
-  try {
-    var sr = await fetch(API + '/api/shifts?business_id=' + empData.biz_id, { headers: h });
-    var allS = await sr.json();
-    allShifts = (Array.isArray(allS) ? allS : []).filter(function(s){ return s.emp_id === empData.id; });
-  } catch(e) { console.error('Failed to load shifts:', e); allShifts = []; }
-  try {
-    var lr = await fetch(API + '/api/leaves?business_id=' + empData.biz_id, { headers: h });
-    var allL = await lr.json();
-    allLeaves = (Array.isArray(allL) ? allL : []).filter(function(l){ return l.emp_id === empData.id; });
-  } catch(e) { console.error('Failed to load leaves:', e); allLeaves = []; }
-  try {
-    var dr = await fetch(API + '/api/deductions?business_id=' + empData.biz_id, { headers: h });
-    var allD = await dr.json();
-    allDeds = (Array.isArray(allD) ? allD : []).filter(function(d){ return d.emp_id === empData.id; });
-  } catch(e) { console.error('Failed to load deductions:', e); allDeds = []; }
+// ── LOAD DATA ─────────────────────────────────────────────────────────────────
+async function loadData(){
+  if(!TOKEN||!emp) return;
+  var h={'x-emp-token':TOKEN};
+  try{ var r=await fetch(API+'/api/shifts?business_id='+emp.biz_id,{headers:h}); var d=await r.json(); shifts=(Array.isArray(d)?d:[]).filter(function(s){return s.emp_id===emp.id;}); }catch(e){shifts=[];}
+  try{ var r2=await fetch(API+'/api/leaves?business_id='+emp.biz_id,{headers:h}); var d2=await r2.json(); leaves=(Array.isArray(d2)?d2:[]).filter(function(l){return l.emp_id===emp.id;}); }catch(e){leaves=[];}
+  try{ var r3=await fetch(API+'/api/deductions?business_id='+emp.biz_id,{headers:h}); var d3=await r3.json(); deds=(Array.isArray(d3)?d3:[]).filter(function(d){return d.emp_id===emp.id;}); }catch(e){deds=[];}
 }
 
-function showPortal() {
-  document.getElementById('pinScreen').style.display = 'none';
-  document.getElementById('portal').style.display = '';
-  var displayName = (empData && empData.name) ? empData.name : 'You';
-  document.getElementById('navName').textContent = displayName;
-  document.getElementById('portalAvatar').textContent = displayName[0] ? displayName[0].toUpperCase() : '?';
-  document.getElementById('portalName').textContent = displayName;
-  document.getElementById('portalRole').textContent = (empData.role || 'Staff').toUpperCase();
-  var bizEl = document.getElementById('portalBiz');
-  if (bizEl) bizEl.textContent = empData.biz_name || '';
-  // Greeting based on time of day
-  var h = new Date().getHours();
-  var greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  var greetEl = document.getElementById('portalGreeting');
-  if (greetEl) greetEl.textContent = greet + ', ' + displayName.split(' ')[0] + '. Have a great shift! 👋';
-  try { renderClockCard(); } catch(e) { console.error('renderClockCard failed:', e); }
-  try { renderStats(); } catch(e) { console.error('renderStats failed:', e); }
-  try { renderMonth(); } catch(e) { console.error('renderMonth failed:', e); }
+// ── SHOW PORTAL ───────────────────────────────────────────────────────────────
+function showPortal(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('portalScreen').style.display='block';
+  var name=emp.name||'You';
+  document.getElementById('navEmp').textContent=name;
+  document.getElementById('av').textContent=name[0].toUpperCase();
+  document.getElementById('pName').textContent=name;
+  document.getElementById('pRole').textContent=(emp.role||'Staff').toUpperCase();
+  document.getElementById('pBiz').textContent=emp.biz_name||'';
+  var h=new Date().getHours();
+  var g=h<12?'Good morning':'Good afternoon';
+  if(h>=17) g='Good evening';
+  document.getElementById('pGreeting').textContent=g+', '+name.split(' ')[0]+'. Have a great shift! 👋';
+  renderClock();
+  renderStats();
+  renderTab();
 }
 
-function renderClockCard() {
-  var today = dk(new Date());
-  var shift = allShifts.find(function(s){ return s.date === today; });
-  var el = document.getElementById('clockCard');
-  if (!el) return;
-  if (!shift) {
-    el.innerHTML = '<button class="clock-in-btn" onclick="doClockIn()">▶ Clock In</button>';
-  } else if (shift.check_in && !shift.check_out) {
-    var since = shift.check_in ? shift.check_in.slice(0,5) : '';
-    el.innerHTML =
-      '<div class="shift-status-bar"><div class="shift-status-dot"></div><div class="shift-status-text">ON SHIFT SINCE ' + since + '</div></div>' +
-      '<button class="clock-out-btn" onclick="doClockOut(' + shift.id + ')">■ Clock Out</button>';
+// ── CLOCK CARD ────────────────────────────────────────────────────────────────
+function renderClock(){
+  var today=dk(new Date());
+  var s=shifts.find(function(x){return x.date===today;});
+  var el=document.getElementById('clockCard');
+  if(!el) return;
+  if(!s){
+    el.innerHTML='<button class="btn-in" onclick="clockIn()">▶ Clock In</button>';
+  } else if(s.check_in&&!s.check_out){
+    el.innerHTML='<div class="on-shift-bar"><div class="pulse"></div><div class="on-shift-txt">ON SHIFT SINCE '+s.check_in.slice(0,5)+'</div></div>'+
+      '<button class="btn-out" onclick="clockOut('+s.id+')">■ Clock Out</button>';
   } else {
-    var hrs = (parseFloat(shift.hours)||0).toFixed(2);
-    el.innerHTML = '<div class="done-bar">✓ Done today · ' + shift.check_in.slice(0,5) + ' → ' + shift.check_out.slice(0,5) + ' · ' + hrs + 'h</div>';
+    var hrs=(parseFloat(s.hours)||0).toFixed(2);
+    el.innerHTML='<div class="done-bar">✓ Done today · '+s.check_in.slice(0,5)+' → '+s.check_out.slice(0,5)+' · '+hrs+'h</div>';
   }
 }
 
-function showKioskSuccess(icon, title, sub) {
-  document.getElementById('kioskSuccessIcon').textContent = icon;
-  document.getElementById('kioskSuccessTitle').textContent = title;
-  document.getElementById('kioskSuccessSub').textContent = sub;
-  document.getElementById('kioskSuccess').classList.add('show');
-  var secs = 4;
-  var cd = document.getElementById('kioskCountdown');
-  cd.textContent = 'Returning to login in ' + secs + '...';
-  var timer = setInterval(function() {
-    secs--;
-    if (secs <= 0) {
-      clearInterval(timer);
-      document.getElementById('kioskSuccess').classList.remove('show');
-      logout();
-    } else {
-      cd.textContent = 'Returning to login in ' + secs + '...';
-    }
-  }, 1000);
-}
-
-async function doClockIn() {
-  var btn = document.querySelector('.clock-in-btn');
-  if (btn) { btn.textContent = 'Clocking in...'; btn.disabled = true; }
-  try {
-    var now = new Date();
-    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    var r = await fetch(API + '/api/shifts', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-emp-token': EMP_TOKEN},
-      body: JSON.stringify({ emp_id: empData.id, business_id: empData.biz_id, date: dk(now), check_in: timeStr })
+// ── CLOCK IN/OUT ──────────────────────────────────────────────────────────────
+async function clockIn(){
+  var el=document.getElementById('clockCard');
+  el.innerHTML='<button class="btn-in" disabled style="opacity:.6;">Clocking in...</button>';
+  try{
+    var t=now();
+    var r=await fetch(API+'/api/shifts',{
+      method:'POST',headers:{'Content-Type':'application/json','x-emp-token':TOKEN},
+      body:JSON.stringify({emp_id:emp.id,business_id:emp.biz_id,date:dk(new Date()),check_in:t})
     });
-    var s = await r.json();
-    if (!r.ok) {
-      alert('Check-in failed: ' + (s.error || 'Unknown error') + ' (status ' + r.status + ')');
-      if (btn) { btn.textContent = '▶ Clock In'; btn.disabled = false; }
-      return;
-    }
-    allShifts.push(s);
-    if (kioskMode) {
-      showKioskSuccess('✅', 'Clocked in at ' + timeStr, empData.name + ' · ' + (empData.role || 'Staff'));
-    } else {
-      renderClockCard();
-      renderStats();
-    }
-  } catch(e) {
-    alert('Connection error: ' + e.message + '. Check your internet connection.');
-    if (btn) { btn.textContent = '▶ Clock In'; btn.disabled = false; }
-  }
+    var d=await r.json();
+    if(!r.ok){alert('Check-in failed: '+(d.error||r.status)); renderClock(); return;}
+    shifts.push(d);
+    if(kiosk){kioskFlash('✅','Clocked in at '+t,emp.name+' · '+(emp.role||'Staff'));}
+    else{renderClock();renderStats();}
+  }catch(e){alert('Connection error: '+e.message); renderClock();}
 }
 
-async function doClockOut(shiftId) {
-  try {
-    var now = new Date();
-    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    var r = await fetch(API + '/api/shifts/' + shiftId + '/checkout', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-emp-token': EMP_TOKEN},
-      body: JSON.stringify({ check_out: timeStr })
+async function clockOut(sid){
+  var el=document.getElementById('clockCard');
+  el.innerHTML='<button class="btn-out" disabled style="opacity:.6;">Clocking out...</button>';
+  try{
+    var t=now();
+    var r=await fetch(API+'/api/shifts/'+sid+'/checkout',{
+      method:'POST',headers:{'Content-Type':'application/json','x-emp-token':TOKEN},
+      body:JSON.stringify({check_out:t})
     });
-    var updated = await r.json();
-    if (!r.ok) { alert(updated.error || 'Could not check out'); return; }
-    var idx = allShifts.findIndex(function(s){ return s.id === shiftId; });
-    if (idx >= 0) allShifts[idx] = updated;
-    if (kioskMode) {
-      var hrs = (parseFloat(updated.hours)||0).toFixed(2);
-      showKioskSuccess('👋', 'Clocked out at ' + timeStr, empData.name + ' · ' + hrs + 'h today');
-    } else {
-      renderClockCard();
-      renderStats();
-      renderMonth();
-    }
-  } catch(e) { alert('Connection error'); }
+    var d=await r.json();
+    if(!r.ok){alert('Clock-out failed: '+(d.error||r.status)); renderClock(); return;}
+    var i=shifts.findIndex(function(s){return s.id===sid;});
+    if(i>=0)shifts[i]=d;
+    if(kiosk){var hrs=(parseFloat(d.hours)||0).toFixed(2); kioskFlash('👋','Clocked out at '+t,emp.name+' · '+hrs+'h today');}
+    else{renderClock();renderStats();renderTab();}
+  }catch(e){alert('Connection error: '+e.message); renderClock();}
 }
 
-function renderStats() {
-  var today = dk(new Date());
-  var thisMonth = today.slice(0,7);
-  var monthShifts = allShifts.filter(function(s){ return s.date && s.date.slice(0,7) === thisMonth && s.check_out; });
-  var totalH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
-  var regH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0); },0);
-  var otH = monthShifts.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); },0);
-  var rate = parseFloat(empData.rate)||0;
-  var bonuses = allDeds.filter(function(d){ return d.month===thisMonth && d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
-  var deductions = allDeds.filter(function(d){ return d.month===thisMonth && d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
-  var netPay = (regH*rate) + (otH*rate*1.5) + bonuses - deductions;
-  var onShift = allShifts.find(function(s){ return s.date===today && s.check_in && !s.check_out; });
-  document.getElementById('portalStats').innerHTML =
-    '<div class="stat-box"><div class="stat-v">' + totalH.toFixed(0) + 'h</div><div class="stat-k">THIS MONTH</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:#16a34a;">L ' + netPay.toFixed(0) + '</div><div class="stat-k">PAY DUE</div></div>' +
-    '<div class="stat-box"><div class="stat-v" style="color:' + (onShift?'#2154f4':'#888') + ';">' + (onShift?'Yes':'No') + '</div><div class="stat-k">ON SHIFT</div></div>';
+// ── KIOSK FLASH ───────────────────────────────────────────────────────────────
+function kioskFlash(icon,title,sub){
+  document.getElementById('kIcon').textContent=icon;
+  document.getElementById('kTitle').textContent=title;
+  document.getElementById('kSub').textContent=sub;
+  var ov=document.getElementById('kioskOv');
+  ov.classList.add('show');
+  var s=4, cd=document.getElementById('kCd');
+  cd.textContent='Returning to login in '+s+'...';
+  var t=setInterval(function(){
+    s--;
+    if(s<=0){clearInterval(t);ov.classList.remove('show');signOut();}
+    else{cd.textContent='Returning to login in '+s+'...';}
+  },1000);
 }
 
-function chMonth(dir) { viewMonth.setMonth(viewMonth.getMonth()+dir); renderMonth(); }
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats(){
+  var ym=vm.getFullYear()+'-'+pad(vm.getMonth()+1);
+  var ms=shifts.filter(function(s){return s.date&&s.date.slice(0,7)===ym&&s.check_out;});
+  var totalH=ms.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);
+  var rate=parseFloat(emp.rate)||0;
+  var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);
+  var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);
+  var bon=deds.filter(function(d){return d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
+  var ded=deds.filter(function(d){return d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
+  var net=(regH*rate)+(otH*rate*1.5)+bon-ded;
+  var today=dk(new Date());
+  var onShift=!!shifts.find(function(s){return s.date===today&&s.check_in&&!s.check_out;});
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><div class="stat-v">'+totalH.toFixed(0)+'h</div><div class="stat-k">THIS MONTH</div></div>'+
+    '<div class="stat"><div class="stat-v" style="color:#4ade80;">L '+net.toFixed(0)+'</div><div class="stat-k">TAKE HOME</div></div>'+
+    '<div class="stat"><div class="stat-v" style="color:'+(onShift?'#60a5fa':'#333')+';">'+(onShift?'Yes':'No')+'</div><div class="stat-k">ON SHIFT</div></div>';
+}
 
-function renderMonth() {
-  document.getElementById('monthLabel').textContent = months[viewMonth.getMonth()] + ' ' + viewMonth.getFullYear();
-  var ym = viewMonth.getFullYear() + '-' + String(viewMonth.getMonth()+1).padStart(2,'0');
-  if (currentTab === 'shifts') renderShifts(ym);
-  else if (currentTab === 'leaves') renderLeaves(ym);
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(t,btn){
+  tab=t;
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderTab();
+}
+function chMonth(n){ vm.setMonth(vm.getMonth()+n); renderTab(); }
+
+function renderTab(){
+  var ym=vm.getFullYear()+'-'+pad(vm.getMonth()+1);
+  document.getElementById('mLabel').textContent=MO[vm.getMonth()]+' '+vm.getFullYear();
+  if(tab==='shifts') renderShifts(ym);
+  else if(tab==='leaves') renderLeaves(ym);
   else renderPay(ym);
 }
 
-function showTab(tab, btn) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('tab-shifts').style.display = tab==='shifts' ? '' : 'none';
-  document.getElementById('tab-leaves').style.display = tab==='leaves' ? '' : 'none';
-  document.getElementById('tab-pay').style.display = tab==='pay' ? '' : 'none';
-  renderMonth();
-}
-
-function renderShifts(ym) {
-  var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
-  var rate = parseFloat(empData.rate)||0;
-  var html = '';
-  if (ms.length === 0) { html = '<div class="empty">No shifts this month</div>'; }
-  else ms.forEach(function(s) {
-    var status = s.check_out ? (s.is_late ? 'late' : 'done') : (s.check_in ? 'active' : 'done');
-    var label = s.check_out ? (s.is_late ? 'Late' : 'Done') : 'On shift';
-    var hours = s.check_out ? (parseFloat(s.hours)||0).toFixed(1) + 'h' : '—';
-    var dayPay = '';
-    if (s.check_out) {
-      var regH = parseFloat(s.regular_hours) || parseFloat(s.hours) || 0;
-      var otH = parseFloat(s.ot_hours) || 0;
-      var pay = (regH*rate) + (otH*rate*1.5);
-      dayPay = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#16a34a;margin-top:2px;">L ' + pay.toFixed(0) + '</div>';
-    }
-    html += '<div class="shift-row">' +
-      '<div><div class="shift-date">' + fmt(s.date) + '</div>' +
-      '<div class="shift-time">' + (s.check_in||'—') + (s.check_out?' → '+s.check_out:'') + (s.is_late?' · <span style="color:#dc2626;">+'+s.late_minutes+'m late</span>':'') + '</div>' + dayPay + '</div>' +
-      '<div style="display:flex;align-items:center;gap:7px;">' +
-      '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#888;">' + hours + '</span>' +
-      '<span class="badge ' + status + '">' + label + '</span>' +
-      '</div></div>';
+function renderShifts(ym){
+  var ms=shifts.filter(function(s){return s.date&&s.date.slice(0,7)===ym;}).sort(function(a,b){return b.date.localeCompare(a.date);});
+  var rate=parseFloat(emp.rate)||0;
+  if(!ms.length){document.getElementById('tabContent').innerHTML='<div class="empty">No shifts this month</div>';return;}
+  var h='';
+  ms.forEach(function(s){
+    var done=s.check_out;
+    var late=s.is_late;
+    var badge=done?(late?'<span class="badge blate">Late</span>':'<span class="badge bdone">Done</span>'):'<span class="badge bactive">On shift</span>';
+    var regH=parseFloat(s.regular_hours)||parseFloat(s.hours)||0;
+    var otH=parseFloat(s.ot_hours)||0;
+    var pay=done?'<div class="row-pay">L '+(regH*rate+otH*rate*1.5).toFixed(0)+'</div>':'';
+    h+='<div class="row"><div>'+
+      '<div class="row-date">'+fmtd(s.date)+'</div>'+
+      '<div class="row-time">'+(s.check_in||'—')+(s.check_out?' → '+s.check_out:'')+(late?' · +'+s.late_minutes+'m late':'')+' </div>'+
+      pay+'</div>'+badge+'</div>';
   });
-  document.getElementById('shiftsList').innerHTML = html;
+  document.getElementById('tabContent').innerHTML=h;
 }
 
-function renderLeaves(ym) {
-  var ml = allLeaves.filter(function(l){ return l.date && l.date.slice(0,7)===ym; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
-  var html = '';
-  if (ml.length === 0) { html = '<div class="empty">No leave this month</div>'; }
-  else ml.forEach(function(l) {
-    html += '<div class="leave-row"><div><div class="shift-date">' + fmt(l.date) + '</div>' +
-      (l.note ? '<div class="shift-time">' + l.note + '</div>' : '') + '</div>' +
-      '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;">' + (l.type||'Leave') + '</span>' +
-      '</div>';
+function renderLeaves(ym){
+  var ml=leaves.filter(function(l){return l.date&&l.date.slice(0,7)===ym;});
+  if(!ml.length){document.getElementById('tabContent').innerHTML='<div class="empty">No leave this month</div>';return;}
+  var h='';
+  ml.forEach(function(l){
+    h+='<div class="row"><div><div class="row-date">'+fmtd(l.date)+'</div><div class="row-time">'+(l.type||'Leave')+(l.note?' · '+l.note:'')+'</div></div><span class="badge bactive">'+(l.status||'—')+'</span></div>';
   });
-  document.getElementById('leavesList').innerHTML = html;
+  document.getElementById('tabContent').innerHTML=h;
 }
 
-function renderPay(ym) {
-  var ms = allShifts.filter(function(s){ return s.date && s.date.slice(0,7)===ym && s.check_out; });
-  var totalH = ms.reduce(function(a,s){ return a+(parseFloat(s.hours)||0); },0);
-  var regH = ms.reduce(function(a,s){ return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0); },0);
-  var otH = ms.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); },0);
-  var rate = parseFloat(empData.rate)||0;
-  var basePay = regH * rate;
-  var otPay = otH * rate * 1.5;
-  var bonuses = allDeds.filter(function(d){ return d.month===ym && d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
-  var deductions = allDeds.filter(function(d){ return d.month===ym && d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); },0);
-  var gross = basePay + otPay + bonuses - deductions;
-  var lateCount = ms.filter(function(s){ return s.is_late; }).length;
-  document.getElementById('payCard').innerHTML =
-    '<div class="card">' +
-    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:#888;margin-bottom:12px;">PAY SUMMARY — ' + months[viewMonth.getMonth()].toUpperCase() + ' ' + viewMonth.getFullYear() + '</div>' +
-    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Shifts worked</span><span style="font-weight:600;">' + ms.length + '</span></div>' +
-    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Total hours</span><span style="font-weight:600;">' + totalH.toFixed(2) + 'h</span></div>' +
-    '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Regular (' + regH.toFixed(2) + 'h × L ' + rate.toFixed(2) + ')</span><span>L ' + basePay.toFixed(2) + '</span></div>' +
-    (otH > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span>Overtime (' + otH.toFixed(2) + 'h × 1.5)</span><span>L ' + otPay.toFixed(2) + '</span></div>' : '') +
-    (bonuses > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#16a34a;">Bonuses</span><span style="color:#16a34a;">+L ' + bonuses.toFixed(2) + '</span></div>' : '') +
-    (deductions > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#dc2626;">Deductions</span><span style="color:#dc2626;">-L ' + deductions.toFixed(2) + '</span></div>' : '') +
-    (lateCount > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f2f1ee;font-size:13px;"><span style="color:#dc2626;">Late arrivals</span><span style="color:#dc2626;">' + lateCount + 'x</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px;border-top:2px solid #e8e6e1;font-size:15px;font-weight:800;"><span>Pay Due</span><span style="color:#2154f4;">L ' + gross.toFixed(2) + '</span></div>' +
+function renderPay(ym){
+  var ms=shifts.filter(function(s){return s.date&&s.date.slice(0,7)===ym&&s.check_out;});
+  var rate=parseFloat(emp.rate)||0;
+  var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);
+  var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);
+  var bon=deds.filter(function(d){return d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
+  var ded=deds.filter(function(d){return d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
+  var gross=regH*rate+otH*rate*1.5+bon-ded;
+  var late=ms.filter(function(s){return s.is_late;}).length;
+  var h='<div class="card">'+
+    '<div class="card-row"><span>Shifts worked</span><span style="font-weight:700;">'+ms.length+'</span></div>'+
+    '<div class="card-row"><span>Total hours</span><span>'+( regH+otH).toFixed(2)+'h</span></div>'+
+    '<div class="card-row"><span>Regular ('+regH.toFixed(2)+'h × L '+rate.toFixed(0)+')</span><span>L '+( regH*rate).toFixed(2)+'</span></div>'+
+    (otH>0?'<div class="card-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>L '+(otH*rate*1.5).toFixed(2)+'</span></div>':'')+
+    (bon>0?'<div class="card-row"><span style="color:#4ade80;">Bonuses</span><span style="color:#4ade80;">+L '+bon.toFixed(2)+'</span></div>':'')+
+    (ded>0?'<div class="card-row"><span style="color:#f87171;">Deductions</span><span style="color:#f87171;">-L '+ded.toFixed(2)+'</span></div>':'')+
+    (late>0?'<div class="card-row"><span style="color:#f87171;">Late arrivals</span><span style="color:#f87171;">'+late+'×</span></div>':'')+
+    '<div class="card-total"><span>Pay Due</span><span style="color:#2154f4;">L '+gross.toFixed(2)+'</span></div>'+
     '</div>';
+  document.getElementById('tabContent').innerHTML=h;
 }
 
-function logout() {
-  empData = null;
-  EMP_TOKEN = null;
-  allShifts = [];
-  allLeaves = [];
-  allDeds = [];
-  currentPin = '';
+// ── SIGN OUT ──────────────────────────────────────────────────────────────────
+function signOut(){
+  TOKEN=null; emp=null; shifts=[]; leaves=[]; deds=[]; pin='';
   sessionStorage.removeItem('shq_emp_token');
   sessionStorage.removeItem('shq_emp_data');
   updateDots();
-  document.getElementById('portal').style.display = 'none';
-  document.getElementById('pinScreen').style.display = '';
-  document.getElementById('pinErr').textContent = '';
-  document.getElementById('empNameEntry').value = '';
+  document.getElementById('portalScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('pinErr').textContent='';
+  document.getElementById('empName').value='';
+  document.getElementById('navEmp').textContent='';
 }
+
+// ── SESSION RESTORE (survives refresh, not new tab) ───────────────────────────
+(function(){
+  // Pre-fill business code from memory
+  var bc=localStorage.getItem('shq_kiosk_biz_code');
+  if(bc){ var el=document.getElementById('bizCode'); if(el)el.value=bc; }
+
+  // Restore session from sessionStorage (clears on new tab — so shared device starts fresh)
+  if(!kiosk){
+    var t=sessionStorage.getItem('shq_emp_token');
+    var e=sessionStorage.getItem('shq_emp_data');
+    if(t&&e){
+      try{
+        var pl=JSON.parse(atob(t.split('.')[1]));
+        if(pl.exp&&pl.exp*1000>Date.now()){
+          // Valid token — hide login immediately (no flash)
+          document.getElementById('loginScreen').style.display='none';
+          TOKEN=t; emp=JSON.parse(e);
+          loadData().then(function(){ showPortal(); }).catch(function(){
+            document.getElementById('loginScreen').style.display='flex';
+            sessionStorage.removeItem('shq_emp_token');
+            sessionStorage.removeItem('shq_emp_data');
+          });
+        } else {
+          sessionStorage.removeItem('shq_emp_token');
+          sessionStorage.removeItem('shq_emp_data');
+        }
+      }catch(ex){
+        sessionStorage.removeItem('shq_emp_token');
+        sessionStorage.removeItem('shq_emp_data');
+      }
+    }
+  }
+})();
 </script>
 </body>
 </html>
-
-
