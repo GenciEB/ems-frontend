@@ -420,12 +420,14 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 <!-- UPGRADE TO PRO MODAL (manual payment) -->
 <div class="modal-ov" id="upgradeModal">
   <div class="modal-card">
-    <div class="modal-title">Upgrade to Pro — L 1000/month</div>
+    <div class="modal-title" id="upgradeModalTitle">Upgrade to Pro — L 1,000/month</div>
     <div class="form-s">
       <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
-        Pro is activated manually — no card required. Send payment using the details below, then let us know it's done.
+        Plans are activated manually — no card required. Send payment using the details below, then let us know.
       </div>
-      <div class="card" style="background:var(--bg2);margin-bottom:14px;">
+      <div class="card" style="background:var(--bg2);margin-bottom:12px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">AMOUNT</div>
+        <div id="upgradeModalPrice" style="font-size:15px;font-weight:700;color:var(--blue);margin-bottom:10px;">L 1,000/month or L 12,000/year</div>
         <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">BANK TRANSFER TO</div>
         <div style="font-size:14px;font-weight:700;">[Your bank account holder name]</div>
         <div style="font-family:var(--mono);font-size:13px;margin-top:4px;">[Your IBAN here]</div>
@@ -433,10 +435,10 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         <div id="upgradeRefCode" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--blue);"></div>
       </div>
       <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
-        Once we confirm the transfer, Pro is activated on your account within 24 hours and stays active for 30 days from that point.
+        Once we confirm the transfer, your plan is activated within 24 hours.
       </div>
       <div style="display:flex;gap:8px;">
-        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=ShiftHQ%20Pro%20payment%20sent">✉️ I've sent it — notify us</a>
+        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=ShiftHQ%20payment%20sent">✉️ I've sent it — notify us</a>
         <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
       </div>
     </div>
@@ -729,37 +731,44 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       <div style="text-align:right;"><div id="empUsage" style="font-family:var(--mono);font-size:10px;color:var(--text2);"></div><div style="width:90px;height:4px;background:var(--bg2);border-radius:3px;margin-top:5px;overflow:hidden;"><div id="empBarFill" style="height:100%;background:var(--blue);border-radius:3px;transition:width .3s;"></div></div></div>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;" id="plansGrid">
     <div class="plan-card" id="planFreeCard">
       <div class="plan-badge free">FREE</div>
-      <div class="plan-price">€0<span class="plan-per">/mo</span></div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 10px;">Starter</div>
-      <div class="pf">Up to 5 employees</div>
-      <div class="pf">Check in / out tracking</div>
-      <div class="pf">Live dashboard</div>
+      <div class="plan-price" style="font-size:20px;">€0<span class="plan-per">/mo</span></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 8px;">Starter</div>
+      <div class="pf">Up to 5 staff</div>
+      <div class="pf">Check in / out</div>
+      <div class="pf">Dashboard</div>
       <div class="pf">Leave tracking</div>
-      <div class="pf pf-no">Payroll & payslips</div>
+      <div class="pf pf-no">Payroll</div>
       <div class="pf pf-no">Scheduling</div>
-      <div class="pf pf-no">Bonuses & deductions</div>
-      <div class="pf pf-no">Reports & CSV export</div>
-      <div class="pf pf-no">Unlimited staff</div>
-      <div id="planFreeBtn" class="plan-btn-current">✓ Current Plan</div>
+      <div class="pf pf-no">Reports</div>
+      <div id="planFreeBtn" class="plan-btn-current" style="font-size:11px;">✓ Current</div>
     </div>
     <div class="plan-card pro" id="planProCard">
       <div class="plan-badge pro">PRO</div>
-      <div class="plan-price">€10<span class="plan-per">/mo</span></div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 10px;">Professional</div>
-      <div class="pf">Unlimited employees</div>
-      <div class="pf">Check in / out tracking</div>
-      <div class="pf">Live dashboard</div>
+      <div class="plan-price" style="font-size:20px;">L 1k<span class="plan-per">/mo</span></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 8px;">Professional</div>
+      <div class="pf">Unlimited staff</div>
+      <div class="pf">Check in / out</div>
+      <div class="pf">Dashboard</div>
       <div class="pf">Leave tracking</div>
-      <div class="pf">Payroll & payslips (PDF)</div>
-      <div class="pf">Shift scheduling</div>
-      <div class="pf">Bonuses & deductions</div>
-      <div class="pf">Reports & CSV export</div>
-      <div class="pf">Albanian tax calculator</div>
-      <div class="pf">Priority support</div>
-      <button class="plan-btn-upgrade" onclick="startUpgrade()">🚀 Upgrade to Pro</button>
+      <div class="pf">Payroll & payslips</div>
+      <div class="pf">Scheduling</div>
+      <div class="pf">Reports & CSV</div>
+      <div class="pf">Tax calculator</div>
+      <button class="plan-btn-upgrade" id="planProBtn" onclick="startUpgrade('pro')" style="font-size:11px;">🚀 Get Pro</button>
+    </div>
+    <div class="plan-card" id="planBizCard" style="border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.04);">
+      <div class="plan-badge" style="background:rgba(168,85,247,.15);color:#a855f7;border-color:rgba(168,85,247,.3);">BUSINESS</div>
+      <div class="plan-price" style="font-size:20px;color:#a855f7;">L 20k<span class="plan-per">/yr</span></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 8px;">Everything in Pro, plus:</div>
+      <div class="pf">Custom logo on payslips</div>
+      <div class="pf">Payroll history archive</div>
+      <div class="pf">Multi-location (soon)</div>
+      <div class="pf">Multi-manager (soon)</div>
+      <div class="pf">Accountant export (soon)</div>
+      <button class="plan-btn-upgrade" id="planBizBtn" onclick="startUpgrade('business')" style="font-size:11px;background:linear-gradient(135deg,#7c3aed,#a855f7);">⭐ Get Business</button>
     </div>
   </div>
   <div class="card" style="text-align:center;">
@@ -775,12 +784,29 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 </div>
 
 <!-- SECURITY -->
+<div id="page-history" class="page">
+  <div class="sh"><div class="sh-eye">Business</div><div class="sh-title">PAYROLL HISTORY</div></div>
+  <div id="historyContent"><div class="empty"><div class="ico">🗂</div><p>Loading history...</p></div></div>
+</div>
+
 <div id="page-security" class="page">
   <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">SECURITY</div><div class="sh-sub">Account & settings</div></div>
   <div class="card">
     <div class="card-lbl">Business Info</div>
     <div style="margin-bottom:8px;"><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">BUSINESS CODE</div><div style="font-size:17px;font-weight:700;" id="secBizCode">—</div></div>
     <div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">BUSINESS NAME</div><div style="font-size:15px;font-weight:600;" id="secBizName">—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-lbl">🏢 Business Logo on Payslips <span style="font-family:var(--mono);font-size:9px;background:rgba(168,85,247,.15);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:4px;padding:2px 6px;margin-left:6px;">BUSINESS</span></div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;">Upload your business logo — it appears on every PDF payslip. PNG or JPG, max 500KB.</div>
+    <div id="logoPreview" style="margin-bottom:10px;display:none;"><img id="logoImg" style="max-height:60px;max-width:180px;border-radius:6px;border:1px solid var(--border);padding:4px;" src=""></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="file" id="logoFile" accept="image/*" style="display:none;" onchange="previewLogo(this)">
+      <button class="btn btn-s" style="width:auto;padding:8px 14px;" onclick="document.getElementById('logoFile').click()">📁 Choose Image</button>
+      <button class="btn btn-p" style="width:auto;padding:8px 14px;" onclick="uploadLogo()" id="logoUploadBtn" style="display:none;">💾 Save Logo</button>
+      <button class="btn btn-d" style="width:auto;padding:8px 14px;display:none;" id="logoRemoveBtn" onclick="removeLogo()">✕ Remove</button>
+    </div>
+    <div id="logoMsg" style="font-family:var(--mono);font-size:11px;min-height:14px;margin-top:6px;"></div>
   </div>
   <div class="card">
     <div class="card-lbl">Change Password</div>
@@ -833,6 +859,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
   <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>DED</button>
   <button class="tb" onclick="goNav('analytics',this)" data-page="analytics"><span class="ic">📈</span>STATS</button>
   <button class="tb" onclick="goNav('reports',this)" data-page="reports"><span class="ic">📊</span>REPORT</button>
+  <button class="tb" onclick="goNav('history',this)" data-page="history"><span class="ic">🗂</span>HISTORY</button>
   <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
   <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
 </nav>
@@ -851,6 +878,7 @@ var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
 var currentPlanExpiry = null;
+var bizLogo = null; // base64 logo for Business tier payslips
 var FREE_EMP_LIMIT = 5;
 var payMonth = new Date();
 var vSchedWeek = new Date();
@@ -1120,9 +1148,14 @@ function goNav(page, btn) {
   var mgrOnly = ['employees','schedule','payroll','leaves','deductions','reports','plans','security'];
   if (mgrOnly.includes(page) && !IS_MGR) { toast('Manager access required', 'error'); return; }
   // Pro-only tabs — show upgrade prompt instead of content for Free plan users
-  var proOnly = ['payroll','schedule','deductions','analytics','reports'];
+  var proOnly = ['payroll','schedule','deductions','analytics','reports','history'];
   if (proOnly.includes(page) && !isPro()) {
     showUpgradePrompt(page);
+    return;
+  }
+  // History is Business-only even among Pro users
+  if (page === 'history' && !isBusiness()) {
+    showUpgradePrompt('history');
     return;
   }
   if (page === 'dash') renderDash();
@@ -1134,6 +1167,8 @@ function goNav(page, btn) {
   if (page === 'deductions') renderDeds();
   if (page === 'analytics') renderAnalytics();
   if (page === 'reports') renderReports();
+  if (page === 'history') renderHistory();
+  if (page === 'security') { renderSecurity(); loadLogoSettings(); }
   if (page === 'plans') renderPlans();
   if (page === 'security') renderSecurity();
 }
@@ -1177,7 +1212,8 @@ async function loadPlan() {
   try { var r = await aGet('/api/business/' + BIZ_CODE + '/plan'); currentPlan = r.plan || 'free'; currentPlanExpiry = r.pro_expires_at || null; } catch(e) { currentPlan = 'free'; currentPlanExpiry = null; }
 }
 
-function isPro() { return currentPlan === 'pro'; }
+function isPro() { return currentPlan === 'pro' || currentPlan === 'business'; }
+function isBusiness() { return currentPlan === 'business'; }
 
 function populateSelects() {
   ['leaveEmp','dedEmp','schedEmp','reportEmp'].forEach(function(id) {
@@ -1194,25 +1230,111 @@ function populateSelects() {
 }
 
 // ── DASHBOARD ──────────────────────────────────────────────────────────────
-// Show Pro upgrade prompt inside a Pro-gated tab
+// Show upgrade prompt inside a gated tab
 function showUpgradePrompt(page) {
+  var bizOnly = ['history'];
+  var isBizOnly = bizOnly.includes(page);
   var labels = {
-    payroll: 'Payroll & Payslips',
-    schedule: 'Shift Scheduling',
-    deductions: 'Bonuses & Deductions',
-    analytics: 'Analytics',
-    reports: 'Reports & CSV Export'
+    payroll:'Payroll & Payslips', schedule:'Shift Scheduling',
+    deductions:'Bonuses & Deductions', analytics:'Analytics',
+    reports:'Reports & CSV Export', history:'Payroll History Archive'
   };
   var pageEl = document.getElementById('page-' + page);
   if (!pageEl) return;
   pageEl.classList.add('active');
+  var emoji = isBizOnly ? '⭐' : '🔒';
+  var planLabel = isBizOnly ? 'Business' : 'Pro';
+  var btnFn = isBizOnly ? "startUpgrade('business')" : "startUpgrade('pro')";
   pageEl.innerHTML =
     '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;padding:32px 20px;text-align:center;">' +
-    '<div style="font-size:40px;margin-bottom:16px;">🔒</div>' +
+    '<div style="font-size:40px;margin-bottom:16px;">'+emoji+'</div>' +
     '<div style="font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:8px;">' + (labels[page]||page) + '</div>' +
-    '<div style="font-size:14px;color:var(--text2);max-width:280px;line-height:1.6;margin-bottom:24px;">This feature is available on the Pro plan. Upgrade to unlock payroll, scheduling, reports, and more.</div>' +
-    '<button class="btn btn-p" style="width:auto;padding:12px 24px;" onclick="goNav(\'plans\',document.querySelector(\'[data-page=plans]\'))">🚀 View Pro Plans</button>' +
+    '<div style="font-size:14px;color:var(--text2);max-width:280px;line-height:1.6;margin-bottom:24px;">This feature is available on the <strong>'+planLabel+' plan</strong>.</div>' +
+    '<button class="btn btn-p" style="width:auto;padding:12px 24px;" onclick="'+btnFn+'">🚀 View '+planLabel+' Plan</button>' +
     '</div>';
+}
+
+// ── LOGO UPLOAD (Business tier) ───────────────────────────────────────────────
+function previewLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('logoImg').src = e.target.result;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoUploadBtn').style.display = '';
+    document.getElementById('logoRemoveBtn').style.display = '';
+    bizLogo = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+async function uploadLogo() {
+  if (!bizLogo) return;
+  if (!isBusiness()) { toast('Business plan required for logo upload', 'error'); return; }
+  var msg = document.getElementById('logoMsg');
+  msg.textContent = 'Uploading...'; msg.style.color = 'var(--text3)';
+  try {
+    setSy('syncing');
+    await aPost('/api/business/' + BIZ_CODE + '/logo', { logo: bizLogo });
+    setSy('ok');
+    msg.textContent = '✓ Logo saved — appears on payslips'; msg.style.color = 'var(--green)';
+    toast('Logo saved!', 'success');
+  } catch(e) { setSy('error'); msg.textContent = e.message||'Failed'; msg.style.color = 'var(--red)'; }
+}
+
+async function removeLogo() {
+  if (!confirm('Remove your business logo from payslips?')) return;
+  try {
+    setSy('syncing');
+    await aPost('/api/business/' + BIZ_CODE + '/logo', { logo: null });
+    setSy('ok');
+    bizLogo = null;
+    document.getElementById('logoPreview').style.display = 'none';
+    document.getElementById('logoUploadBtn').style.display = 'none';
+    document.getElementById('logoRemoveBtn').style.display = 'none';
+    document.getElementById('logoFile').value = '';
+    document.getElementById('logoMsg').textContent = '✓ Logo removed';
+    toast('Logo removed', 'success');
+  } catch(e) { setSy('error'); toast(e.message||'Failed', 'error'); }
+}
+
+async function loadLogoSettings() {
+  if (!isBusiness()) return;
+  try {
+    var r = await aGet('/api/business/' + BIZ_CODE + '/logo');
+    if (r.logo) {
+      bizLogo = r.logo;
+      document.getElementById('logoImg').src = r.logo;
+      document.getElementById('logoPreview').style.display = 'block';
+      document.getElementById('logoRemoveBtn').style.display = '';
+    }
+  } catch(e) {}
+}
+
+// ── PAYROLL HISTORY (Business tier) ──────────────────────────────────────────
+async function renderHistory() {
+  var el = document.getElementById('historyContent');
+  el.innerHTML = '<div class="empty"><div class="ico">⏳</div><p>Loading...</p></div>';
+  try {
+    var months = await aGet('/api/business/' + BIZ_CODE + '/payroll-history');
+    if (!months.length) {
+      el.innerHTML = '<div class="empty"><div class="ico">🗂</div><p>No completed payroll months yet</p></div>';
+      return;
+    }
+    var MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var html = months.map(function(m) {
+      var parts = m.month.split('-');
+      var label = MO[parseInt(parts[1])-1] + ' ' + parts[0];
+      return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div><div style="font-weight:700;font-size:15px;">'+label+'</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);">'+m.shifts+' shifts · '+parseFloat(m.total_hours).toFixed(1)+'h total</div></div>' +
+        '<button class="btn btn-s" style="width:auto;padding:7px 12px;font-size:11px;" onclick="goNav(\'payroll\',null);setTimeout(function(){setPayrollMonth(\''+m.month+'\')},200)">View Payroll →</button>' +
+        '</div>';
+    }).join('');
+    el.innerHTML = '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:10px;letter-spacing:.5px;">'+months.length+' MONTHS ON RECORD</div>' + html;
+  } catch(e) {
+    el.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>' + (e.message||'Failed to load') + '</p></div>';
+  }
 }
 
 function renderDash() {
@@ -1731,9 +1853,46 @@ function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
 
 // ── PLANS ────────────────────────────────────────────────────────────────────
-function renderPlans(){var used=emps.length;document.getElementById('currentPlanName').textContent=isPro()?'PRO':'FREE';document.getElementById('empUsage').textContent=used+' / '+(isPro()?'∞':FREE_EMP_LIMIT)+' employees';var pct=isPro()?50:Math.min(100,(used/FREE_EMP_LIMIT)*100);document.getElementById('empBarFill').style.width=pct+'%';document.getElementById('empBarFill').style.background=pct>=100?'var(--red)':'var(--blue)';if(isPro()){document.getElementById('planFreeCard').style.opacity='0.5';document.getElementById('planFreeBtn').textContent='Downgrade';}var expEl=document.getElementById('currentPlanExpiryLabel');if(expEl){if(isPro()&&currentPlanExpiry){var d=new Date(currentPlanExpiry);expEl.textContent='Pro until '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}else{expEl.textContent='';}}}
-function startUpgrade() {
+function renderPlans(){
+  var used=emps.length;
+  var planLabel = isBusiness()?'BUSINESS':isPro()?'PRO':'FREE';
+  var planColor = isBusiness()?'#a855f7':isPro()?'var(--blue)':'var(--text3)';
+  document.getElementById('currentPlanName').textContent = planLabel;
+  document.getElementById('currentPlanName').style.color = planColor;
+  document.getElementById('empUsage').textContent = used+' / '+(isPro()?'∞':FREE_EMP_LIMIT)+' employees';
+  var pct=isPro()?50:Math.min(100,(used/FREE_EMP_LIMIT)*100);
+  document.getElementById('empBarFill').style.width=pct+'%';
+  document.getElementById('empBarFill').style.background=pct>=100?'var(--red)':isPro()?'var(--blue)':'var(--blue)';
+  // Dim lower tiers, update buttons
+  document.getElementById('planFreeCard').style.opacity = isPro()?'0.5':'1';
+  document.getElementById('planFreeBtn').textContent = isPro()?'↓ Downgrade':'✓ Current';
+  if(isPro()&&!isBusiness()){
+    document.getElementById('planProCard').style.opacity='1';
+    var pb=document.getElementById('planProBtn');if(pb)pb.textContent='✓ Current Plan';
+    document.getElementById('planBizCard').style.opacity='1';
+  }
+  if(isBusiness()){
+    document.getElementById('planProCard').style.opacity='0.6';
+    document.getElementById('planBizCard').style.opacity='1';
+    var bb=document.getElementById('planBizBtn');if(bb)bb.textContent='✓ Current Plan';
+  }
+  var expEl=document.getElementById('currentPlanExpiryLabel');
+  if(expEl){
+    if(isPro()&&currentPlanExpiry){
+      var d=new Date(currentPlanExpiry);
+      expEl.textContent=(isBusiness()?'Business':'Pro')+' until '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    } else { expEl.textContent=''; }
+  }
+}
+function startUpgrade(tier) {
+  tier = tier || 'pro';
+  var isBiz = tier === 'business';
   document.getElementById('upgradeRefCode').textContent = BIZ_CODE.toUpperCase();
+  // Update modal title and price based on tier
+  var titleEl = document.getElementById('upgradeModalTitle');
+  var priceEl = document.getElementById('upgradeModalPrice');
+  if (titleEl) titleEl.textContent = isBiz ? 'Upgrade to Business — L 20,000/year' : 'Upgrade to Pro — L 1,000/month';
+  if (priceEl) priceEl.textContent = isBiz ? 'L 20,000/year (~€200)' : 'L 1,000/month or L 12,000/year';
   document.getElementById('upgradeModal').classList.add('open');
 }
 function closeUpgradeModal() {
@@ -1796,6 +1955,10 @@ function downloadPayslip(empId, ym) {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('PAYSLIP', pageW - 20, 22, { align: 'right' });
+    // Add business logo if Business tier
+    if (isBusiness() && bizLogo) {
+      try { doc.addImage(bizLogo, 20, 48, 40, 20, undefined, 'FAST'); } catch(e) {}
+    }
 
     // Employee info
     doc.setTextColor(0, 0, 0);

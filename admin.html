@@ -208,7 +208,8 @@ function renderList() {
   var in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   var html = filtered.map(function(b) {
-    var isPro = b.plan === 'pro';
+    var isPro = b.plan === 'pro' || b.plan === 'business';
+    var isBiz = b.plan === 'business';
     var expDate = b.pro_expires_at ? new Date(b.pro_expires_at) : null;
     var expired = expDate && expDate < now;
     var expiring3 = expDate && expDate > now && expDate <= in3;
@@ -217,6 +218,7 @@ function renderList() {
     var badge = isPro && !expired
       ? (expiring3
           ? '<span class="badge-expiring">⚠ EXPIRING SOON</span>'
+          : isBiz ? '<span class="badge-pro" style="color:#a855f7;background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.3);">⭐ BUSINESS</span>'
           : '<span class="badge-pro">PRO</span>')
       : '<span class="badge-free">FREE</span>';
 
@@ -224,7 +226,7 @@ function renderList() {
     if (isPro && expDate && !expired) {
       var daysLeft = Math.ceil((expDate - now) / (1000*60*60*24));
       var cls = expiring3 ? 'plan-expiring' : 'plan-pro';
-      meta = '<span class="' + cls + '">Pro until ' + expDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' (' + daysLeft + ' days)</span>';
+      meta = '<span class="' + cls + '">'+(isBiz?'Business':'Pro')+' until ' + expDate.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' (' + daysLeft + ' days)</span>';
     } else if (isPro && expired) {
       meta = '<span class="plan-expired">Pro expired — auto-downgraded</span>';
     } else {
@@ -235,7 +237,8 @@ function renderList() {
     if (!isPro || expired) {
       actions += '<div class="days-row">' +
         '<input type="number" class="days-inp" id="days_'+b.id+'" value="30" min="1" max="365">' +
-        '<button class="btn-pro" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\')">▶ Activate Pro</button>' +
+        '<button class="btn-pro" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'pro\')">▶ Pro</button>' +
+        '<button class="btn-pro" style="background:linear-gradient(135deg,#7c3aed,#a855f7);" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'business\')">⭐ Biz</button>' +
         '</div>';
     } else {
       actions += '<button class="btn-free" onclick="deactivatePro('+b.id+',\''+escAttr(b.name)+'\')">Revert to Free</button>';
@@ -258,19 +261,22 @@ function renderList() {
 }
 
 // ── ACTIVATE PRO ─────────────────────────────────────────────────────────────
-async function activatePro(id, name) {
+async function activatePro(id, name, plan) {
+  plan = plan || 'pro';
   var daysEl = document.getElementById('days_' + id);
   var days = daysEl ? parseInt(daysEl.value) || 30 : 30;
-  if (days < 1 || days > 365) { toast('Days must be between 1 and 365', 'err'); return; }
+  if (plan === 'business') days = Math.max(days, 365);
+  if (days < 1 || days > 730) { toast('Days must be between 1 and 730', 'err'); return; }
   try {
     var r = await fetch(API + '/api/admin/businesses/' + id + '/plan', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
-      body: JSON.stringify({ plan: 'pro', days: days })
+      body: JSON.stringify({ plan: plan, days: days })
     });
     var d = await r.json();
     if (!r.ok) { toast('Failed: ' + (d.error||r.status), 'err'); return; }
-    toast('✅ ' + name + ' activated Pro for ' + days + ' days', 'ok');
+    var label = plan === 'business' ? 'Business' : 'Pro';
+    toast('✅ ' + name + ' activated ' + label + ' for ' + days + ' days', 'ok');
     await loadBusinesses();
   } catch(e) { toast('Connection error', 'err'); }
 }
