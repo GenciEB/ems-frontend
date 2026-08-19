@@ -735,10 +735,14 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       <div class="plan-price">€0<span class="plan-per">/mo</span></div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 10px;">Starter</div>
       <div class="pf">Up to 5 employees</div>
-      <div class="pf">Check in / out</div>
-      <div class="pf">Basic reports</div>
-      <div class="pf pf-no">Unlimited staff</div>
+      <div class="pf">Check in / out tracking</div>
+      <div class="pf">Live dashboard</div>
+      <div class="pf">Leave tracking</div>
+      <div class="pf pf-no">Payroll & payslips</div>
       <div class="pf pf-no">Scheduling</div>
+      <div class="pf pf-no">Bonuses & deductions</div>
+      <div class="pf pf-no">Reports & CSV export</div>
+      <div class="pf pf-no">Unlimited staff</div>
       <div id="planFreeBtn" class="plan-btn-current">✓ Current Plan</div>
     </div>
     <div class="plan-card pro" id="planProCard">
@@ -746,9 +750,14 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       <div class="plan-price">€10<span class="plan-per">/mo</span></div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 10px;">Professional</div>
       <div class="pf">Unlimited employees</div>
-      <div class="pf">Check in / out</div>
-      <div class="pf">Full reports & CSV</div>
+      <div class="pf">Check in / out tracking</div>
+      <div class="pf">Live dashboard</div>
+      <div class="pf">Leave tracking</div>
+      <div class="pf">Payroll & payslips (PDF)</div>
       <div class="pf">Shift scheduling</div>
+      <div class="pf">Bonuses & deductions</div>
+      <div class="pf">Reports & CSV export</div>
+      <div class="pf">Albanian tax calculator</div>
       <div class="pf">Priority support</div>
       <button class="plan-btn-upgrade" onclick="startUpgrade()">🚀 Upgrade to Pro</button>
     </div>
@@ -1109,6 +1118,12 @@ function goNav(page, btn) {
   if (btn) btn.classList.add('active');
   var mgrOnly = ['employees','schedule','payroll','leaves','deductions','reports','plans','security'];
   if (mgrOnly.includes(page) && !IS_MGR) { toast('Manager access required', 'error'); return; }
+  // Pro-only tabs — show upgrade prompt instead of content for Free plan users
+  var proOnly = ['payroll','schedule','deductions','analytics','reports'];
+  if (proOnly.includes(page) && !isPro()) {
+    showUpgradePrompt(page);
+    return;
+  }
   if (page === 'dash') renderDash();
   if (page === 'checkin') { reloadShifts().then(renderCheckin); }
   if (page === 'employees') renderEmps();
@@ -1135,6 +1150,19 @@ async function loadAll() {
     ]);
     emps = r[0]; shfts = r[1]; lvs = r[2]; deds = r[3]; scheds = r[4];
     setSy('ok');
+    // Auto-fix stuck shifts silently — open shifts from previous days bleed into today's view
+    var today = dk(new Date());
+    var stale = shfts.filter(function(s){ return !s.check_out && s.check_in && s.date < today; });
+    if (stale.length > 0) {
+      try {
+        var fixR = await aPost('/api/shifts/close-stale', { business_id: BIZ_ID });
+        if (fixR.closed > 0) {
+          // Reload shifts after fix so dashboard is fresh
+          shfts = await aGet('/api/shifts?business_id=' + BIZ_ID);
+          toast(fixR.closed + ' stuck shift(s) from a previous day were automatically closed', 'warn');
+        }
+      } catch(e) { /* silent — non-critical */ }
+    }
     // Show last-updated time on dashboard
     var now = new Date();
     var ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
@@ -1165,6 +1193,27 @@ function populateSelects() {
 }
 
 // ── DASHBOARD ──────────────────────────────────────────────────────────────
+// Show Pro upgrade prompt inside a Pro-gated tab
+function showUpgradePrompt(page) {
+  var labels = {
+    payroll: 'Payroll & Payslips',
+    schedule: 'Shift Scheduling',
+    deductions: 'Bonuses & Deductions',
+    analytics: 'Analytics',
+    reports: 'Reports & CSV Export'
+  };
+  var pageEl = document.getElementById('page-' + page);
+  if (!pageEl) return;
+  pageEl.classList.add('active');
+  pageEl.innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;padding:32px 20px;text-align:center;">' +
+    '<div style="font-size:40px;margin-bottom:16px;">🔒</div>' +
+    '<div style="font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:8px;">' + (labels[page]||page) + '</div>' +
+    '<div style="font-size:14px;color:var(--text2);max-width:280px;line-height:1.6;margin-bottom:24px;">This feature is available on the Pro plan. Upgrade to unlock payroll, scheduling, reports, and more.</div>' +
+    '<button class="btn btn-p" style="width:auto;padding:12px 24px;" onclick="goNav(\'plans\',document.querySelector(\'[data-page=plans]\'))">🚀 View Pro Plans</button>' +
+    '</div>';
+}
+
 function renderDash() {
   var today = dk(new Date());
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
