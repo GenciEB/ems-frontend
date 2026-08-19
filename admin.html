@@ -233,16 +233,12 @@ function renderList() {
       meta = '<span class="plan-free">Free plan</span>';
     }
 
-    var actions = '';
-    if (!isPro || expired) {
-      actions += '<div class="days-row">' +
-        '<input type="number" class="days-inp" id="days_'+b.id+'" value="30" min="1" max="365">' +
-        '<button class="btn-pro" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'pro\')">▶ Pro</button>' +
-        '<button class="btn-pro" style="background:linear-gradient(135deg,#7c3aed,#a855f7);" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'business\')">⭐ Biz</button>' +
-        '</div>';
-    } else {
-      actions += '<button class="btn-free" onclick="deactivatePro('+b.id+',\''+escAttr(b.name)+'\')">Revert to Free</button>';
-    }
+    var actions = '<div class="days-row" style="flex-wrap:wrap;gap:6px;">' +
+      '<input type="number" class="days-inp" id="days_'+b.id+'" value="'+(isBiz?365:30)+'" min="1" max="730">' +
+      ((!isPro || expired) ? '<button class="btn-pro" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'pro\')">▶ Pro</button>' : '') +
+      (!isBiz ? '<button class="btn-pro" style="background:linear-gradient(135deg,#7c3aed,#a855f7);" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'business\')">⭐ Biz</button>' : '') +
+      (isPro && !expired ? '<button class="btn-free" onclick="deactivatePro('+b.id+',\''+escAttr(b.name)+'\')">↓ Free</button>' : '') +
+      '</div>';
 
     return '<div class="biz-card" id="biz_'+b.id+'">' +
       '<div class="biz-info">' +
