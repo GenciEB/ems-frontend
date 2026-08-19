@@ -1209,7 +1209,21 @@ async function loadAll() {
 }
 
 async function loadPlan() {
-  try { var r = await aGet('/api/business/' + BIZ_CODE + '/plan'); currentPlan = r.plan || 'free'; currentPlanExpiry = r.pro_expires_at || null; } catch(e) { currentPlan = 'free'; currentPlanExpiry = null; }
+  try {
+    var r = await aGet('/api/business/' + BIZ_CODE + '/plan');
+    var prevPlan = currentPlan;
+    currentPlan = r.plan || 'free';
+    currentPlanExpiry = r.pro_expires_at || null;
+    // If plan changed, re-render the current active page so lock screens update instantly
+    if (prevPlan !== currentPlan) {
+      var activePage = document.querySelector('.page.active');
+      if (activePage) {
+        var activeBtn = document.querySelector('.tb.active');
+        var pageId = activePage.id ? activePage.id.replace('page-','') : 'dash';
+        goNav(pageId, activeBtn);
+      }
+    }
+  } catch(e) { currentPlan = 'free'; currentPlanExpiry = null; }
 }
 
 function isPro() { return currentPlan === 'pro' || currentPlan === 'business'; }
