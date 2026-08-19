@@ -236,17 +236,17 @@ function renderList() {
 
     var actions = '<div class="days-row" style="flex-wrap:wrap;gap:6px;">' +
       '<input type="number" class="days-inp" id="days_'+b.id+'" value="'+(isBiz?365:30)+'" min="1" max="730">' +
-      ((!isPro || expired) ? '<button class="btn-pro" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'pro\')">▶ Pro</button>' : '') +
-      (!isBiz ? '<button class="btn-pro" style="background:linear-gradient(135deg,#7c3aed,#a855f7);" onclick="activatePro('+b.id+',\''+escAttr(b.name)+'\',\'business\')">⭐ Biz</button>' : '') +
-      (isPro && !expired ? '<button class="btn-free" onclick="deactivatePro('+b.id+',\''+escAttr(b.name)+'\')">↓ Free</button>' : '') +
+      ((!isPro || expired) ? '<button class="btn-pro" data-id="'+b.id+'" data-name="'+esc(b.name)+'" data-plan="pro" onclick="activatePro(this)">▶ Pro</button>' : '') +
+      (!isBiz ? '<button class="btn-pro" style="background:linear-gradient(135deg,#7c3aed,#a855f7);" data-id="'+b.id+'" data-name="'+esc(b.name)+'" data-plan="business" onclick="activatePro(this)">⭐ Biz</button>' : '') +
+      (isPro && !expired ? '<button class="btn-free" data-id="'+b.id+'" data-name="'+esc(b.name)+'" onclick="deactivatePro(this)">↓ Free</button>' : '') +
       '</div>';
 
     var dangerActions =
       '<div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #1e1e1e;">' +
       (isBlocked
-        ? '<button class="btn-pro" style="background:linear-gradient(135deg,#0369a1,#0284c7);font-size:10px;padding:6px 10px;" onclick="toggleBlock('+b.id+',\''+escAttr(b.name)+'\',false)">✓ Unblock</button>'
-        : '<button style="padding:6px 10px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:rgba(245,158,11,.08);color:#f59e0b;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;" onclick="toggleBlock('+b.id+',\''+escAttr(b.name)+'\',true)">⛔ Suspend</button>') +
-      '<button style="padding:6px 10px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.08);color:#f87171;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;" onclick="deleteBusiness('+b.id+',\''+escAttr(b.name)+'\')">🗑 Delete</button>' +
+        ? '<button class="btn-pro" style="background:linear-gradient(135deg,#0369a1,#0284c7);font-size:10px;padding:6px 10px;" data-id="'+b.id+'" data-name="'+esc(b.name)+'" data-block="false" onclick="toggleBlock(this)">✓ Unblock</button>'
+        : '<button style="padding:6px 10px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:rgba(245,158,11,.08);color:#f59e0b;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;" data-id="'+b.id+'" data-name="'+esc(b.name)+'" data-block="true" onclick="toggleBlock(this)">⛔ Suspend</button>') +
+      '<button style="padding:6px 10px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.08);color:#f87171;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;" data-id="'+b.id+'" data-name="'+esc(b.name)+'" onclick="deleteBusiness(this)">🗑 Delete</button>' +
       '</div>';
 
     return '<div class="biz-card" id="biz_'+b.id+'" style="'+(isBlocked?'opacity:0.7;border-color:rgba(239,68,68,.2);':'')+'">' +
@@ -267,8 +267,10 @@ function renderList() {
 }
 
 // ── ACTIVATE PRO ─────────────────────────────────────────────────────────────
-async function activatePro(id, name, plan) {
-  plan = plan || 'pro';
+async function activatePro(btn) {
+  var id = btn.dataset.id;
+  var name = btn.dataset.name;
+  var plan = btn.dataset.plan || 'pro';
   var daysEl = document.getElementById('days_' + id);
   var days = daysEl ? parseInt(daysEl.value) || 30 : 30;
   if (plan === 'business') days = Math.max(days, 365);
@@ -288,8 +290,10 @@ async function activatePro(id, name, plan) {
 }
 
 // ── DEACTIVATE PRO ────────────────────────────────────────────────────────────
-async function toggleBlock(id, name, block) {
-  var action = block ? 'suspend' : 'unblock';
+async function toggleBlock(btn) {
+  var id = btn.dataset.id;
+  var name = btn.dataset.name;
+  var block = btn.dataset.block === 'true';
   var msg = block
     ? 'Suspend ' + name + '? They will not be able to log in until unblocked.'
     : 'Unblock ' + name + '? They will immediately regain access.';
@@ -307,7 +311,9 @@ async function toggleBlock(id, name, block) {
   } catch(e) { toast('Connection error', 'err'); }
 }
 
-async function deleteBusiness(id, name) {
+async function deleteBusiness(btn) {
+  var id = btn.dataset.id;
+  var name = btn.dataset.name;
   var confirmed = confirm('⚠️ PERMANENTLY DELETE ' + name + '?\n\nThis will delete ALL employees, shifts, payroll data, and leave records. This cannot be undone.');
   if (!confirmed) return;
   var confirmed2 = confirm('Are you absolutely sure? There is no way to recover this data.');
@@ -324,7 +330,9 @@ async function deleteBusiness(id, name) {
   } catch(e) { toast('Connection error', 'err'); }
 }
 
-async function deactivatePro(id, name) {
+async function deactivatePro(btn) {
+  var id = btn.dataset.id;
+  var name = btn.dataset.name;
   if (!confirm('Revert ' + name + ' to Free plan?')) return;
   try {
     var r = await fetch(API + '/api/admin/businesses/' + id + '/plan', {
