@@ -405,12 +405,45 @@ function renderShifts(ym){
 
 function renderLeaves(ym){
   var ml=leaves.filter(function(l){return l.date&&l.date.slice(0,7)===ym;});
-  if(!ml.length){document.getElementById('tabContent').innerHTML='<div class="empty">No leave this month</div>';return;}
-  var h='';
-  ml.forEach(function(l){
-    h+='<div class="row"><div><div class="row-date">'+fmtd(l.date)+'</div><div class="row-time">'+(l.type||'Leave')+(l.note?' · '+l.note:'')+'</div></div><span class="badge bactive">'+(l.status||'—')+'</span></div>';
+  var statusColor={pending:'#f59e0b',approved:'#4ade80',rejected:'#f87171'};
+  var reqForm='<div class="card" style="margin-bottom:12px;">'+
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:#444;margin-bottom:10px;letter-spacing:.5px;">REQUEST LEAVE</div>'+
+    '<input type="date" id="leaveDateInp" class="inp" style="margin-bottom:8px;" min="'+dk(new Date())+'">'+
+    '<select id="leaveTypeInp" class="inp" style="margin-bottom:8px;"><option value="Annual">Annual Leave</option><option value="Sick">Sick Leave</option><option value="Personal">Personal</option><option value="Other">Other</option></select>'+
+    '<input type="text" id="leaveNoteInp" class="inp" placeholder="Note (optional)" style="margin-bottom:10px;">'+
+    '<button class="btn-in" style="font-size:14px;padding:13px;" onclick="submitLeave()">📋 Submit Request</button>'+
+    '<div id="leaveMsg" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;min-height:14px;margin-top:6px;text-align:center;"></div>'+
+    '</div>';
+  var h=reqForm;
+  if(!ml.length){h+='<div class="empty">No leave requests this month</div>';}
+  else ml.forEach(function(l){
+    var sc=statusColor[l.status]||'#888';
+    h+='<div class="row"><div><div class="row-date">'+fmtd(l.date)+'</div><div class="row-time">'+(l.type||'Leave')+(l.note?' · '+l.note:'')+'</div></div>'+
+      '<span class="badge" style="background:rgba(0,0,0,.3);color:'+sc+';border-color:'+sc+'44;">'+(l.status||'pending')+'</span></div>';
   });
   document.getElementById('tabContent').innerHTML=h;
+}
+
+async function submitLeave(){
+  var date=document.getElementById('leaveDateInp').value;
+  var type=document.getElementById('leaveTypeInp').value;
+  var note=document.getElementById('leaveNoteInp').value.trim();
+  var msg=document.getElementById('leaveMsg');
+  if(!date){msg.textContent='Select a date';msg.style.color='#f87171';return;}
+  msg.textContent='Submitting...';msg.style.color='#888';
+  try{
+    var r=await fetch(API+'/api/leaves',{
+      method:'POST',headers:{'Content-Type':'application/json','x-emp-token':TOKEN},
+      body:JSON.stringify({emp_id:emp.id,business_id:emp.biz_id,date:date,type:type,note:note||null})
+    });
+    var d=await r.json();
+    if(!r.ok){msg.textContent=d.error||'Failed';msg.style.color='#f87171';return;}
+    leaves.push(d);
+    msg.textContent='✓ Request submitted';msg.style.color='#4ade80';
+    document.getElementById('leaveDateInp').value='';
+    document.getElementById('leaveNoteInp').value='';
+    renderLeaves(new Date().getFullYear()+'-'+pad(new Date().getMonth()+1));
+  }catch(e){msg.textContent='Connection error';msg.style.color='#f87171';}
 }
 
 function calcTax(g){
