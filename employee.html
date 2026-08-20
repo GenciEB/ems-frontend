@@ -183,6 +183,7 @@ html,body{height:100%;background:#0d0d0d;color:#f0f0ee;font-family:'Plus Jakarta
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
 var TOKEN = null;
+var CURR = '$';
 var emp = null;
 var shifts = [], leaves = [], deds = [];
 var pin = '';
@@ -350,6 +351,7 @@ function kioskFlash(icon,title,sub){
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function renderStats(){
   var ym=vm.getFullYear()+'-'+pad(vm.getMonth()+1);
+  var today=dk(new Date());
   var ms=shifts.filter(function(s){return s.date&&s.date.slice(0,7)===ym&&s.check_out;});
   var totalH=ms.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);
   var rate=parseFloat(emp.rate)||0;
@@ -357,13 +359,20 @@ function renderStats(){
   var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);
   var bon=deds.filter(function(d){return d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
   var ded=deds.filter(function(d){return d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
-  var net=(regH*rate)+(otH*rate*1.5)+bon-ded;
-  var today=dk(new Date());
+  var gross=(regH*rate)+(otH*rate*1.5)+bon-ded;
+
+  // Today's gross earnings
+  var todayShift=shifts.find(function(s){return s.date===today&&s.check_out;});
+  var todayH=todayShift?(parseFloat(todayShift.regular_hours)||0):0;
+  var todayOtH=todayShift?(parseFloat(todayShift.ot_hours)||0):0;
+  var todayGross=todayH*rate+todayOtH*rate*1.5;
   var onShift=!!shifts.find(function(s){return s.date===today&&s.check_in&&!s.check_out;});
   document.getElementById('stats').innerHTML=
     '<div class="stat"><div class="stat-v">'+totalH.toFixed(0)+'h</div><div class="stat-k">THIS MONTH</div></div>'+
-    '<div class="stat"><div class="stat-v" style="color:#4ade80;">L '+net.toFixed(0)+'</div><div class="stat-k">TAKE HOME</div></div>'+
-    '<div class="stat"><div class="stat-v" style="color:'+(onShift?'#60a5fa':'#333')+';">'+(onShift?'Yes':'No')+'</div><div class="stat-k">ON SHIFT</div></div>';
+    '<div class="stat"><div class="stat-v" style="color:#4ade80;font-size:16px;">'+CURR+' '+gross.toFixed(0)+'</div><div class="stat-k">GROSS PAY</div></div>'+
+    '<div class="stat"><div class="stat-v" style="color:'+(onShift?'#60a5fa':todayGross>0?'#4ade80':'#333')+';font-size:16px;">'+
+    (onShift?'Active':todayGross>0?CURR + ' ' +todayGross.toFixed(0):'—')+'</div>'+
+    '<div class="stat-k">'+(onShift?'ON SHIFT':todayGross>0?'EARNED TODAY':'TODAY')+'</div></div>';
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
@@ -394,7 +403,7 @@ function renderShifts(ym){
     var badge=done?(late?'<span class="badge blate">Late</span>':'<span class="badge bdone">Done</span>'):'<span class="badge bactive">On shift</span>';
     var regH=parseFloat(s.regular_hours)||parseFloat(s.hours)||0;
     var otH=parseFloat(s.ot_hours)||0;
-    var pay=done?'<div class="row-pay">L '+(regH*rate+otH*rate*1.5).toFixed(0)+'</div>':'';
+    var pay=done?'<div class="row-pay">'+CURR+(regH*rate+otH*rate*1.5).toFixed(0)+'</div>':'';
     h+='<div class="row"><div>'+
       '<div class="row-date">'+fmtd(s.date)+'</div>'+
       '<div class="row-time">'+(s.check_in||'—')+(s.check_out?' → '+s.check_out:'')+(late?' · +'+s.late_minutes+'m late':'')+' </div>'+
@@ -446,17 +455,7 @@ async function submitLeave(){
   }catch(e){msg.textContent='Connection error';msg.style.color='#f87171';}
 }
 
-function calcTax(g){
-  g=parseFloat(g)||0;
-  var ssBase=Math.min(Math.max(g,50000),186416);
-  var ss=ssBase*0.112;
-  var pit=0;
-  if(g<=50000){pit=0;}
-  else if(g<=60000){pit=(g-35000)*0.13;}
-  else if(g<=200000){pit=(g-30000)*0.13;}
-  else{pit=22100+(g-200000)*0.23;}
-  return{ss:ss,pit:pit,net:Math.max(0,g-ss-pit),rate:g>0?((ss+pit)/g*100):0};
-}
+
 
 function renderPay(ym){
   var ms=shifts.filter(function(s){return s.date&&s.date.slice(0,7)===ym&&s.check_out;});
@@ -466,24 +465,17 @@ function renderPay(ym){
   var bon=deds.filter(function(d){return d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
   var ded=deds.filter(function(d){return d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
   var gross=regH*rate+otH*rate*1.5+bon-ded;
-  var tax=calcTax(gross);
   var late=ms.filter(function(s){return s.is_late;}).length;
   var h='<div class="card">'+
     '<div class="card-row"><span>Shifts worked</span><span style="font-weight:700;">'+ms.length+'</span></div>'+
     '<div class="card-row"><span>Total hours</span><span>'+(regH+otH).toFixed(2)+'h</span></div>'+
-    '<div class="card-row"><span>Regular ('+regH.toFixed(2)+'h × L '+rate.toFixed(0)+')</span><span>L '+(regH*rate).toFixed(2)+'</span></div>'+
-    (otH>0?'<div class="card-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>L '+(otH*rate*1.5).toFixed(2)+'</span></div>':'')+
-    (bon>0?'<div class="card-row"><span style="color:#4ade80;">Bonuses</span><span style="color:#4ade80;">+L '+bon.toFixed(2)+'</span></div>':'')+
-    (ded>0?'<div class="card-row"><span style="color:#f87171;">Deductions</span><span style="color:#f87171;">-L '+ded.toFixed(2)+'</span></div>':'')+
+    '<div class="card-row"><span>Regular ('+regH.toFixed(2)+'h × '+CURR+rate.toFixed(0)+')</span><span>'+CURR+(regH*rate).toFixed(2)+'</span></div>'+
+    (otH>0?'<div class="card-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>'+CURR+(otH*rate*1.5).toFixed(2)+'</span></div>':'')+
+    (bon>0?'<div class="card-row"><span style="color:#4ade80;">Bonuses</span><span style="color:#4ade80;">+'+CURR+bon.toFixed(2)+'</span></div>':'')+
+    (ded>0?'<div class="card-row"><span style="color:#f87171;">Deductions</span><span style="color:#f87171;">-'+CURR+ded.toFixed(2)+'</span></div>':'')+
     (late>0?'<div class="card-row"><span style="color:#f87171;">Late arrivals</span><span style="color:#f87171;">'+late+'×</span></div>':'')+
-    '<div class="card-total"><span>Pay Due (Gross)</span><span style="color:#888;">L '+gross.toFixed(2)+'</span></div>'+
-    '</div>'+
-    '<div class="card" style="margin-top:8px;">'+
-    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:#444;margin-bottom:8px;letter-spacing:.5px;">STATUTORY DEDUCTIONS (employee share)</div>'+
-    '<div class="card-row"><span>Social & Health Insurance (11.2%)</span><span style="color:#f87171;">-L '+tax.ss.toFixed(2)+'</span></div>'+
-    (tax.pit>0?'<div class="card-row"><span>Income Tax (TAP)</span><span style="color:#f87171;">-L '+tax.pit.toFixed(2)+'</span></div>':'<div class="card-row"><span>Income Tax (TAP)</span><span style="color:#444;">L 0.00 (exempt)</span></div>')+
-    '<div class="card-total"><span>Net Take-Home</span><span style="color:#2154f4;">L '+tax.net.toFixed(2)+'</span></div>'+
-    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:#333;margin-top:4px;text-align:right;">Effective rate: '+tax.rate.toFixed(1)+'% · PwC Albania 2026</div>'+
+    '<div class="card-total"><span>Pay Due</span><span style="color:#2154f4;">'+CURR+gross.toFixed(2)+'</span></div>'+
+    '<div style="font-family:monospace;font-size:9px;color:#333;margin-top:8px;">Statutory deductions managed separately per local regulations.</div>'+
     '</div>';
   document.getElementById('tabContent').innerHTML=h;
 }

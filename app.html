@@ -423,24 +423,17 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     <div class="modal-title" id="upgradeModalTitle">Upgrade to Pro — L 1,000/month</div>
     <div class="form-s">
       <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
-        Plans are activated manually — no card required. Send payment using the details below, then let us know.
+        Secure payment via Stripe — cancel anytime. Your plan activates immediately after payment.
       </div>
-      <div class="card" style="background:var(--bg2);margin-bottom:12px;">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">AMOUNT</div>
-        <div id="upgradeModalPrice" style="font-size:15px;font-weight:700;color:var(--blue);margin-bottom:10px;">L 1,000/month or L 12,000/year</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">BANK TRANSFER TO</div>
-        <div style="font-size:14px;font-weight:700;">[Your bank account holder name]</div>
-        <div style="font-family:var(--mono);font-size:13px;margin-top:4px;">[Your IBAN here]</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:10px;">REFERENCE — include this so we know it's you</div>
-        <div id="upgradeRefCode" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--blue);"></div>
+      <div class="card" style="background:var(--bg2);margin-bottom:14px;text-align:center;">
+        <div id="upgradeModalPrice" style="font-size:22px;font-weight:800;color:var(--blue);margin-bottom:6px;">$10/month</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">Unlimited staff · Payroll · Payslips · Scheduling · Reports</div>
       </div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
-        Once we confirm the transfer, your plan is activated within 24 hours.
-      </div>
-      <div style="display:flex;gap:8px;">
-        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=ShiftHQ%20payment%20sent">✉️ I've sent it — notify us</a>
-        <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
-      </div>
+      <button class="btn btn-p" id="stripeCheckoutBtn" onclick="startStripeCheckout()" style="margin-bottom:8px;">
+        💳 Pay with Card — Powered by Stripe
+      </button>
+      <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
+      <div id="stripeMsg" style="font-family:var(--mono);font-size:11px;min-height:14px;margin-top:8px;text-align:center;"></div>
     </div>
   </div>
 </div>
@@ -507,7 +500,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     <div class="clock" id="clockEl"></div>
     <span class="hdr-role" id="roleLabel"></span>
     <button onclick="toggleDark()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px;" title="Toggle dark mode">🌙</button>
-    <button onclick="setLang(LANG==='en'?'sq':'en')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:9px;padding:3px 7px;cursor:pointer;color:var(--text2);" id="langBtn">SQ</button>
+    
   </div>
 </header>
 
@@ -797,6 +790,15 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     <div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">BUSINESS NAME</div><div style="font-size:15px;font-weight:600;" id="secBizName">—</div></div>
   </div>
   <div class="card">
+    <div class="card-lbl">💱 Currency Symbol</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:10px;">Set the currency symbol shown on payslips and reports (e.g. $ € £ ¥).</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="text" id="currencyInp" maxlength="5" placeholder="$" style="width:70px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;padding:8px;text-align:center;outline:none;">
+      <button class="btn btn-p" style="width:auto;padding:8px 14px;" onclick="saveCurrency()">Save</button>
+      <span id="currencyMsg" style="font-family:var(--mono);font-size:11px;color:var(--green);"></span>
+    </div>
+  </div>
+  <div class="card">
     <div class="card-lbl">🏢 Business Logo on Payslips <span style="font-family:var(--mono);font-size:9px;background:rgba(168,85,247,.15);color:#a855f7;border:1px solid rgba(168,85,247,.3);border-radius:4px;padding:2px 6px;margin-left:6px;">BUSINESS</span></div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;">Upload your business logo — it appears on every PDF payslip. PNG or JPG, max 500KB.</div>
     <div id="logoPreview" style="margin-bottom:10px;display:none;"><img id="logoImg" style="max-height:60px;max-width:180px;border-radius:6px;border:1px solid var(--border);padding:4px;" src=""></div>
@@ -877,6 +879,7 @@ var SESSION_TOKEN = localStorage.getItem('ems_session_token') || null;
 var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
+var CURR = '$'; // currency symbol — loaded from backend on login
 var currentPlanExpiry = null;
 var bizLogo = null; // base64 logo for Business tier payslips
 var FREE_EMP_LIMIT = 5;
@@ -888,7 +891,7 @@ var currentQRUrl = '';
 
 
 // ── LANGUAGE ────────────────────────────────────────────────────────────────
-var LANG = localStorage.getItem('shq_lang') || 'en';
+
 var T = {
   en: {
     dashboard: 'DASHBOARD', checkin: 'CHECK IN/OUT', staff: 'STAFF',
@@ -924,37 +927,14 @@ function fmt(d) { if (!d) return '—'; var dt = new Date(d + (d.includes('T') ?
 function fmtTime(t) { return t ? t.slice(0,5) : '—'; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── ALBANIAN 2026 TAX CALCULATOR ─────────────────────────────────────────────
-// Source: PwC Albania Tax Summaries, reviewed 22 July 2026
-// taxsummaries.pwc.com/albania/individual/taxes-on-personal-income
-function calcAlbanianTax(grossMonthly) {
+// ── PAYROLL CALCULATOR ───────────────────────────────────────────────────────
+// Generic gross pay calculation — no country-specific tax
+// Businesses manage their own statutory deductions via the Deductions feature
+function calcPayroll(grossMonthly) {
   var g = parseFloat(grossMonthly) || 0;
-
-  // Social Security — employee portion (9.5% social + 1.7% health = 11.2%)
-  // Min base: L 50,000 / Max base: L 186,416
-  var ssBase = Math.min(Math.max(g, 50000), 186416);
-  var socialSecurity = ssBase * 0.112;
-
-  // Income Tax — monthly progressive brackets (effective from Jan 2025)
-  var pit = 0;
-  if (g <= 50000) {
-    pit = 0;
-  } else if (g <= 60000) {
-    pit = (g - 35000) * 0.13;
-  } else if (g <= 200000) {
-    pit = (g - 30000) * 0.13;
-  } else {
-    pit = 22100 + (g - 200000) * 0.23;
-  }
-
-  var netPay = g - socialSecurity - pit;
-
   return {
     gross: g,
-    socialSecurity: socialSecurity,
-    incomeTax: pit,
-    netPay: Math.max(0, netPay),
-    effectiveRate: g > 0 ? ((socialSecurity + pit) / g * 100) : 0
+    netPay: g // Net = Gross (statutory deductions are managed manually per country)
   };
 }
 // Auto-format a plain text field into HH:MM as the user types digits (replaces native <input type="time">
@@ -1214,6 +1194,7 @@ async function loadPlan() {
     var prevPlan = currentPlan;
     currentPlan = r.plan || 'free';
     currentPlanExpiry = r.pro_expires_at || null;
+    if (r.currency) CURR = r.currency;
     // If plan changed, re-render the current active page so lock screens update instantly
     if (prevPlan !== currentPlan) {
       var activePage = document.querySelector('.page.active');
@@ -1310,6 +1291,25 @@ async function removeLogo() {
     document.getElementById('logoMsg').textContent = '✓ Logo removed';
     toast('Logo removed', 'success');
   } catch(e) { setSy('error'); toast(e.message||'Failed', 'error'); }
+}
+
+async function saveCurrency() {
+  var val = document.getElementById('currencyInp').value.trim();
+  var msg = document.getElementById('currencyMsg');
+  if (!val) { msg.textContent = 'Enter a symbol'; msg.style.color = 'var(--red)'; return; }
+  try {
+    setSy('syncing');
+    await aPost('/api/business/' + BIZ_CODE + '/currency', { currency: val });
+    CURR = val;
+    setSy('ok');
+    msg.textContent = '✓ Saved'; msg.style.color = 'var(--green)';
+    toast('Currency updated to ' + val, 'success');
+  } catch(e) { setSy('error'); msg.textContent = e.message; msg.style.color = 'var(--red)'; }
+}
+
+function loadCurrencySettings() {
+  var el = document.getElementById('currencyInp');
+  if (el) el.value = CURR;
 }
 
 async function loadLogoSettings() {
@@ -1777,7 +1777,7 @@ function renderPayroll() {
     var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var gross=basePay+otPay+bonuses-deductions;
-    var tax=calcAlbanianTax(gross);
+    
     html+='<div class="payslip"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
       '<div><div style="font-size:17px;font-weight:800;">'+esc(emp.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(emp.role||'')+'</div></div>'+
       '<span class="badge bb">'+totalH.toFixed(2)+'h</span><button class="btn btn-s" style="width:auto;padding:5px 10px;font-size:11px;" onclick="downloadPayslip('+emp.id+',\''+ym+'\')" >📄 PDF</button></div>'+
@@ -1786,13 +1786,9 @@ function renderPayroll() {
       (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+L '+bonuses.toFixed(2)+'</span></div>':'')+
       (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-L '+deductions.toFixed(2)+'</span></div>':'')+
       '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span style="font-weight:700;">Pay Due (Gross)</span><span style="font-weight:700;">L '+gross.toFixed(2)+'</span></div>'+
-      '<div style="background:rgba(0,0,0,0.03);border-radius:8px;padding:8px 10px;margin-top:6px;">'+
-      '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:5px;letter-spacing:.5px;">STATUTORY DEDUCTIONS (employee share)</div>'+
-      '<div class="payslip-row" style="font-size:12px;"><span>Social & Health Insurance (11.2%)</span><span style="color:var(--red);">-L '+tax.socialSecurity.toFixed(2)+'</span></div>'+
-      (tax.incomeTax>0?'<div class="payslip-row" style="font-size:12px;"><span>Income Tax (TAP)</span><span style="color:var(--red);">-L '+tax.incomeTax.toFixed(2)+'</span></div>':'<div class="payslip-row" style="font-size:12px;"><span>Income Tax (TAP)</span><span style="color:var(--text3);">L 0.00 (exempt)</span></div>')+
-      '</div>'+
-      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">NET TAKE-HOME</span><span class="payslip-total">L '+tax.netPay.toFixed(2)+'</span></div>'+
-      '<div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:4px;text-align:right;">Effective rate: '+tax.effectiveRate.toFixed(1)+'% · Rates: PwC Albania 2026</div>'+
+      
+      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">PAY DUE</span><span class="payslip-total">'+CURR+' '+gross.toFixed(2)+'</span></div>'+
+      '<div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:4px;text-align:right;">Effective rate: '+tax.effectiveRate.toFixed(1)+'% · </div>'+
       '</div>';
   });
   document.getElementById('payrollList').innerHTML=html;
@@ -1850,7 +1846,7 @@ function renderDeds() {
   var sorted=deds.slice().sort(function(a,b){return b.month.localeCompare(a.month);});
   var html='';
   if(sorted.length===0){html='<div class="empty"><div class="ico">➖</div><p>No entries yet</p></div>';}
-  else sorted.forEach(function(d){var emp=emps.find(function(e){return e.id===d.emp_id;}); html+='<div class="card" style="display:flex;align-items:center;justify-content:space-between;"><div><div style="font-weight:600;">'+esc(emp?emp.name:'?')+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(d.month)+' · '+esc(d.label||d.type)+'</div></div><div style="display:flex;align-items:center;gap:5px;"><span class="badge '+(d.type==='bonus'?'bg':'br')+'">'+(d.type==='bonus'?'+':'-')+'L '+parseFloat(d.amount).toFixed(2)+'</span><button class="btn btn-d" style="width:auto;padding:4px 8px;font-size:10px;" onclick="delDed('+d.id+')">✕</button></div></div>';});
+  else sorted.forEach(function(d){var emp=emps.find(function(e){return e.id===d.emp_id;}); html+='<div class="card" style="display:flex;align-items:center;justify-content:space-between;"><div><div style="font-weight:600;">'+esc(emp?emp.name:'?')+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(d.month)+' · '+esc(d.label||d.type)+'</div></div><div style="display:flex;align-items:center;gap:5px;"><span class="badge '+(d.type==='bonus'?'bg':'br')+'">'+(d.type==='bonus'?'+':'-')+CURR + ' ' +parseFloat(d.amount).toFixed(2)+'</span><button class="btn btn-d" style="width:auto;padding:4px 8px;font-size:10px;" onclick="delDed('+d.id+')">✕</button></div></div>';});
   document.getElementById('dedList').innerHTML=html;
 }
 async function delDed(id){try{setSy('syncing');await aDel('/api/deductions/'+id);deds=deds.filter(function(d){return d.id!==id;});setSy('ok');renderDeds();toast('Entry removed','warn');}catch(e){setSy('error');toast('Failed','error');}}
@@ -1861,7 +1857,7 @@ function getReportFilters() { var month=document.getElementById('reportMonth').v
 function buildCSV(headers,rows){var lines=[headers.join(',')];rows.forEach(function(row){lines.push(row.map(function(cell){var s=String(cell||'');if(s.includes(',')||s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(','));});return lines.join('\r\n');}
 function showPreview(title,headers,rows,csv,filename){currentCSV=csv;currentCSVName=filename;document.getElementById('reportPreviewTitle').textContent=title+' ('+rows.length+' rows)';var table=document.getElementById('reportPreviewTable');var html='<thead><tr>'+headers.map(function(h){return'<th style="padding:5px 7px;border-bottom:2px solid var(--border);text-align:left;color:var(--text3);white-space:nowrap;">'+h+'</th>';}).join('')+'</tr></thead><tbody>';rows.slice(0,8).forEach(function(row){html+='<tr>'+row.map(function(cell){return'<td style="padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap;">'+(cell||'—')+'</td>';}).join('')+'</tr>';});if(rows.length>8)html+='<tr><td colspan="'+headers.length+'" style="padding:5px;color:var(--text3);font-size:10px;">...and '+(rows.length-8)+' more</td></tr>';html+='</tbody>';table.innerHTML=html;document.getElementById('reportPreview').style.display='';document.getElementById('reportPreview').scrollIntoView({behavior:'smooth'});}
 function downloadCSV(){if(!currentCSV)return;var blob=new Blob([currentCSV],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=currentCSVName;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Downloaded: '+currentCSVName,'success');}
-function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)','Social Security (L)','Income Tax (L)','Net Take-Home (L)'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;var tax=calcAlbanianTax(gross);return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
+function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate ('+CURR+'/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay ('+CURR+')','OT Pay ('+CURR+')','Bonuses ('+CURR+')','Deductions ('+CURR+')','Pay Due ('+CURR+')'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
 function exportShifts(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Role','Check In','Check Out','Hours','Late','Note'];var filtered=shfts.filter(function(s){return s.date&&s.date.slice(0,7)===f.month&&(f.empId?s.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(s){var emp=emps.find(function(e){return e.id===s.emp_id;});return[s.date,emp?emp.name:'?',emp?emp.role||'':'',s.check_in||'',s.check_out||'',(parseFloat(s.hours)||0).toFixed(2),s.is_late?'Yes':'No',s.note||''];});var csv=buildCSV(headers,rows);showPreview('Shifts — '+f.month,headers,rows,csv,'shifts-'+f.month+'.csv');}
 function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Days Worked','Total Hours','Days Leave','Attendance %'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var es=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var el=lvs.filter(function(l){return l.emp_id===emp.id&&l.date&&l.date.slice(0,7)===f.month;});var esc2=scheds.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month;});var totalH=es.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);var att=esc2.length>0?((es.length/esc2.length)*100).toFixed(0)+'%':'N/A';return[emp.name,emp.role||'',es.length,totalH.toFixed(1),el.length,att];});var csv=buildCSV(headers,rows);showPreview('Attendance — '+f.month,headers,rows,csv,'attendance-'+f.month+'.csv');}
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
@@ -1898,15 +1894,28 @@ function renderPlans(){
     } else { expEl.textContent=''; }
   }
 }
+async function startStripeCheckout() {
+  var msg = document.getElementById('stripeMsg');
+  var btn = document.getElementById('stripeCheckoutBtn');
+  if (msg) msg.textContent = 'Connecting to Stripe...';
+  if (btn) btn.disabled = true;
+  try {
+    var r = await aPost('/api/stripe/create-checkout', {});
+    if (r.url) { window.location.href = r.url; }
+    else { if (msg) msg.textContent = r.error || 'Failed to connect'; if (btn) btn.disabled = false; }
+  } catch(e) {
+    if (msg) msg.textContent = e.message || 'Connection error';
+    if (btn) btn.disabled = false;
+  }
+}
+
 function startUpgrade(tier) {
   tier = tier || 'pro';
   var isBiz = tier === 'business';
-  document.getElementById('upgradeRefCode').textContent = BIZ_CODE.toUpperCase();
-  // Update modal title and price based on tier
   var titleEl = document.getElementById('upgradeModalTitle');
   var priceEl = document.getElementById('upgradeModalPrice');
-  if (titleEl) titleEl.textContent = isBiz ? 'Upgrade to Business — L 20,000/year' : 'Upgrade to Pro — L 1,000/month';
-  if (priceEl) priceEl.textContent = isBiz ? 'L 20,000/year (~€200)' : 'L 1,000/month or L 12,000/year';
+  if (titleEl) titleEl.textContent = isBiz ? 'Upgrade to Business' : 'Upgrade to Pro';
+  if (priceEl) priceEl.textContent = isBiz ? CURR + ' 200/year' : CURR + ' 10/month';
   document.getElementById('upgradeModal').classList.add('open');
 }
 function closeUpgradeModal() {
@@ -2021,8 +2030,8 @@ function downloadPayslip(empId, ym) {
       y += 12;
     }
 
-    payRow('Regular Hours (' + regH.toFixed(2) + 'h × L ' + rate.toFixed(2) + ')', 'L ' + basePay.toFixed(2));
-    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × 1.5)', 'L ' + otPay.toFixed(2));
+    payRow('Regular Hours (' + regH.toFixed(2) + 'h × L ' + rate.toFixed(2) + ')', CURR + ' ' + basePay.toFixed(2));
+    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × 1.5)', CURR + ' ' + otPay.toFixed(2));
     if (bonuses > 0) payRow('Bonuses', '+L ' + bonuses.toFixed(2), [22, 163, 74]);
     if (deductions > 0) payRow('Deductions', '-L ' + deductions.toFixed(2), [220, 38, 38]);
 
@@ -2034,37 +2043,14 @@ function downloadPayslip(empId, ym) {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(40, 40, 40);
     doc.text('Pay Due (Gross)', 25, y);
-    doc.text('L ' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
+    doc.text(CURR + ' ' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
 
     // Tax deductions section
-    var tax = calcAlbanianTax(gross);
-    y += 14;
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(150, 150, 150);
-    doc.text('STATUTORY DEDUCTIONS (employee share — PwC Albania 2026)', 25, y);
-    y += 8;
-    payRow('Social & Health Insurance (11.2%)', '-L ' + tax.socialSecurity.toFixed(2), [180, 50, 50]);
-    if (tax.incomeTax > 0) {
-      payRow('Income Tax / TAP', '-L ' + tax.incomeTax.toFixed(2), [180, 50, 50]);
-    } else {
-      payRow('Income Tax / TAP', 'L 0.00 (exempt)', [150, 150, 150]);
-    }
-
-    y += 4;
-    doc.setDrawColor(13, 13, 13);
-    doc.line(20, y, pageW - 20, y);
-    y += 10;
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(26, 86, 219);
-    doc.text('NET TAKE-HOME', 25, y);
-    doc.text('L ' + tax.netPay.toFixed(2), pageW - 25, y, { align: 'right' });
     y += 8;
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(180, 180, 180);
-    doc.text('Effective tax rate: ' + tax.effectiveRate.toFixed(1) + '%  ·  Rates sourced from PwC Albania Tax Summaries, reviewed July 2026', 25, y);
+    doc.text('Statutory deductions (tax, social security) are managed separately per local regulations.', 25, y);
 
     // Shift summary
     y += 20;
@@ -2345,7 +2331,7 @@ function renderAnalytics() {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, ticks: { callback: function(v){ return 'L '+v; }, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { beginAtZero: true, ticks: { callback: function(v){ return CURR + ' ' +v; }, font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
         x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
       }
     }
