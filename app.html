@@ -423,17 +423,24 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     <div class="modal-title" id="upgradeModalTitle">Upgrade to Pro — L 1,000/month</div>
     <div class="form-s">
       <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
-        Secure payment via Stripe — cancel anytime. Your plan activates immediately after payment.
+        Plans are activated manually — no card required. Send payment using the details below, then let us know it's done.
       </div>
-      <div class="card" style="background:var(--bg2);margin-bottom:14px;text-align:center;">
-        <div id="upgradeModalPrice" style="font-size:22px;font-weight:800;color:var(--blue);margin-bottom:6px;">$10/month</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">Unlimited staff · Payroll · Payslips · Scheduling · Reports</div>
+      <div class="card" style="background:var(--bg2);margin-bottom:12px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">AMOUNT</div>
+        <div id="upgradeModalPrice" style="font-size:17px;font-weight:700;color:var(--blue);margin-bottom:10px;">L 1,000/month or L 12,000/year</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;">BANK TRANSFER TO</div>
+        <div style="font-size:14px;font-weight:700;">[Your bank account holder name]</div>
+        <div style="font-family:var(--mono);font-size:13px;margin-top:4px;">[Your IBAN here]</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:10px;">REFERENCE — include this so we know it's you</div>
+        <div id="upgradeRefCode" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--blue);"></div>
       </div>
-      <button class="btn btn-p" id="stripeCheckoutBtn" onclick="startStripeCheckout()" style="margin-bottom:8px;">
-        💳 Pay with Card — Powered by Stripe
-      </button>
-      <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
-      <div id="stripeMsg" style="font-family:var(--mono);font-size:11px;min-height:14px;margin-top:8px;text-align:center;"></div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
+        Once we confirm the transfer, your plan is activated within 24 hours.
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=ShiftHQ%20payment%20sent">✉️ I've sent it — notify us</a>
+        <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -500,7 +507,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     <div class="clock" id="clockEl"></div>
     <span class="hdr-role" id="roleLabel"></span>
     <button onclick="toggleDark()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px;" title="Toggle dark mode">🌙</button>
-    
+    <button id="langBtn" onclick="setLang(LANG==='sq'?'en':'sq')" style="background:none;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;padding:3px 8px;">SQ</button>
   </div>
 </header>
 
@@ -691,22 +698,28 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 
 <!-- REPORTS -->
 <div id="page-reports" class="page">
-  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title">REPORTS</div><div class="sh-sub">Export data as CSV</div></div>
+  <div class="sh"><div class="sh-eye">Manager</div><div class="sh-title" id="reportsTitle">RAPORTET</div><div class="sh-sub">Eksporto të dhënat si CSV</div></div>
   <div class="card">
-    <div class="card-lbl">Select Period</div>
+    <div class="card-lbl">Zgjidh Periudhën</div>
     <div class="form-r">
-      <div class="field"><label>Month</label><input type="month" id="reportMonth"></div>
-      <div class="field"><label>Employee</label><select id="reportEmp"><option value="">All Employees</option></select></div>
+      <div class="field"><label>Muaji</label><input type="month" id="reportMonth"></div>
+      <div class="field"><label>Punonjësi</label><select id="reportEmp"><option value="">Të gjithë Punonjësit</option></select></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-lbl">Export</div>
+    <div class="card-lbl">Eksporto</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn btn-p" onclick="exportPayroll()">📥 Payroll Report (CSV)</button>
-      <button class="btn btn-s" onclick="exportShifts()">📥 Shifts Report (CSV)</button>
-      <button class="btn btn-s" onclick="exportAttendance()">📥 Attendance Summary (CSV)</button>
-      <button class="btn btn-s" onclick="exportLeaves()">📥 Leave Report (CSV)</button>
+      <button class="btn btn-p" onclick="exportPayroll()">📥 Raporti i Pagave (CSV)</button>
+      <button class="btn btn-s" onclick="exportShifts()">📥 Raporti i Turneve (CSV)</button>
+      <button class="btn btn-s" onclick="exportAttendance()">📥 Prezenca Përmbledhëse (CSV)</button>
+      <button class="btn btn-s" onclick="exportLeaves()">📥 Raporti i Lejeve (CSV)</button>
     </div>
+  </div>
+  <div class="card" style="border-color:rgba(220,38,38,.3);background:rgba(220,38,38,.03);">
+    <div class="card-lbl" style="color:var(--red);">🏛 Eksporti për Tatimet</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;">DSH — Deklarata e Sigurimeve Shoqërore dhe Shëndetësore<br>Të dhëna për raportimin mujor tek Drejtoria e Përgjithshme e Tatimeve</div>
+    <button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#b91c1c);" onclick="exportTatimet()">📋 Gjenero Deklaratën Tatimet (CSV)</button>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:8px;">⚠️ Kontrolloni shifrat me llogaritarin tuaj para dorëzimit</div>
   </div>
   <div class="card" id="reportPreview" style="display:none;">
     <div class="card-lbl" id="reportPreviewTitle">Preview</div>
@@ -740,7 +753,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     </div>
     <div class="plan-card pro" id="planProCard">
       <div class="plan-badge pro">PRO</div>
-      <div class="plan-price" style="font-size:20px;">L 1k<span class="plan-per">/mo</span></div>
+      <div class="plan-price" style="font-size:20px;">L 1,000<span class="plan-per">/mo</span></div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 8px;">Professional</div>
       <div class="pf">Unlimited staff</div>
       <div class="pf">Check in / out</div>
@@ -754,7 +767,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     </div>
     <div class="plan-card" id="planBizCard" style="border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.04);">
       <div class="plan-badge" style="background:rgba(168,85,247,.15);color:#a855f7;border-color:rgba(168,85,247,.3);">BUSINESS</div>
-      <div class="plan-price" style="font-size:20px;color:#a855f7;">L 20k<span class="plan-per">/yr</span></div>
+      <div class="plan-price" style="font-size:20px;color:#a855f7;">L 20,000<span class="plan-per">/yr</span></div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:4px 0 8px;">Everything in Pro, plus:</div>
       <div class="pf">Custom logo on payslips</div>
       <div class="pf">Payroll history archive</div>
@@ -854,14 +867,14 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 <nav class="bnav">
   <button class="tb active" onclick="goNav('dash',this)" data-page="dash"><span class="ic">📊</span>DASH</button>
   <button class="tb" onclick="goNav('checkin',this)" data-page="checkin"><span class="ic">⏱</span>CHECK</button>
-  <button class="tb" onclick="goNav('employees',this)" data-page="employees"><span class="ic">👥</span>STAFF</button>
+  <button class="tb" onclick="goNav('employees',this)" data-page="employees"><span class="ic">👥</span>" + t('staff') + "</button>
   <button class="tb" onclick="goNav('schedule',this)" data-page="schedule"><span class="ic">🗓</span>SCHED</button>
-  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll"><span class="ic">💰</span>PAY</button>
-  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves"><span class="ic">🏖</span>LEAVE</button>
-  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>DED</button>
-  <button class="tb" onclick="goNav('analytics',this)" data-page="analytics"><span class="ic">📈</span>STATS</button>
-  <button class="tb" onclick="goNav('reports',this)" data-page="reports"><span class="ic">📊</span>REPORT</button>
-  <button class="tb" onclick="goNav('history',this)" data-page="history"><span class="ic">🗂</span>HISTORY</button>
+  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll"><span class="ic">💰</span>" + t('payroll') + "</button>
+  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves"><span class="ic">🏖</span>" + t('leaves') + "</button>
+  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>" + t('deductions') + "</button>
+  <button class="tb" onclick="goNav('analytics',this)" data-page="analytics"><span class="ic">📈</span>" + t('analytics') + "</button>
+  <button class="tb" onclick="goNav('reports',this)" data-page="reports"><span class="ic">📊</span>" + t('reports') + "</button>
+  <button class="tb" onclick="goNav('history',this)" data-page="history"><span class="ic">🗂</span>" + t('history') + "</button>
   <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
   <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
 </nav>
@@ -894,27 +907,98 @@ var currentQRUrl = '';
 
 var T = {
   en: {
-    dashboard: 'DASHBOARD', checkin: 'CHECK IN/OUT', staff: 'STAFF',
-    schedule: 'SCHEDULE', payroll: 'PAYROLL', leaves: 'LEAVES',
-    deductions: 'DEDUCTIONS', reports: 'REPORTS', plans: 'PLANS',
-    security: 'SECURITY', analytics: 'ANALYTICS',
-    onShift: 'On Shift Now', noShift: 'Nobody currently on shift',
-    addEmp: 'Add Employee', signOut: 'Sign Out',
-    grossPay: 'PAY DUE', thisMonth: 'THIS MONTH',
-    checkIn: 'Check In', checkOut: 'Check Out', done: 'Done'
+    // Nav tabs
+    dashboard:'DASHBOARD', checkin:'CHECK IN/OUT', staff:'STAFF',
+    schedule:'SCHEDULE', payroll:'PAYROLL', leaves:'LEAVES',
+    deductions:'DEDUCTIONS', reports:'REPORTS', plans:'PLANS',
+    security:'SECURITY', analytics:'ANALYTICS', history:'HISTORY',
+    // Dashboard
+    onShift:'On Shift Now', noShift:'Nobody currently on shift',
+    todayStats:'Today Overview', liveIndicator:'Live',
+    totalHours:'Total Hours', totalPay:'Total Pay Due',
+    // Staff
+    addEmp:'Add Employee', editEmp:'Edit Employee', deleteEmp:'Delete',
+    name:'Name', role:'Role', hourlyRate:'Hourly Rate (L/hr)',
+    startTime:'Start Time', endTime:'End Time', phone:'Phone',
+    pin:'PIN', saveChanges:'Save Changes', cancel:'Cancel',
+    // Check in/out
+    checkIn:'Check In', checkOut:'Check Out', done:'Done today',
+    onShiftSince:'On shift since', manualCheckIn:'Manual Check In',
+    fixStuck:'Fix Stuck Shifts',
+    // Payroll
+    grossPay:'PAY DUE', thisMonth:'THIS MONTH', regularHours:'Regular Hours',
+    overtime:'Overtime (1.5×)', bonuses:'Bonuses', deductions2:'Deductions',
+    netTakeHome:'NET TAKE-HOME', socialIns:'Social Insurance (9.5%)',
+    healthIns:'Health Insurance (1.7%)', incomeTax:'Income Tax (TAP)',
+    downloadPDF:'Download PDF', exportCSV:t('exportCSV'),
+    tatimetExport:'Tatimet Export',
+    // Leaves
+    leaveType:'Leave Type', annual:'Annual Leave', sick:'Sick Leave',
+    personal:'Personal', leaveDate:'Date', leaveNote:'Note (optional)',
+    addLeave:'Add Leave', approve:'Approve', reject:'Reject',
+    pending:'Pending', approved:'Approved', rejected:'Rejected',
+    // Plans
+    currentPlan:'CURRENT PLAN', upgrade:'Upgrade', free:'Free',
+    pro:'Pro', business:'Business',
+    // Security
+    changePassword:'Change Password', currentPass:'Current Password',
+    newPass:'New Password', notifyEmail:'Notification Email',
+    // General
+    signOut:'Sign Out', save:'Save', loading:'Loading...',
+    error:'Error', success:'Saved', confirm:'Confirm',
+    employees:'employees', hours:'hours',
+    // Tatimet
+    tatimetTitle:'Tatimet Monthly Declaration',
+    tatimetSub:'DSH — Deklarata e Sigurimeve Shoqërore dhe Shëndetësore',
   },
   sq: {
-    dashboard: 'PANELI', checkin: 'HYRJE/DALJE', staff: 'STAFI',
-    schedule: 'ORARI', payroll: 'PAGAT', leaves: 'LEJET',
-    deductions: 'ZBRITJET', reports: 'RAPORTET', plans: 'PLANET',
-    security: 'SIGURIA', analytics: 'STATISTIKA',
-    onShift: 'Në Punë Tani', noShift: 'Askush në punë aktualisht',
-    addEmp: 'Shto Punonjës', signOut: 'Dilni',
-    grossPay: 'PAGA NETO', thisMonth: 'KËTË MUAJ',
-    checkIn: 'Hyrje', checkOut: 'Dalje', done: 'Kryer'
+    // Nav tabs
+    dashboard:'PANELI', checkin:'HYRJE/DALJE', staff:'STAFI',
+    schedule:'ORARI', payroll:'PAGAT', leaves:'LEJET',
+    deductions:'ZBRITJET', reports:'RAPORTET', plans:'PLANET',
+    security:'SIGURIA', analytics:'STATISTIKA', history:'HISTORIKU',
+    // Dashboard
+    onShift:'Në Punë Tani', noShift:'Askush në punë aktualisht',
+    todayStats:'Pasqyra e Sotme', liveIndicator:'Live',
+    totalHours:'Orë Gjithsej', totalPay:'Pagë Totale',
+    // Staff
+    addEmp:'Shto Punonjës', editEmp:'Ndrysho Punonjësin', deleteEmp:'Fshi',
+    name:'Emri', role:'Roli', hourlyRate:'Pagë Orare (L/orë)',
+    startTime:'Ora e Fillimit', endTime:'Ora e Mbarimit', phone:'Telefon',
+    pin:'PIN', saveChanges:'Ruaj Ndryshimet', cancel:'Anulo',
+    // Check in/out
+    checkIn:'Hyrje', checkOut:'Dalje', done:'Kryer sot',
+    onShiftSince:'Në punë që nga', manualCheckIn:'Hyrje Manuale',
+    fixStuck:'Rregulllo Turnet e Bllokuara',
+    // Payroll
+    grossPay:'PAGA BRUTO', thisMonth:'KËTË MUAJ', regularHours:'Orë Normale',
+    overtime:'Orë Shtesë (1.5×)', bonuses:'Bonuse', deductions2:'Zbritje',
+    netTakeHome:'PAGA NETO', socialIns:'Sig. Shoqërore (9.5%)',
+    healthIns:'Sig. Shëndetësore (1.7%)', incomeTax:'TAP (Tatimi mbi të Ardhurat)',
+    downloadPDF:'Shkarko PDF', exportCSV:'Eksporto CSV',
+    tatimetExport:'Eksporti për Tatimet',
+    // Leaves
+    leaveType:'Lloji i Lejes', annual:'Leje Vjetore', sick:'Leje Mjekësore',
+    personal:'Personale', leaveDate:'Data', leaveNote:'Shënim (opsional)',
+    addLeave:'Shto Leje', approve:'Aprovo', reject:'Refuzo',
+    pending:'Në Pritje', approved:'Aprovuar', rejected:'Refuzuar',
+    // Plans
+    currentPlan:'PLANI AKTUAL', upgrade:'Azhurno', free:'Falas',
+    pro:'Pro', business:'Biznes',
+    // Security
+    changePassword:'Ndrysho Fjalëkalimin', currentPass:'Fjalëkalimi Aktual',
+    newPass:'Fjalëkalimi i Ri', notifyEmail:'Email Njoftimesh',
+    // General
+    signOut:'Dilni', save:'Ruaj', loading:'Duke u ngarkuar...',
+    error:'Gabim', success:'Ruajtur', confirm:'Konfirmo',
+    employees:'punonjës', hours:'orë',
+    // Tatimet
+    tatimetTitle:'Deklarata Mujore Tatimet',
+    tatimetSub:'DSH — Deklarata e Sigurimeve Shoqërore dhe Shëndetësore',
   }
 };
 function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
+var LANG = localStorage.getItem('shq_lang') || 'sq'; // Albanian default
 function setLang(lang) { LANG = lang; localStorage.setItem('shq_lang', lang); location.reload(); }
 function toggleDark() {
   var isDark = document.body.classList.toggle('dark');
@@ -927,14 +1011,29 @@ function fmt(d) { if (!d) return '—'; var dt = new Date(d + (d.includes('T') ?
 function fmtTime(t) { return t ? t.slice(0,5) : '—'; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── PAYROLL CALCULATOR ───────────────────────────────────────────────────────
-// Generic gross pay calculation — no country-specific tax
-// Businesses manage their own statutory deductions via the Deductions feature
-function calcPayroll(grossMonthly) {
+// ── ALBANIAN 2026 TAX CALCULATOR ─────────────────────────────────────────────
+// Source: PwC Albania Tax Summaries, reviewed 22 July 2026
+// taxsummaries.pwc.com/albania/individual/taxes-on-personal-income
+function calcAlbanianTax(grossMonthly) {
   var g = parseFloat(grossMonthly) || 0;
+  var ssBase = Math.min(Math.max(g, 50000), 186416);
+  var socialIns = ssBase * 0.095;   // Social insurance 9.5%
+  var healthIns = ssBase * 0.017;   // Health insurance 1.7%
+  var socialSecurity = socialIns + healthIns; // Total 11.2%
+  var pit = 0;
+  if (g <= 50000) { pit = 0; }
+  else if (g <= 60000) { pit = (g - 35000) * 0.13; }
+  else if (g <= 200000) { pit = (g - 30000) * 0.13; }
+  else { pit = 22100 + (g - 200000) * 0.23; }
+  var netPay = Math.max(0, g - socialSecurity - pit);
   return {
     gross: g,
-    netPay: g // Net = Gross (statutory deductions are managed manually per country)
+    socialIns: socialIns,
+    healthIns: healthIns,
+    socialSecurity: socialSecurity,
+    incomeTax: pit,
+    netPay: netPay,
+    effectiveRate: g > 0 ? ((socialSecurity + pit) / g * 100) : 0
   };
 }
 // Auto-format a plain text field into HH:MM as the user types digits (replaces native <input type="time">
@@ -1115,7 +1214,7 @@ function initApp() {
   loadPlan().then(function(){ renderPlans(); });
   startAutoRefresh();
   var langBtn = document.getElementById('langBtn');
-  if (langBtn) langBtn.textContent = LANG === 'en' ? 'SQ' : 'EN';
+  if (langBtn) langBtn.textContent = LANG === 'sq' ? 'EN' : 'SQ';
 }
 
 // ── NAV ────────────────────────────────────────────────────────────────────
@@ -1787,7 +1886,14 @@ function renderPayroll() {
       (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-L '+deductions.toFixed(2)+'</span></div>':'')+
       '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span style="font-weight:700;">Pay Due (Gross)</span><span style="font-weight:700;">L '+gross.toFixed(2)+'</span></div>'+
       
-      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">PAY DUE</span><span class="payslip-total">'+CURR+' '+gross.toFixed(2)+'</span></div>'+
+      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span style="font-weight:700;">Pay Due (Gross)</span><span style="font-weight:700;">L '+gross.toFixed(2)+'</span></div>'+
+      '<div style="background:rgba(0,0,0,0.03);border-radius:8px;padding:8px 10px;margin-top:6px;">'+
+      '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:5px;letter-spacing:.5px;">STATUTORY DEDUCTIONS (employee share)</div>'+
+      '<div class="payslip-row" style="font-size:12px;"><span>Social Insurance (9.5%)</span><span style="color:var(--red);">-L '+tax.socialIns.toFixed(2)+'</span></div>'+
+      '<div class="payslip-row" style="font-size:12px;"><span>Health Insurance (1.7%)</span><span style="color:var(--red);">-L '+tax.healthIns.toFixed(2)+'</span></div>'+
+      (tax.incomeTax>0?'<div class="payslip-row" style="font-size:12px;"><span>Income Tax (TAP)</span><span style="color:var(--red);">-L '+tax.incomeTax.toFixed(2)+'</span></div>':'<div class="payslip-row" style="font-size:12px;"><span>Income Tax (TAP)</span><span style="color:var(--text3);">L 0.00 (exempt)</span></div>')+
+      '</div>'+
+      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">NET TAKE-HOME</span><span class="payslip-total">L '+tax.netPay.toFixed(2)+'</span></div>'+
       '<div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:4px;text-align:right;">Effective rate: '+tax.effectiveRate.toFixed(1)+'% · </div>'+
       '</div>';
   });
@@ -1852,12 +1958,79 @@ function renderDeds() {
 async function delDed(id){try{setSy('syncing');await aDel('/api/deductions/'+id);deds=deds.filter(function(d){return d.id!==id;});setSy('ok');renderDeds();toast('Entry removed','warn');}catch(e){setSy('error');toast('Failed','error');}}
 
 // ── REPORTS ─────────────────────────────────────────────────────────────────
+async function exportTatimet() {
+  var f = getReportFilters();
+  if (!f) return;
+  try {
+    setSy('syncing');
+    var data = await aGet('/api/business/' + BIZ_CODE + '/tatimet?month=' + f.month);
+    setSy('ok');
+
+    var headers = [
+      'Emri i Punonjësit',
+      'Roli',
+      'Nr. Identifikimi (plotësoni)',
+      'Orë Totale',
+      'Paga Bruto (L)',
+      // Employee contributions
+      'Sig. Shoqërore Punonjës 9.5% (L)',
+      'Sig. Shëndetësore Punonjës 1.7% (L)',
+      'Kontributi Total Punonjës 11.2% (L)',
+      // Employer contributions
+      'Sig. Shoqërore Punëdhënës 15% (L)',
+      'Sig. Shëndetësore Punëdhënës 1.7% (L)',
+      'Kontributi Total Punëdhënës 16.7% (L)',
+      // Tax
+      'TAP — Tatimi mbi të Ardhurat (L)',
+      // Net and total
+      'Paga Neto (L)',
+      'Kostoja Totale Punëdhënës (L)'
+    ];
+
+    var rows = data.rows.map(function(r) {
+      return [
+        r.name, r.role, '', // NID left blank — employer fills in
+        r.totalHours.toFixed(2),
+        r.grossSalary.toFixed(2),
+        r.empSocialIns.toFixed(2),
+        r.empHealthIns.toFixed(2),
+        r.empTotalIns.toFixed(2),
+        r.emplrSocialIns.toFixed(2),
+        r.emplrHealthIns.toFixed(2),
+        r.emplrTotalIns.toFixed(2),
+        r.incomeTax.toFixed(2),
+        r.netPay.toFixed(2),
+        r.totalEmployerCost.toFixed(2)
+      ];
+    });
+
+    // Totals row
+    var totals = ['TOTALI', '', '', '',
+      data.rows.reduce(function(a,r){return a+r.grossSalary;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.empSocialIns;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.empHealthIns;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.empTotalIns;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.emplrSocialIns;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.emplrHealthIns;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.emplrTotalIns;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.incomeTax;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.netPay;},0).toFixed(2),
+      data.rows.reduce(function(a,r){return a+r.totalEmployerCost;},0).toFixed(2)
+    ];
+    rows.push(totals);
+
+    var csv = buildCSV(headers, rows);
+    showPreview('Tatimet DSH — ' + f.month, headers, rows, csv, 'tatimet-DSH-' + f.month + '.csv');
+    toast('Deklarata Tatimet u gjenerua', 'success');
+  } catch(e) { setSy('error'); toast(e.message || 'Gabim', 'error'); }
+}
+
 function renderReports() { var rm=document.getElementById('reportMonth'); if(!rm.value)rm.value=dk(new Date()).slice(0,7); populateSelects(); document.getElementById('reportPreview').style.display='none'; }
 function getReportFilters() { var month=document.getElementById('reportMonth').value,empId=document.getElementById('reportEmp').value; if(!month){toast('Select a month','error');return null;} return{month,empId:empId?parseInt(empId):null}; }
 function buildCSV(headers,rows){var lines=[headers.join(',')];rows.forEach(function(row){lines.push(row.map(function(cell){var s=String(cell||'');if(s.includes(',')||s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(','));});return lines.join('\r\n');}
 function showPreview(title,headers,rows,csv,filename){currentCSV=csv;currentCSVName=filename;document.getElementById('reportPreviewTitle').textContent=title+' ('+rows.length+' rows)';var table=document.getElementById('reportPreviewTable');var html='<thead><tr>'+headers.map(function(h){return'<th style="padding:5px 7px;border-bottom:2px solid var(--border);text-align:left;color:var(--text3);white-space:nowrap;">'+h+'</th>';}).join('')+'</tr></thead><tbody>';rows.slice(0,8).forEach(function(row){html+='<tr>'+row.map(function(cell){return'<td style="padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap;">'+(cell||'—')+'</td>';}).join('')+'</tr>';});if(rows.length>8)html+='<tr><td colspan="'+headers.length+'" style="padding:5px;color:var(--text3);font-size:10px;">...and '+(rows.length-8)+' more</td></tr>';html+='</tbody>';table.innerHTML=html;document.getElementById('reportPreview').style.display='';document.getElementById('reportPreview').scrollIntoView({behavior:'smooth'});}
 function downloadCSV(){if(!currentCSV)return;var blob=new Blob([currentCSV],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=currentCSVName;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Downloaded: '+currentCSVName,'success');}
-function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate ('+CURR+'/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay ('+CURR+')','OT Pay ('+CURR+')','Bonuses ('+CURR+')','Deductions ('+CURR+')','Pay Due ('+CURR+')'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
+function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)','Social Security (L)','Income Tax (L)','Net Take-Home (L)'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;var tax=calcAlbanianTax(gross);return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
 function exportShifts(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Role','Check In','Check Out','Hours','Late','Note'];var filtered=shfts.filter(function(s){return s.date&&s.date.slice(0,7)===f.month&&(f.empId?s.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(s){var emp=emps.find(function(e){return e.id===s.emp_id;});return[s.date,emp?emp.name:'?',emp?emp.role||'':'',s.check_in||'',s.check_out||'',(parseFloat(s.hours)||0).toFixed(2),s.is_late?'Yes':'No',s.note||''];});var csv=buildCSV(headers,rows);showPreview('Shifts — '+f.month,headers,rows,csv,'shifts-'+f.month+'.csv');}
 function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Days Worked','Total Hours','Days Leave','Attendance %'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var es=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var el=lvs.filter(function(l){return l.emp_id===emp.id&&l.date&&l.date.slice(0,7)===f.month;});var esc2=scheds.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month;});var totalH=es.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);var att=esc2.length>0?((es.length/esc2.length)*100).toFixed(0)+'%':'N/A';return[emp.name,emp.role||'',es.length,totalH.toFixed(1),el.length,att];});var csv=buildCSV(headers,rows);showPreview('Attendance — '+f.month,headers,rows,csv,'attendance-'+f.month+'.csv');}
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
@@ -1894,28 +2067,15 @@ function renderPlans(){
     } else { expEl.textContent=''; }
   }
 }
-async function startStripeCheckout() {
-  var msg = document.getElementById('stripeMsg');
-  var btn = document.getElementById('stripeCheckoutBtn');
-  if (msg) msg.textContent = 'Connecting to Stripe...';
-  if (btn) btn.disabled = true;
-  try {
-    var r = await aPost('/api/stripe/create-checkout', {});
-    if (r.url) { window.location.href = r.url; }
-    else { if (msg) msg.textContent = r.error || 'Failed to connect'; if (btn) btn.disabled = false; }
-  } catch(e) {
-    if (msg) msg.textContent = e.message || 'Connection error';
-    if (btn) btn.disabled = false;
-  }
-}
-
 function startUpgrade(tier) {
   tier = tier || 'pro';
   var isBiz = tier === 'business';
   var titleEl = document.getElementById('upgradeModalTitle');
   var priceEl = document.getElementById('upgradeModalPrice');
-  if (titleEl) titleEl.textContent = isBiz ? 'Upgrade to Business' : 'Upgrade to Pro';
-  if (priceEl) priceEl.textContent = isBiz ? CURR + ' 200/year' : CURR + ' 10/month';
+  var refEl = document.getElementById('upgradeRefCode');
+  if (titleEl) titleEl.textContent = isBiz ? 'Upgrade to Business — L 20,000/year' : 'Upgrade to Pro — L 1,000/month';
+  if (priceEl) priceEl.textContent = isBiz ? 'L 20,000/year (~€200)' : 'L 1,000/month or L 12,000/year';
+  if (refEl) refEl.textContent = BIZ_CODE.toUpperCase();
   document.getElementById('upgradeModal').classList.add('open');
 }
 function closeUpgradeModal() {
@@ -2046,11 +2206,34 @@ function downloadPayslip(empId, ym) {
     doc.text(CURR + ' ' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
 
     // Tax deductions section
+    var tax = calcAlbanianTax(gross);
+    y += 14;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(150, 150, 150);
+    doc.text('STATUTORY DEDUCTIONS (employee share — PwC Albania 2026)', 25, y);
+    y += 8;
+    payRow('Social Insurance (9.5%)', '-L ' + tax.socialIns.toFixed(2), [180, 50, 50]);
+    payRow('Health Insurance (1.7%)', '-L ' + tax.healthIns.toFixed(2), [180, 50, 50]);
+    if (tax.incomeTax > 0) {
+      payRow('Income Tax / TAP', '-L ' + tax.incomeTax.toFixed(2), [180, 50, 50]);
+    } else {
+      payRow('Income Tax / TAP', 'L 0.00 (exempt)', [150, 150, 150]);
+    }
+    y += 4;
+    doc.setDrawColor(13, 13, 13);
+    doc.line(20, y, pageW - 20, y);
+    y += 10;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 86, 219);
+    doc.text('NET TAKE-HOME', 25, y);
+    doc.text('L ' + tax.netPay.toFixed(2), pageW - 25, y, { align: 'right' });
     y += 8;
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(180, 180, 180);
-    doc.text('Statutory deductions (tax, social security) are managed separately per local regulations.', 25, y);
+    doc.text('Effective tax rate: ' + tax.effectiveRate.toFixed(1) + '%  ·  Rates: PwC Albania 2026', 25, y);
 
     // Shift summary
     y += 20;
