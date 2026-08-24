@@ -901,6 +901,7 @@ var vSchedWeek = new Date();
 var schedView = 'week';
 var currentCSV = '', currentCSVName = '';
 var currentQRUrl = '';
+var LANG = localStorage.getItem('shq_lang') || 'sq'; // Albanian default — must be before T and t()
 
 
 // ── LANGUAGE ────────────────────────────────────────────────────────────────
@@ -998,7 +999,6 @@ var T = {
   }
 };
 function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
-var LANG = localStorage.getItem('shq_lang') || 'sq'; // Albanian default
 function setLang(lang) { LANG = lang; localStorage.setItem('shq_lang', lang); location.reload(); }
 function toggleDark() {
   var isDark = document.body.classList.toggle('dark');
