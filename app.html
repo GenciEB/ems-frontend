@@ -892,7 +892,7 @@ var SESSION_TOKEN = localStorage.getItem('ems_session_token') || null;
 var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
-var CURR = '$'; // currency symbol — loaded from backend on login
+var CURR = 'L'; // Albanian Lek — updated via SEC tab if needed
 var currentPlanExpiry = null;
 var bizLogo = null; // base64 logo for Business tier payslips
 var FREE_EMP_LIMIT = 5;
