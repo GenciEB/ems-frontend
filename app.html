@@ -865,18 +865,18 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 </main>
 
 <nav class="bnav">
-  <button class="tb active" onclick="goNav('dash',this)" data-page="dash"><span class="ic">📊</span>DASH</button>
-  <button class="tb" onclick="goNav('checkin',this)" data-page="checkin"><span class="ic">⏱</span>CHECK</button>
-  <button class="tb" onclick="goNav('employees',this)" data-page="employees"><span class="ic">👥</span>" + t('staff') + "</button>
-  <button class="tb" onclick="goNav('schedule',this)" data-page="schedule"><span class="ic">🗓</span>SCHED</button>
-  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll"><span class="ic">💰</span>" + t('payroll') + "</button>
-  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves"><span class="ic">🏖</span>" + t('leaves') + "</button>
-  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions"><span class="ic">➖</span>" + t('deductions') + "</button>
-  <button class="tb" onclick="goNav('analytics',this)" data-page="analytics"><span class="ic">📈</span>" + t('analytics') + "</button>
-  <button class="tb" onclick="goNav('reports',this)" data-page="reports"><span class="ic">📊</span>" + t('reports') + "</button>
-  <button class="tb" onclick="goNav('history',this)" data-page="history"><span class="ic">🗂</span>" + t('history') + "</button>
-  <button class="tb" onclick="goNav('plans',this)" data-page="plans"><span class="ic">💳</span>PLANS</button>
-  <button class="tb" onclick="goNav('security',this)" data-page="security"><span class="ic">🔐</span>SEC</button>
+  <button class="tb active" onclick="goNav('dash',this)" data-page="dash" data-key="dashboard"><span class="ic">📊</span><span class="tb-lbl">PANELI</span></button>
+  <button class="tb" onclick="goNav('checkin',this)" data-page="checkin" data-key="checkin"><span class="ic">⏱</span><span class="tb-lbl">HYRJE</span></button>
+  <button class="tb" onclick="goNav('employees',this)" data-page="employees" data-key="staff"><span class="ic">👥</span><span class="tb-lbl">STAFI</span></button>
+  <button class="tb" onclick="goNav('schedule',this)" data-page="schedule" data-key="schedule"><span class="ic">🗓</span><span class="tb-lbl">ORARI</span></button>
+  <button class="tb" onclick="goNav('payroll',this)" data-page="payroll" data-key="payroll"><span class="ic">💰</span><span class="tb-lbl">PAGAT</span></button>
+  <button class="tb" onclick="goNav('leaves',this)" data-page="leaves" data-key="leaves"><span class="ic">🏖</span><span class="tb-lbl">LEJET</span></button>
+  <button class="tb" onclick="goNav('deductions',this)" data-page="deductions" data-key="deductions"><span class="ic">➖</span><span class="tb-lbl">ZBRITJET</span></button>
+  <button class="tb" onclick="goNav('analytics',this)" data-page="analytics" data-key="analytics"><span class="ic">📈</span><span class="tb-lbl">STATISTIKA</span></button>
+  <button class="tb" onclick="goNav('reports',this)" data-page="reports" data-key="reports"><span class="ic">📊</span><span class="tb-lbl">RAPORTET</span></button>
+  <button class="tb" onclick="goNav('history',this)" data-page="history" data-key="history"><span class="ic">🗂</span><span class="tb-lbl">HISTORIKU</span></button>
+  <button class="tb" onclick="goNav('plans',this)" data-page="plans" data-key="plans"><span class="ic">💳</span><span class="tb-lbl">PLANET</span></button>
+  <button class="tb" onclick="goNav('security',this)" data-page="security" data-key="security"><span class="ic">🔐</span><span class="tb-lbl">SIGURIA</span></button>
 </nav>
 
 </div>
@@ -999,6 +999,13 @@ var T = {
   }
 };
 function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
+function updateNavLabels() {
+  document.querySelectorAll('.tb[data-key]').forEach(function(btn) {
+    var lbl = btn.querySelector('.tb-lbl');
+    if (lbl) lbl.textContent = t(btn.dataset.key);
+  });
+}
+
 function setLang(lang) { LANG = lang; localStorage.setItem('shq_lang', lang); location.reload(); }
 function toggleDark() {
   var isDark = document.body.classList.toggle('dark');
@@ -1210,6 +1217,7 @@ function initApp() {
   roleEl.textContent = IS_MGR ? 'MANAGER' : 'EMPLOYEE';
   roleEl.className = IS_MGR ? 'hdr-role manager' : 'hdr-role employee';
   startClock();
+  updateNavLabels();
   loadAll();
   loadPlan().then(function(){ renderPlans(); });
   startAutoRefresh();
