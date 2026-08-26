@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShiftHQ — My Shifts</title>
+<title>Turna — My Shifts</title>
 <meta name="theme-color" content="#0d0d0d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -105,7 +105,7 @@ html,body{height:100%;background:#0d0d0d;color:#f0f0ee;font-family:'Plus Jakarta
 <body>
 
 <nav class="nav">
-  <div class="nav-logo"><div class="nav-dot"></div>ShiftHQ</div>
+  <div class="nav-logo"><div class="nav-dot"></div>Turna</div>
   <div class="nav-emp" id="navEmp"></div>
 </nav>
 
@@ -189,7 +189,7 @@ var shifts = [], leaves = [], deds = [];
 var pin = '';
 var tab = 'shifts';
 var vm = new Date();
-var kiosk = localStorage.getItem('shq_kiosk') === '1';
+var kiosk = localStorage.getItem('trn_kiosk') === '1';
 var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -200,7 +200,7 @@ function fmtd(d){ if(!d) return '—'; var x=new Date(d+'T00:00:00'); return x.g
 function now(){ var n=new Date(); return pad(n.getHours())+':'+pad(n.getMinutes()); }
 
 // ── KIOSK TOGGLE ─────────────────────────────────────────────────────────────
-function toggleKiosk(){ kiosk=!kiosk; localStorage.setItem('shq_kiosk', kiosk?'1':'0'); renderSw(); }
+function toggleKiosk(){ kiosk=!kiosk; localStorage.setItem('trn_kiosk', kiosk?'1':'0'); renderSw(); }
 function renderSw(){ var s=document.getElementById('sw'); if(!s)return; if(kiosk)s.classList.add('on'); else s.classList.remove('on'); }
 renderSw();
 
@@ -243,7 +243,7 @@ async function doVerify(){
       var br=await fetch(API+'/api/business/'+code);
       if(br.ok){var bd=await br.json();emp.biz_name=bd.name||code.toUpperCase();}
     }catch(e){emp.biz_name=code.toUpperCase();}
-    localStorage.setItem('shq_kiosk_biz_code', code);
+    localStorage.setItem('trn_kiosk_biz_code', code);
     sessionStorage.setItem('shq_emp_token', TOKEN);
     sessionStorage.setItem('shq_emp_data', JSON.stringify(emp));
     await loadData();
@@ -496,7 +496,7 @@ function signOut(){
 // ── SESSION RESTORE (survives refresh, not new tab) ───────────────────────────
 (function(){
   // Pre-fill business code from memory
-  var bc=localStorage.getItem('shq_kiosk_biz_code');
+  var bc=localStorage.getItem('trn_kiosk_biz_code');
   if(bc){ var el=document.getElementById('bizCode'); if(el)el.value=bc; }
 
   // Restore session from sessionStorage (clears on new tab — so shared device starts fresh)

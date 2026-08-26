@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="ShiftHQ">
+<meta name="apple-mobile-web-app-title" content="Turna">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-XSS-Protection" content="1; mode=block">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="shortcut icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>ShiftHQ — Staff Manager</title>
+<title>Turna — Staff Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -304,7 +304,7 @@ input[type="time"]{min-width:0;-webkit-min-logical-width:0;text-align:left;}
 
   /* Logo at top of sidebar */
   nav.bnav::before{
-    content:'ShiftHQ';
+    content:'Turna';
     display:block;
     font-family:var(--display);
     font-size:17px;
@@ -391,7 +391,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 
 <!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-logo"><span class="login-logo-dot"></span>ShiftHQ</div>
+  <div class="login-logo"><span class="login-logo-dot"></span>Turna</div>
   <div class="login-sub">STAFF MANAGEMENT</div>
   <div class="login-card">
     <div class="login-tabs">
@@ -510,7 +510,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         Once we confirm the transfer, your plan is activated within 24 hours.
       </div>
       <div style="display:flex;gap:8px;">
-        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=ShiftHQ%20payment%20sent">✉️ I've sent it — notify us</a>
+        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=Turna%20payment%20sent">✉️ I've sent it — notify us</a>
         <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
       </div>
     </div>
@@ -555,7 +555,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
   <div style="background:#fff;border-radius:24px;padding:28px 22px;max-width:340px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
     <div style="display:flex;align-items:center;gap:5px;margin-bottom:16px;">
       <div style="width:7px;height:7px;background:#1a56db;border-radius:50%;"></div>
-      <span style="font-weight:800;font-size:15px;">ShiftHQ</span>
+      <span style="font-weight:800;font-size:15px;">Turna</span>
     </div>
     <div style="font-size:32px;margin-bottom:10px;">🎉</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Welcome!</div>
@@ -571,7 +571,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
 
 <header>
   <div>
-    <div class="logo"><span class="logo-dot"></span>ShiftHQ</div>
+    <div class="logo"><span class="logo-dot"></span>Turna</div>
     <div class="logo-sub" id="bizNameLabel"></div>
   </div>
   <div class="hdr-r">
@@ -973,7 +973,7 @@ var vSchedWeek = new Date();
 var schedView = 'week';
 var currentCSV = '', currentCSVName = '';
 var currentQRUrl = '';
-var LANG = localStorage.getItem('shq_lang') || 'sq'; // Albanian default — must be before T and t()
+var LANG = localStorage.getItem('trn_lang') || 'sq'; // Albanian default — must be before T and t()
 
 
 // ── LANGUAGE ────────────────────────────────────────────────────────────────
@@ -1078,10 +1078,10 @@ function updateNavLabels() {
   });
 }
 
-function setLang(lang) { LANG = lang; localStorage.setItem('shq_lang', lang); location.reload(); }
+function setLang(lang) { LANG = lang; localStorage.setItem('trn_lang', lang); location.reload(); }
 function toggleDark() {
   var isDark = document.body.classList.toggle('dark');
-  localStorage.setItem('shq_dark', isDark ? '1' : '0');
+  localStorage.setItem('trn_dark', isDark ? '1' : '0');
 }
 
 // ── UTILS ──────────────────────────────────────────────────────────────────
@@ -2177,7 +2177,7 @@ async function approveLeave(id) {
 async function rejectLeave(id) {
   try { setSy('syncing'); await aPatch('/api/leaves/'+id, {status:'rejected'}); setSy('ok'); toast('Leave rejected','warn'); lvs=await aGet('/api/leaves?business_id='+BIZ_ID); renderLeaves(); } catch(e){ setSy('error'); toast(e.message,'error'); }
 }
-function logoutBiz(){if(!confirm('Sign out of ShiftHQ?'))return;localStorage.clear();location.reload();}
+function logoutBiz(){if(!confirm('Sign out of Turna?'))return;localStorage.clear();location.reload();}
 function loadAudit(){if(!AUDIT_KEY)return[];try{var d=localStorage.getItem(AUDIT_KEY);return d?JSON.parse(d):[];}catch(e){return[];}}
 function logAudit(action,msg,who){if(!AUDIT_KEY)return;var log=loadAudit();log.unshift({action,msg,who,ts:new Date().toISOString()});if(log.length>50)log=log.slice(0,50);try{localStorage.setItem(AUDIT_KEY,JSON.stringify(log));}catch(e){}}
 function renderAuditLog(){var log=loadAudit();var html='';if(log.length===0){html='<div style="font-family:var(--mono);font-size:11px;color:var(--text3);">No activity yet</div>';}else log.slice(0,20).forEach(function(entry){var d=new Date(entry.ts),ts=d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');html+='<div class="audit-i action-'+(entry.action||'')+'"><div class="audit-ts">'+ts+'</div><div class="audit-msg">'+esc(entry.msg)+'</div><div class="audit-who">'+esc(entry.who||'System')+'</div></div>';});document.getElementById('auditLog').innerHTML=html;}
@@ -2214,7 +2214,7 @@ function downloadPayslip(empId, ym) {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('ShiftHQ', 20, 22);
+    doc.text('Turna', 20, 22);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('PAYSLIP', pageW - 20, 22, { align: 'right' });
@@ -2353,7 +2353,7 @@ function downloadPayslip(empId, ym) {
     // Footer
     doc.setFontSize(8);
     doc.setTextColor(160, 160, 160);
-    doc.text('Generated by ShiftHQ · shifthq.app', pageW / 2, 285, { align: 'center' });
+    doc.text('Generated by Turna · turna.app', pageW / 2, 285, { align: 'center' });
 
     doc.save('payslip-' + emp.name.replace(/\s/g, '-') + '-' + ym + '.pdf');
     toast('Payslip downloaded!', 'success');
@@ -2645,9 +2645,9 @@ function startAutoRefresh() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 var urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('upgraded') === '1') { currentPlan='pro'; toast('Welcome to ShiftHQ Pro! 🎉','success'); }
+if (urlParams.get('upgraded') === '1') { currentPlan='pro'; toast('Welcome to Turna Pro! 🎉','success'); }
 // Apply dark mode on load
-if (localStorage.getItem('shq_dark') === '1') document.body.classList.add('dark');
+if (localStorage.getItem('trn_dark') === '1') document.body.classList.add('dark');
 
 function showLoginWithCode() {
   document.getElementById('loginScreen').classList.remove('hidden');

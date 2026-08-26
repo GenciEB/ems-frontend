@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShiftHQ Admin</title>
+<title>Turna Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -70,6 +70,15 @@ html,body{height:100%;background:#0a0a0a;color:#f0f0ee;font-family:'Plus Jakarta
 .refresh-btn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;padding:8px 14px;color:#888;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;float:right;}
 .refresh-btn:hover{color:#f0f0ee;border-color:#555;}
 .signout-btn{background:transparent;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:#333;cursor:pointer;padding:4px 8px;}
+/* Custom confirm modal */
+.confirm-ov{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.confirm-box{background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:28px 24px;max-width:340px;width:100%;text-align:center;}
+.confirm-icon{font-size:36px;margin-bottom:12px;}
+.confirm-title{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:8px;}
+.confirm-msg{font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;line-height:1.6;margin-bottom:20px;}
+.confirm-btns{display:flex;gap:8px;}
+.confirm-ok{flex:1;padding:11px;border:none;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.confirm-cancel{flex:1;padding:11px;border:1px solid #2a2a2a;border-radius:10px;background:transparent;color:#888;font-family:'Space Grotesk',sans-serif;font-size:14px;cursor:pointer;}
 .signout-btn:hover{color:#888;}
 .search-inp{width:100%;background:#111;border:1.5px solid #1e1e1e;border-radius:10px;color:#f0f0ee;font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 14px;outline:none;margin-bottom:14px;transition:border-color .15s;}
 .search-inp:focus{border-color:#f59e0b;}
@@ -79,7 +88,7 @@ html,body{height:100%;background:#0a0a0a;color:#f0f0ee;font-family:'Plus Jakarta
 <body>
 
 <nav class="nav">
-  <div class="nav-logo"><div class="nav-dot"></div>ShiftHQ <span class="nav-tag">ADMIN</span></div>
+  <div class="nav-logo"><div class="nav-dot"></div>Turna <span class="nav-tag">ADMIN</span></div>
   <button class="signout-btn" id="signoutBtn" style="display:none;" onclick="adminSignOut()">Sign out</button>
 </nav>
 
@@ -87,7 +96,7 @@ html,body{height:100%;background:#0a0a0a;color:#f0f0ee;font-family:'Plus Jakarta
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-title">Admin Access</div>
-    <div class="login-sub">SHIFTHQ INTERNAL · RESTRICTED</div>
+    <div class="login-sub">TURNA INTERNAL · RESTRICTED</div>
     <div class="field">
       <label>ADMIN KEY</label>
       <input type="password" id="adminKeyInput" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')doLogin()">
@@ -114,8 +123,38 @@ html,body{height:100%;background:#0a0a0a;color:#f0f0ee;font-family:'Plus Jakarta
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
+<div class="confirm-ov" id="confirmOv" style="display:none;">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="resolveConfirm(false)">Cancel</button>
+      <button class="confirm-ok" id="confirmOkBtn" onclick="resolveConfirm(true)">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <script>
+var _confirmResolve = null;
+function customConfirm(icon, title, msg, okLabel, okColor) {
+  return new Promise(function(resolve) {
+    _confirmResolve = resolve;
+    document.getElementById('confirmIcon').textContent = icon;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMsg').textContent = msg;
+    var btn = document.getElementById('confirmOkBtn');
+    btn.textContent = okLabel || 'Confirm';
+    btn.style.background = okColor || '#2154f4';
+    btn.style.color = '#fff';
+    document.getElementById('confirmOv').style.display = 'flex';
+  });
+}
+function resolveConfirm(result) {
+  document.getElementById('confirmOv').style.display = 'none';
+  if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+}
+
 var API = 'https://ems-api-mgye.onrender.com';
 var ADMIN_KEY = '';
 var businesses = [];
@@ -295,9 +334,15 @@ async function toggleBlock(btn) {
   var name = btn.dataset.name;
   var block = btn.dataset.block === 'true';
   var msg = block
-    ? 'Suspend ' + name + '? They will not be able to log in until unblocked.'
-    : 'Unblock ' + name + '? They will immediately regain access.';
-  if (!confirm(msg)) return;
+    ? name + ' will not be able to log in until you unblock them.'
+    : name + ' will immediately regain full access.';
+  var ok = await customConfirm(
+    block ? '⛔' : '✓',
+    block ? 'Suspend ' + name + '?' : 'Unblock ' + name + '?',
+    msg, block ? 'Suspend' : 'Unblock',
+    block ? '#d97706' : '#16a34a'
+  );
+  if (!ok) return;
   try {
     var r = await fetch(API + '/api/admin/businesses/' + id + '/block', {
       method: 'PATCH',
@@ -314,10 +359,14 @@ async function toggleBlock(btn) {
 async function deleteBusiness(btn) {
   var id = btn.dataset.id;
   var name = btn.dataset.name;
-  var confirmed = confirm('⚠️ PERMANENTLY DELETE ' + name + '?\n\nThis will delete ALL employees, shifts, payroll data, and leave records. This cannot be undone.');
-  if (!confirmed) return;
-  var confirmed2 = confirm('Are you absolutely sure? There is no way to recover this data.');
-  if (!confirmed2) return;
+  var ok = await customConfirm(
+    '🗑',
+    'Delete ' + name + '?',
+    'This permanently deletes ALL employees, shifts, payroll data, and leave records. There is no way to recover this data.',
+    'Delete permanently',
+    '#dc2626'
+  );
+  if (!ok) return;
   try {
     var r = await fetch(API + '/api/admin/businesses/' + id, {
       method: 'DELETE',
@@ -333,7 +382,8 @@ async function deleteBusiness(btn) {
 async function deactivatePro(btn) {
   var id = btn.dataset.id;
   var name = btn.dataset.name;
-  if (!confirm('Revert ' + name + ' to Free plan?')) return;
+  var ok = await customConfirm('↓', 'Revert ' + name + ' to Free?', 'They will lose Pro/Business features immediately.', 'Revert to Free', '#6b7280');
+  if (!ok) return;
   try {
     var r = await fetch(API + '/api/admin/businesses/' + id + '/plan', {
       method: 'PATCH',
