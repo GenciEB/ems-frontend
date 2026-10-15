@@ -64,7 +64,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 
 /* BROWSER MOCKUP */
 .hero-visual{position:relative;padding-bottom:40px;}
-.brow{background:#fff;border:1px solid var(--border2);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px -12px rgba(0,0,0,.15),0 0 0 1px rgba(0,0,0,.04);position:relative;}
+.brow{background:#fff;border:1px solid var(--border2);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px -12px rgba(0,0,0,.15),0 0 0 1px rgba(0,0,0,.04);position:relative;z-index:2;}
 .bbar{height:40px;background:#F8F9FA;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:7px;}
 .bdot{width:10px;height:10px;border-radius:50%;}
 .bdot:nth-child(1){background:#FF5F57;}.bdot:nth-child(2){background:#FEBC2E;}.bdot:nth-child(3){background:#28C840;}
@@ -104,12 +104,12 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .ph-rl{font-family:var(--m);font-size:8px;color:var(--ink3);text-align:center;margin-bottom:10px;letter-spacing:.5px;}
 .ph-btn{width:100%;padding:10px;background:var(--blue);border:none;border-radius:9px;color:#fff;font-size:11px;font-weight:700;text-align:center;font-family:var(--f);}
 /* Floating badges */
-.fb{position:absolute;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.08);display:flex;align-items:center;gap:8px;animation:fbf 5s ease-in-out infinite;}
+.fb{position:absolute;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.08);display:flex;align-items:center;gap:8px;animation:fbf 5s ease-in-out infinite;z-index:1;}
 .fb:nth-child(2){animation-delay:-2s;}
 .fb:nth-child(3){animation-delay:-3.5s;}
 @keyframes fbf{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-.fb-tl{top:56px;left:-20px;}
-.fb-tr{top:40px;right:-16px;}
+.fb-tl{top:80px;left:-110px;}
+.fb-tr{top:60px;right:-110px;}
 .fb-val{font-size:13px;font-weight:700;color:var(--ink);}
 .fb-lbl{font-family:var(--m);font-size:9px;color:var(--ink3);letter-spacing:.5px;}
 
