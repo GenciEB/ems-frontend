@@ -1090,30 +1090,136 @@ function fmt(d) { if (!d) return '—'; var dt = new Date(d + (d.includes('T') ?
 function fmtTime(t) { return t ? t.slice(0,5) : '—'; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── ALBANIAN 2026 TAX CALCULATOR ─────────────────────────────────────────────
-// Source: PwC Albania Tax Summaries, reviewed 22 July 2026
-// taxsummaries.pwc.com/albania/individual/taxes-on-personal-income
-function calcAlbanianTax(grossMonthly) {
-  var g = parseFloat(grossMonthly) || 0;
-  var ssBase = Math.min(Math.max(g, 50000), 186416);
-  var socialIns = ssBase * 0.095;   // Social insurance 9.5%
-  var healthIns = ssBase * 0.017;   // Health insurance 1.7%
-  var socialSecurity = socialIns + healthIns; // Total 11.2%
-  var pit = 0;
-  if (g <= 50000) { pit = 0; }
-  else if (g <= 60000) { pit = (g - 35000) * 0.13; }
-  else if (g <= 200000) { pit = (g - 30000) * 0.13; }
-  else { pit = 22100 + (g - 200000) * 0.23; }
-  var netPay = Math.max(0, g - socialSecurity - pit);
-  return {
-    gross: g,
-    socialIns: socialIns,
-    healthIns: healthIns,
-    socialSecurity: socialSecurity,
-    incomeTax: pit,
-    netPay: netPay,
-    effectiveRate: g > 0 ? ((socialSecurity + pit) / g * 100) : 0
+// ── PAYROLL / ALBANIAN 2026 TAX ──────────────────────────────────────────────
+// Rules and maths live in ONE place (PAYROLL_CORE, generated from payroll.js) and are identical on the server.
+// >>> PAYROLL_CORE_BEGIN >>>
+var PAYROLL_RULES = {
+  // Albanian rules by effective year. When rates change, ADD a new year; never edit a past year,
+  // so older months can still be calculated with the rules that applied then.
+  2026: {
+    minBase: 50000,       // minimum monthly contribution base (L)
+    maxBase: 186416,      // maximum monthly contribution base (L)
+    empSocial: 0.095,     // employee social insurance
+    empHealth: 0.017,     // employee health insurance
+    emplrSocial: 0.15,    // employer social insurance
+    emplrHealth: 0.017,   // employer health insurance
+    pit: {                // income tax (TAP) bands
+      exemptUpTo: 50000,
+      band1UpTo: 60000, band1Deduct: 35000,
+      band2UpTo: 200000, band2Deduct: 30000,
+      rate: 0.13,
+      topBase: 22100, topRate: 0.23
+    }
+  }
+};
+
+function payrollRound(n) { return Math.round((Number(n) + Number.EPSILON) * 100) / 100; }
+function payrollLek(n) { return 'L ' + Math.round(Number(n) || 0).toLocaleString('en-US'); }
+
+// Pick the rules in force for a month ('YYYY-MM'). Falls back to the nearest known year and says so.
+function payrollRulesFor(month) {
+  var year = parseInt(String(month || '').slice(0, 4), 10);
+  var years = Object.keys(PAYROLL_RULES).map(Number).sort(function (a, b) { return a - b; });
+  if (!year) return { rules: PAYROLL_RULES[years[years.length - 1]], year: years[years.length - 1], requested: null, exact: true };
+  var use = years[0];
+  years.forEach(function (y) { if (y <= year) use = y; });
+  return { rules: PAYROLL_RULES[use], year: use, requested: year, exact: use === year };
+}
+
+// calcPayroll({ gross, month }) -> amounts + warnings. Never hides a problem:
+// a negative net stays negative and is flagged; every assumption is reported in warnings.
+function calcPayroll(input) {
+  input = input || {};
+  var sel = payrollRulesFor(input.month);
+  var R = sel.rules;
+  var warnings = [];
+  function warn(code, level, en, sq) { warnings.push({ code: code, level: level, en: en, sq: sq }); }
+
+  var gross = Number(input.gross);
+  if (!isFinite(gross)) gross = 0;
+  if (gross < 0) {
+    warn('NEGATIVE_GROSS', 'error',
+      'Deductions exceed earnings this month (' + payrollLek(gross) + '). Treated as L 0 — review the deductions.',
+      'Zbritjet tejkalojnë të ardhurat këtë muaj (' + payrollLek(gross) + '). Trajtohet si L 0 — rishikoni zbritjet.');
+    gross = 0;
+  }
+  if (!sel.exact) {
+    warn('RULES_YEAR_FALLBACK', 'info',
+      'No payroll rules stored for ' + sel.requested + '; using the ' + sel.year + ' rates.',
+      'Nuk ka rregulla të ruajtura për vitin ' + sel.requested + '; përdoren normat e vitit ' + sel.year + '.');
+  }
+
+  var out = {
+    gross: payrollRound(gross), base: 0, rulesYear: sel.year,
+    empSocial: 0, empHealth: 0, empTotal: 0,
+    emplrSocial: 0, emplrHealth: 0, emplrTotal: 0,
+    pit: 0, net: payrollRound(gross), employerCost: payrollRound(gross),
+    effectiveRate: 0, warnings: warnings
   };
+
+  if (gross === 0) {
+    warn('NO_PAY', 'info', 'No pay this month — no contributions calculated.', 'Pa pagë këtë muaj — nuk llogariten kontribute.');
+    return out;
+  }
+
+  var base = Math.min(Math.max(gross, R.minBase), R.maxBase);
+  out.base = base;
+  out.empSocial = payrollRound(base * R.empSocial);
+  out.empHealth = payrollRound(base * R.empHealth);
+  out.empTotal = payrollRound(out.empSocial + out.empHealth);
+  out.emplrSocial = payrollRound(base * R.emplrSocial);
+  out.emplrHealth = payrollRound(base * R.emplrHealth);
+  out.emplrTotal = payrollRound(out.emplrSocial + out.emplrHealth);
+
+  var p = R.pit, pit;
+  if (gross <= p.exemptUpTo) pit = 0;
+  else if (gross <= p.band1UpTo) pit = (gross - p.band1Deduct) * p.rate;
+  else if (gross <= p.band2UpTo) pit = (gross - p.band2Deduct) * p.rate;
+  else pit = p.topBase + (gross - p.band2UpTo) * p.topRate;
+  out.pit = payrollRound(pit);
+
+  out.net = payrollRound(gross - out.empTotal - out.pit);          // deliberately NOT clamped at zero
+  out.employerCost = payrollRound(gross + out.emplrTotal);
+  out.effectiveRate = (out.empTotal + out.pit) / gross * 100;
+
+  if (gross < R.minBase) {
+    warn('MIN_BASE_APPLIED', 'warn',
+      'Gross pay (' + payrollLek(gross) + ') is below the ' + payrollLek(R.minBase) + ' minimum contribution base, so contributions use ' + payrollLek(R.minBase) + '. Part-time or short-hour contracts may be treated differently — confirm with your accountant.',
+      'Paga bruto (' + payrollLek(gross) + ') është nën bazën minimale të kontributeve (' + payrollLek(R.minBase) + '), ndaj kontributet llogariten mbi ' + payrollLek(R.minBase) + '. Kontratat me orar të shkurtuar mund të trajtohen ndryshe — konfirmojeni me llogaritarin.');
+  }
+  if (gross > R.maxBase) {
+    warn('CAP_APPLIED', 'info',
+      'Gross pay is above the ' + payrollLek(R.maxBase) + ' maximum base; contributions are capped at the maximum.',
+      'Paga bruto tejkalon bazën maksimale (' + payrollLek(R.maxBase) + '); kontributet llogariten mbi bazën maksimale.');
+  }
+  if (out.empTotal > gross) {
+    warn('CONTRIB_EXCEEDS_GROSS', 'error',
+      'Employee contributions (' + payrollLek(out.empTotal) + ') exceed gross pay (' + payrollLek(gross) + '). Net pay is negative — check the contract type and contribution base before filing.',
+      'Kontributet e punonjësit (' + payrollLek(out.empTotal) + ') tejkalojnë pagën bruto (' + payrollLek(gross) + '). Paga neto del negative — kontrolloni llojin e kontratës dhe bazën e kontributeve para dorëzimit.');
+  }
+  return out;
+}
+
+// Short text for a CSV/notes cell. lang: 'sq' or 'en'. Skips plain "info" notes unless asked.
+function payrollNotes(result, lang, includeInfo) {
+  return result.warnings
+    .filter(function (w) { return includeInfo || w.level !== 'info'; })
+    .map(function (w) { return w[lang === 'en' ? 'en' : 'sq']; })
+    .join(' | ');
+}
+// <<< PAYROLL_CORE_END <<<
+
+// Thin adapter kept so the payslip, PDF and CSV code can use the same field names as before.
+function calcAlbanianTax(grossMonthly, month) {
+  var r = calcPayroll({ gross: grossMonthly, month: month });
+  return { gross: r.gross, base: r.base, socialIns: r.empSocial, healthIns: r.empHealth, socialSecurity: r.empTotal,
+           incomeTax: r.pit, netPay: r.net, effectiveRate: r.effectiveRate, warnings: r.warnings };
+}
+function payWarnHtml(warnings) {
+  var list = (warnings || []).filter(function (w) { return w.level !== 'info'; });
+  if (!list.length) return '';
+  return '<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.25);font-size:11px;line-height:1.5;color:var(--red);">' +
+    list.map(function (w) { return '⚠ ' + esc(LANG === 'sq' ? w.sq : w.en); }).join('<br>') + '</div>';
 }
 // Auto-format a plain text field into HH:MM as the user types digits (replaces native <input type="time">
 // because iOS Safari's built-in time picker has a stubborn minimum width that overflows narrow grid columns)
@@ -1956,7 +2062,7 @@ function renderPayroll() {
     var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var gross=basePay+otPay+bonuses-deductions;
-    
+    var tax=calcAlbanianTax(gross, ym);
     html+='<div class="payslip"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
       '<div><div style="font-size:17px;font-weight:800;">'+esc(emp.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(emp.role||'')+'</div></div>'+
       '<span class="badge bb">'+totalH.toFixed(2)+'h</span><button class="btn btn-s" style="width:auto;padding:5px 10px;font-size:11px;" onclick="downloadPayslip('+emp.id+',\''+ym+'\')" >📄 PDF</button></div>'+
@@ -1965,8 +2071,6 @@ function renderPayroll() {
       (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+L '+bonuses.toFixed(2)+'</span></div>':'')+
       (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-L '+deductions.toFixed(2)+'</span></div>':'')+
       '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span style="font-weight:700;">Pay Due (Gross)</span><span style="font-weight:700;">L '+gross.toFixed(2)+'</span></div>'+
-      
-      '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span style="font-weight:700;">Pay Due (Gross)</span><span style="font-weight:700;">L '+gross.toFixed(2)+'</span></div>'+
       '<div style="background:rgba(0,0,0,0.03);border-radius:8px;padding:8px 10px;margin-top:6px;">'+
       '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:5px;letter-spacing:.5px;">STATUTORY DEDUCTIONS (employee share)</div>'+
       '<div class="payslip-row" style="font-size:12px;"><span>Social Insurance (9.5%)</span><span style="color:var(--red);">-L '+tax.socialIns.toFixed(2)+'</span></div>'+
@@ -1974,7 +2078,8 @@ function renderPayroll() {
       (tax.incomeTax>0?'<div class="payslip-row" style="font-size:12px;"><span>Income Tax (TAP)</span><span style="color:var(--red);">-L '+tax.incomeTax.toFixed(2)+'</span></div>':'<div class="payslip-row" style="font-size:12px;"><span>Income Tax (TAP)</span><span style="color:var(--text3);">L 0.00 (exempt)</span></div>')+
       '</div>'+
       '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span class="payslip-total">NET TAKE-HOME</span><span class="payslip-total">L '+tax.netPay.toFixed(2)+'</span></div>'+
-      '<div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:4px;text-align:right;">Effective rate: '+tax.effectiveRate.toFixed(1)+'% · </div>'+
+      '<div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:4px;text-align:right;">Effective rate: '+tax.effectiveRate.toFixed(1)+'%</div>'+
+      payWarnHtml(tax.warnings)+
       '</div>';
   });
   document.getElementById('payrollList').innerHTML=html;
@@ -2048,62 +2153,34 @@ async function exportTatimet() {
     if (!data.rows.length) { toast('Asnjë punonjës me pagë këtë muaj', 'error'); return; }
 
     var headers = [
-      'Emri i Punonjësit',
-      'Roli',
-      'Nr. Identifikimi (plotësoni)',
-      'Orë Totale',
-      'Paga Bruto (L)',
-      // Employee contributions
-      'Sig. Shoqërore Punonjës 9.5% (L)',
-      'Sig. Shëndetësore Punonjës 1.7% (L)',
-      'Kontributi Total Punonjës 11.2% (L)',
-      // Employer contributions
-      'Sig. Shoqërore Punëdhënës 15% (L)',
-      'Sig. Shëndetësore Punëdhënës 1.7% (L)',
-      'Kontributi Total Punëdhënës 16.7% (L)',
-      // Tax
-      'TAP — Tatimi mbi të Ardhurat (L)',
-      // Net and total
-      'Paga Neto (L)',
-      'Kostoja Totale Punëdhënës (L)'
+      'Emri i Punonjësit', 'Roli', 'Nr. Identifikimi (plotësoni)', 'Orë Totale',
+      'Paga Bruto (L)', 'Baza e Kontributeve (L)',
+      'Sig. Shoqërore Punonjës 9.5% (L)', 'Sig. Shëndetësore Punonjës 1.7% (L)', 'Kontributi Total Punonjës 11.2% (L)',
+      'Sig. Shoqërore Punëdhënës 15% (L)', 'Sig. Shëndetësore Punëdhënës 1.7% (L)', 'Kontributi Total Punëdhënës 16.7% (L)',
+      'TAP — Tatimi mbi të Ardhurat (L)', 'Paga Neto (L)', 'Kostoja Totale Punëdhënës (L)',
+      'Shënime / Paralajmërime'
     ];
-
-    var rows = data.rows.map(function(r) {
-      return [
-        r.name, r.role, '', // NID left blank — employer fills in
-        r.totalHours.toFixed(2),
-        r.grossSalary.toFixed(2),
-        r.empSocialIns.toFixed(2),
-        r.empHealthIns.toFixed(2),
-        r.empTotalIns.toFixed(2),
-        r.emplrSocialIns.toFixed(2),
-        r.emplrHealthIns.toFixed(2),
-        r.emplrTotalIns.toFixed(2),
-        r.incomeTax.toFixed(2),
-        r.netPay.toFixed(2),
-        r.totalEmployerCost.toFixed(2)
-      ];
+    var rows = data.rows.map(function (r) {
+      return [r.name, r.role, '', r.totalHours.toFixed(2),
+        r.grossSalary.toFixed(2), r.base.toFixed(2),
+        r.empSocialIns.toFixed(2), r.empHealthIns.toFixed(2), r.empTotalIns.toFixed(2),
+        r.emplrSocialIns.toFixed(2), r.emplrHealthIns.toFixed(2), r.emplrTotalIns.toFixed(2),
+        r.incomeTax.toFixed(2), r.netPay.toFixed(2), r.totalEmployerCost.toFixed(2),
+        r.notes || ''];
     });
-
-    // Totals row
-    var totals = ['TOTALI', '', '', '',
-      data.rows.reduce(function(a,r){return a+r.grossSalary;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.empSocialIns;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.empHealthIns;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.empTotalIns;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.emplrSocialIns;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.emplrHealthIns;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.emplrTotalIns;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.incomeTax;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.netPay;},0).toFixed(2),
-      data.rows.reduce(function(a,r){return a+r.totalEmployerCost;},0).toFixed(2)
-    ];
-    rows.push(totals);
+    function sum(k) { return data.rows.reduce(function (a, r) { return a + r[k]; }, 0).toFixed(2); }
+    rows.push(['TOTALI', '', '', sum('totalHours'), sum('grossSalary'), '',
+      sum('empSocialIns'), sum('empHealthIns'), sum('empTotalIns'),
+      sum('emplrSocialIns'), sum('emplrHealthIns'), sum('emplrTotalIns'),
+      sum('incomeTax'), sum('netPay'), sum('totalEmployerCost'), '']);
 
     var csv = buildCSV(headers, rows);
     showPreview('Tatimet DSH — ' + f.month, headers, rows, csv, 'tatimet-DSH-' + f.month + '.csv');
-    toast('Deklarata Tatimet u gjenerua', 'success');
-  } catch(e) { setSy('error'); toast(e.message || 'Gabim', 'error'); }
+    var issues = data.rows.filter(function (r) { return r.notes; }).length;
+    if (issues) toast('⚠ ' + issues + ' punonjës me paralajmërime — shihni kolonën Shënime', 'error');
+    else toast('Deklarata Tatimet u gjenerua', 'success');
+    setTimeout(function () { toast('⚠ Nr. Identifikimi është bosh — plotësojeni para dorëzimit', 'error'); }, 2800);
+  } catch (e) { setSy('error'); toast(e.message || 'Gabim', 'error'); }
 }
 
 function renderReports() { var rm=document.getElementById('reportMonth'); if(!rm.value)rm.value=dk(new Date()).slice(0,7); populateSelects(); document.getElementById('reportPreview').style.display='none'; }
@@ -2111,7 +2188,7 @@ function getReportFilters() { var month=document.getElementById('reportMonth').v
 function buildCSV(headers,rows){var lines=[headers.join(',')];rows.forEach(function(row){lines.push(row.map(function(cell){var s=String(cell||'');if(s.includes(',')||s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(','));});return lines.join('\r\n');}
 function showPreview(title,headers,rows,csv,filename){currentCSV=csv;currentCSVName=filename;document.getElementById('reportPreviewTitle').textContent=title+' ('+rows.length+' rows)';var table=document.getElementById('reportPreviewTable');var html='<thead><tr>'+headers.map(function(h){return'<th style="padding:5px 7px;border-bottom:2px solid var(--border);text-align:left;color:var(--text3);white-space:nowrap;">'+h+'</th>';}).join('')+'</tr></thead><tbody>';rows.slice(0,8).forEach(function(row){html+='<tr>'+row.map(function(cell){return'<td style="padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap;">'+(cell||'—')+'</td>';}).join('')+'</tr>';});if(rows.length>8)html+='<tr><td colspan="'+headers.length+'" style="padding:5px;color:var(--text3);font-size:10px;">...and '+(rows.length-8)+' more</td></tr>';html+='</tbody>';table.innerHTML=html;document.getElementById('reportPreview').style.display='';document.getElementById('reportPreview').scrollIntoView({behavior:'smooth'});}
 function downloadCSV(){if(!currentCSV)return;var blob=new Blob([currentCSV],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=currentCSVName;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Downloaded: '+currentCSVName,'success');}
-function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)','Social Security (L)','Income Tax (L)','Net Take-Home (L)'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;var tax=calcAlbanianTax(gross);return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2)];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
+function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)','Social Security (L)','Income Tax (L)','Net Take-Home (L)','Notes'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;var tax=calcAlbanianTax(gross,f.month);return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2),payrollNotes(tax,'en')];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
 function exportShifts(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Role','Check In','Check Out','Hours','Late','Note'];var filtered=shfts.filter(function(s){return s.date&&s.date.slice(0,7)===f.month&&(f.empId?s.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(s){var emp=emps.find(function(e){return e.id===s.emp_id;});return[s.date,emp?emp.name:'?',emp?emp.role||'':'',s.check_in||'',s.check_out||'',(parseFloat(s.hours)||0).toFixed(2),s.is_late?'Yes':'No',s.note||''];});var csv=buildCSV(headers,rows);showPreview('Shifts — '+f.month,headers,rows,csv,'shifts-'+f.month+'.csv');}
 function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Days Worked','Total Hours','Days Leave','Attendance %'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var es=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var el=lvs.filter(function(l){return l.emp_id===emp.id&&l.date&&l.date.slice(0,7)===f.month;});var esc2=scheds.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month;});var totalH=es.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);var att=esc2.length>0?((es.length/esc2.length)*100).toFixed(0)+'%':'N/A';return[emp.name,emp.role||'',es.length,totalH.toFixed(1),el.length,att];});var csv=buildCSV(headers,rows);showPreview('Attendance — '+f.month,headers,rows,csv,'attendance-'+f.month+'.csv');}
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
@@ -2297,7 +2374,7 @@ function downloadPayslip(empId, ym) {
     doc.text(CURR + ' ' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
 
     // Tax deductions section
-    var tax = calcAlbanianTax(gross);
+    var tax = calcAlbanianTax(gross, ym);
     y += 14;
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
@@ -2325,6 +2402,10 @@ function downloadPayslip(empId, ym) {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(180, 180, 180);
     doc.text('Effective tax rate: ' + tax.effectiveRate.toFixed(1) + '%  ·  Rates: PwC Albania 2026', 25, y);
+    (tax.warnings || []).filter(function (w) { return w.level !== 'info'; }).forEach(function (w) {
+      var wl = doc.splitTextToSize('WARNING: ' + w.en, pageW - 50);
+      y += 6; doc.setTextColor(200, 50, 50); doc.text(wl, 25, y); y += wl.length * 3.5;
+    });
 
     // Shift summary
     y += 20;
