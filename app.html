@@ -2045,6 +2045,7 @@ async function exportTatimet() {
     setSy('syncing');
     var data = await aGet('/api/business/' + BIZ_CODE + '/tatimet?month=' + f.month);
     setSy('ok');
+    if (!data.rows.length) { toast('Asnjë punonjës me pagë këtë muaj', 'error'); return; }
 
     var headers = [
       'Emri i Punonjësit',
