@@ -1537,15 +1537,41 @@ function showUpgradePrompt(page) {
 // ── LOGO UPLOAD (Business tier) ───────────────────────────────────────────────
 function previewLogo(input) {
   if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var msg = document.getElementById('logoMsg');
+  function fail(t) { msg.textContent = t; msg.style.color = 'var(--red)'; }
+  if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { fail('Please choose a PNG, JPG or WebP image'); return; }
+  msg.textContent = '';
   var reader = new FileReader();
+  reader.onerror = function() { fail('Could not read that file'); };
   reader.onload = function(e) {
-    document.getElementById('logoImg').src = e.target.result;
-    document.getElementById('logoPreview').style.display = 'block';
-    document.getElementById('logoUploadBtn').style.display = '';
-    document.getElementById('logoRemoveBtn').style.display = '';
-    bizLogo = e.target.result;
+    var img = new Image();
+    img.onerror = function() { fail('That image could not be opened'); };
+    img.onload = function() {
+      // Shrink to at most 400px so the upload is small and payslips stay fast
+      var scale = Math.min(1, 400 / Math.max(img.width, img.height));
+      var w = Math.max(1, Math.round(img.width * scale)), h = Math.max(1, Math.round(img.height * scale));
+      var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      var ctx = cv.getContext('2d');
+      var out;
+      if (file.type === 'image/png') {
+        ctx.drawImage(img, 0, 0, w, h);               // keep transparency
+        out = cv.toDataURL('image/png');
+      }
+      if (!out || out.length > 400000) {                // JPEG (or a PNG that is still too big): white background
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+        out = cv.toDataURL('image/jpeg', 0.85);
+      }
+      if (out.length > 450000) { fail('That image is still too large — try a simpler logo'); return; }
+      bizLogo = out;
+      document.getElementById('logoImg').src = out;
+      document.getElementById('logoPreview').style.display = 'block';
+      document.getElementById('logoUploadBtn').style.display = '';
+      document.getElementById('logoRemoveBtn').style.display = '';
+    };
+    img.src = e.target.result;
   };
-  reader.readAsDataURL(input.files[0]);
+  reader.readAsDataURL(file);
 }
 
 async function uploadLogo() {
