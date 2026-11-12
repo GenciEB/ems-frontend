@@ -2119,7 +2119,7 @@ async function addLeave() {
   if(!eid||!date){toast('Select employee and date','error');return;}
   _addingLeave = true;
   var addBtn = document.querySelector('button[onclick="addLeave()"]'); if (addBtn) { addBtn.disabled = true; addBtn.style.opacity = '.6'; }
-  try { setSy('syncing'); var lv=await aPost('/api/leaves',{emp_id:eid,business_id:BIZ_ID,date,type,note:note||null}); lvs.push(lv); document.getElementById('leaveNote').value=''; setSy('ok'); var emp=emps.find(function(e){return e.id===eid;}); logAudit('leave',(emp?emp.name:'?')+' — '+type+' on '+date,'Manager'); toast('Leave added','success'); renderLeaves(); }
+  try { setSy('syncing'); var lv=await aPost('/api/leaves',{emp_id:eid,business_id:BIZ_ID,date,type,note:note||null}); lvs.push(lv); document.getElementById('leaveNote').value=''; setSy('ok'); var emp=emps.find(function(e){return e.id===eid;}); logAudit('leave',(emp?emp.name:'?')+' — '+type+' on '+date,'Manager'); toast('Leave added — tap Approve to confirm it','success'); renderLeaves(); }
   catch(e){setSy('error');toast('Failed: '+e.message,'error');}
   finally { _addingLeave = false; if (addBtn) { addBtn.disabled = false; addBtn.style.opacity = ''; } }
 }
