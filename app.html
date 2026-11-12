@@ -2112,11 +2112,16 @@ function renderPayroll() {
 }
 
 // ── LEAVES ──────────────────────────────────────────────────────────────────
+var _addingLeave = false;
 async function addLeave() {
+  if (_addingLeave) return;   // ignore repeat taps while the first one is saving
   var eid=parseInt(document.getElementById('leaveEmp').value), date=document.getElementById('leaveDate').value, type=document.getElementById('leaveType').value, note=document.getElementById('leaveNote').value.trim();
   if(!eid||!date){toast('Select employee and date','error');return;}
-  try { setSy('syncing'); var lv=await aPost('/api/leaves',{emp_id:eid,business_id:BIZ_ID,date,type,note:note||null}); lvs.push(lv); setSy('ok'); var emp=emps.find(function(e){return e.id===eid;}); logAudit('leave',(emp?emp.name:'?')+' — '+type+' on '+date,'Manager'); toast('Leave added','success'); renderLeaves(); }
+  _addingLeave = true;
+  var addBtn = document.querySelector('button[onclick="addLeave()"]'); if (addBtn) { addBtn.disabled = true; addBtn.style.opacity = '.6'; }
+  try { setSy('syncing'); var lv=await aPost('/api/leaves',{emp_id:eid,business_id:BIZ_ID,date,type,note:note||null}); lvs.push(lv); document.getElementById('leaveNote').value=''; setSy('ok'); var emp=emps.find(function(e){return e.id===eid;}); logAudit('leave',(emp?emp.name:'?')+' — '+type+' on '+date,'Manager'); toast('Leave added','success'); renderLeaves(); }
   catch(e){setSy('error');toast('Failed: '+e.message,'error');}
+  finally { _addingLeave = false; if (addBtn) { addBtn.disabled = false; addBtn.style.opacity = ''; } }
 }
 function renderLeaves() {
   var pending = lvs.filter(function(l){ return l.status === 'pending'; });
