@@ -285,7 +285,10 @@ function renderClock(){
   var s=shifts.find(function(x){return x.date===today;});
   var el=document.getElementById('clockCard');
   if(!el) return;
-  if(!s){
+  var onLeave=leaves.some(function(l){return String(l.date).slice(0,10)===today&&l.status==='approved';});
+  if(!s&&onLeave){
+    el.innerHTML='<div class="done-bar">🏖 You are on approved leave today — clock-in is turned off</div>';
+  } else if(!s){
     el.innerHTML='<button class="btn-in" onclick="clockIn()">▶ Clock In</button>';
   } else if(s.check_in&&!s.check_out){
     el.innerHTML='<div class="on-shift-bar"><div class="pulse"></div><div class="on-shift-txt">ON SHIFT SINCE '+s.check_in.slice(0,5)+'</div></div>'+
