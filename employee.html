@@ -436,13 +436,16 @@ function renderLeaves(ym){
   document.getElementById('tabContent').innerHTML=h;
 }
 
+var _sendingLeave=false;
 async function submitLeave(){
+  if(_sendingLeave) return;   // ignore repeat taps while the first one is sending
   var date=document.getElementById('leaveDateInp').value;
   var type=document.getElementById('leaveTypeInp').value;
   var note=document.getElementById('leaveNoteInp').value.trim();
   var msg=document.getElementById('leaveMsg');
   if(!date){msg.textContent='Select a date';msg.style.color='#f87171';return;}
   msg.textContent='Submitting...';msg.style.color='#888';
+  _sendingLeave=true;
   try{
     var r=await fetch(API+'/api/leaves',{
       method:'POST',headers:{'Content-Type':'application/json','x-emp-token':TOKEN},
@@ -456,6 +459,7 @@ async function submitLeave(){
     document.getElementById('leaveNoteInp').value='';
     renderLeaves(new Date().getFullYear()+'-'+pad(new Date().getMonth()+1));
   }catch(e){msg.textContent='Connection error';msg.style.color='#f87171';}
+  finally{_sendingLeave=false;}
 }
 
 
