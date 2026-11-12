@@ -1397,7 +1397,7 @@ function initApp() {
   startClock();
   updateNavLabels();
   loadAll();
-  loadPlan().then(function(){ renderPlans(); });
+  loadPlan().then(function(){ renderPlans(); return loadLogoSettings(); });
   startAutoRefresh();
   var langBtn = document.getElementById('langBtn');
   if (langBtn) langBtn.textContent = LANG === 'sq' ? 'EN' : 'SQ';
@@ -2325,158 +2325,147 @@ function downloadPayslip(empId, ym) {
 
   try {
     var doc = new window.jspdf.jsPDF();
-    var pageW = doc.internal.pageSize.getWidth();
+    var pageW = doc.internal.pageSize.getWidth();   // 210 mm (A4)
+    var M = 20, R = pageW - M;
+    var BLUE = [33, 84, 244], INK = [17, 24, 39], GREY = [107, 114, 128], LINE = [229, 231, 235], CARD = [244, 246, 251];
+    function fill(col) { doc.setFillColor(col[0], col[1], col[2]); }
+    function ink(col) { doc.setTextColor(col[0], col[1], col[2]); }
+    function money(n) { var v = Number(n) || 0; return (v < 0 ? '-' : '') + CURR + ' ' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function niceDate(d) { var t = new Date(String(d).slice(0, 10) + 'T00:00:00'); return isNaN(t.getTime()) ? String(d || '') : t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); }
 
-    // Header
-    doc.setFillColor(13, 13, 13);
-    doc.rect(0, 0, pageW, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Punëza', 20, 22);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('PAYSLIP', pageW - 20, 22, { align: 'right' });
-    // Add business logo if Business tier
+    // ── Header: business logo (Business plan) or the Punëza mark, with PAYSLIP and the period on the right
+    fill(BLUE); doc.rect(0, 0, pageW, 3, 'F');
+    var drewLogo = false;
     if (isBusiness() && bizLogo) {
-      try { doc.addImage(bizLogo, 20, 48, 40, 20, undefined, 'FAST'); } catch(e) {}
+      try {
+        var props = doc.getImageProperties(bizLogo);
+        var ratio = props.width / props.height, lw, lh;
+        if (ratio > 2.5) { lw = 50; lh = 50 / ratio; } else { lh = 20; lw = 20 * ratio; }   // keep the logo's proportions
+        doc.addImage(bizLogo, bizLogo.indexOf('image/png') > -1 ? 'PNG' : 'JPEG', M, 14, lw, lh);
+        drewLogo = true;
+      } catch (e) { drewLogo = false; }
     }
+    if (!drewLogo) {
+      fill(BLUE); doc.roundedRect(M, 15, 11, 11, 2.5, 2.5, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text('P', M + 5.5, 22.7, { align: 'center' });
+      ink(INK); doc.setFontSize(18); doc.text('Punëza', M + 15, 23);
+    }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(22); ink(BLUE);
+    doc.text('PAYSLIP', R, 23, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink(GREY);
+    doc.text(monthName, R, 30, { align: 'right' });
+    doc.setFontSize(8);
+    doc.text('Generated ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), R, 35, { align: 'right' });
+    doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.3); doc.line(M, 44, R, 44);
 
-    // Employee info
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(emp.name, 20, 58);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(120, 120, 120);
-    doc.text(emp.role || 'Staff', 20, 66);
-    doc.text(BIZ_NAME, 20, 73);
+    // ── Employee card
+    fill(CARD); doc.roundedRect(M, 51, R - M, 29, 3, 3, 'F');
+    ink(INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(emp.name, M + 7, 63);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink(GREY); doc.text(emp.role || 'Staff', M + 7, 70.5);
+    doc.setFontSize(7.5); doc.text('EMPLOYER', 108, 61);
+    doc.text('HOURLY RATE', R - 7, 61, { align: 'right' });
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); ink(INK);
+    doc.text(String(BIZ_NAME || ''), 108, 68);
+    doc.text(money(rate), R - 7, 68, { align: 'right' });
 
-    // Period
-    doc.setTextColor(26, 86, 219);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Period: ' + monthName, pageW - 20, 58, { align: 'right' });
-    doc.setTextColor(120, 120, 120);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Generated: ' + new Date().toLocaleDateString(), pageW - 20, 66, { align: 'right' });
-
-    // Divider
-    doc.setDrawColor(232, 230, 225);
-    doc.line(20, 80, pageW - 20, 80);
-
-    // Pay details
-    var y = 95;
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Pay Summary', 20, y);
-    y += 12;
-
+    // ── helpers
+    var y = 97;
+    function section(title) {
+      fill(BLUE); doc.rect(M, y - 4, 1.6, 5.5, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); ink(INK); doc.text(title, M + 5, y); y += 9;
+    }
     function payRow(label, value, color) {
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(60, 60, 60);
-      doc.text(label, 25, y);
-      if (color) doc.setTextColor(color[0], color[1], color[2]);
-      doc.setFont('helvetica', 'bold');
-      doc.text(value, pageW - 25, y, { align: 'right' });
-      doc.setDrawColor(245, 244, 241);
-      doc.line(20, y + 3, pageW - 20, y + 3);
-      doc.setTextColor(0, 0, 0);
-      y += 12;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink([55, 65, 81]);
+      doc.text(label, M + 2, y);
+      doc.setFont('helvetica', 'bold'); ink(color || INK);
+      doc.text(value, R - 2, y, { align: 'right' });
+      doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.2); doc.line(M, y + 3.5, R, y + 3.5);
+      y += 10.5;
     }
 
-    payRow('Regular Hours (' + regH.toFixed(2) + 'h × L ' + rate.toFixed(2) + ')', CURR + ' ' + basePay.toFixed(2));
-    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × 1.5)', CURR + ' ' + otPay.toFixed(2));
-    if (bonuses > 0) payRow('Bonuses', '+L ' + bonuses.toFixed(2), [22, 163, 74]);
-    if (deductions > 0) payRow('Deductions', '-L ' + deductions.toFixed(2), [220, 38, 38]);
+    // ── Pay summary
+    section('Pay Summary');
+    payRow('Regular hours (' + regH.toFixed(2) + 'h × ' + money(rate) + ')', money(basePay));
+    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × 1.5)', money(otPay));
+    if (bonuses > 0) payRow('Bonuses', '+' + money(bonuses), [22, 163, 74]);
+    if (deductions > 0) payRow('Deductions', '-' + money(deductions), [220, 38, 38]);
+    y += 1;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); ink(INK);
+    doc.text('Pay due (gross)', M + 2, y);
+    doc.text(money(gross), R - 2, y, { align: 'right' });
+    y += 13;
 
-    y += 4;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, y, pageW - 20, y);
-    y += 10;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(40, 40, 40);
-    doc.text('Pay Due (Gross)', 25, y);
-    doc.text(CURR + ' ' + gross.toFixed(2), pageW - 25, y, { align: 'right' });
-
-    // Tax deductions section
+    // ── Statutory deductions and net pay
     var tax = calcAlbanianTax(gross, ym);
-    y += 14;
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(150, 150, 150);
-    doc.text('STATUTORY DEDUCTIONS (employee share — PwC Albania 2026)', 25, y);
-    y += 8;
-    payRow('Social Insurance (9.5%)', '-L ' + tax.socialIns.toFixed(2), [180, 50, 50]);
-    payRow('Health Insurance (1.7%)', '-L ' + tax.healthIns.toFixed(2), [180, 50, 50]);
-    if (tax.incomeTax > 0) {
-      payRow('Income Tax / TAP', '-L ' + tax.incomeTax.toFixed(2), [180, 50, 50]);
-    } else {
-      payRow('Income Tax / TAP', 'L 0.00 (exempt)', [150, 150, 150]);
-    }
-    y += 4;
-    doc.setDrawColor(13, 13, 13);
-    doc.line(20, y, pageW - 20, y);
-    y += 10;
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(26, 86, 219);
-    doc.text('NET TAKE-HOME', 25, y);
-    doc.text('L ' + tax.netPay.toFixed(2), pageW - 25, y, { align: 'right' });
-    y += 8;
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(180, 180, 180);
-    doc.text('Effective tax rate: ' + tax.effectiveRate.toFixed(1) + '%  ·  Rates: PwC Albania 2026', 25, y);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); ink(GREY);
+    doc.text('STATUTORY DEDUCTIONS (EMPLOYEE SHARE)', M + 2, y); y += 7;
+    payRow('Social insurance (9.5%)', '-' + money(tax.socialIns), [185, 28, 28]);
+    payRow('Health insurance (1.7%)', '-' + money(tax.healthIns), [185, 28, 28]);
+    if (tax.incomeTax > 0) payRow('Income tax (TAP)', '-' + money(tax.incomeTax), [185, 28, 28]);
+    else payRow('Income tax (TAP)', money(0) + ' (exempt)', GREY);
+    y += 3;
+    fill(BLUE); doc.roundedRect(M, y, R - M, 16, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+    doc.text('NET TAKE-HOME', M + 7, y + 10);
+    doc.setFontSize(15); doc.text(money(tax.netPay), R - 7, y + 10.5, { align: 'right' });
+    y += 22;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); ink(GREY);
+    doc.text('Total deductions ' + tax.effectiveRate.toFixed(1) + '% of gross  ·  Rates: PwC Albania 2026', M + 2, y);
+    y += 6;
     (tax.warnings || []).filter(function (w) { return w.level !== 'info'; }).forEach(function (w) {
-      var wl = doc.splitTextToSize('WARNING: ' + w.en, pageW - 50);
-      y += 6; doc.setTextColor(200, 50, 50); doc.text(wl, 25, y); y += wl.length * 3.5;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);   // measure at the size it is drawn at
+      var wl = doc.splitTextToSize(w.en, R - M - 12);
+      var bh = wl.length * 4 + 5;
+      doc.setFillColor(254, 242, 242); doc.roundedRect(M, y, R - M, bh, 2, 2, 'F');
+      doc.setFillColor(220, 38, 38); doc.rect(M, y, 1.5, bh, 'F');
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(153, 27, 27);
+      doc.text(wl, M + 6, y + 5.5);
+      y += bh + 3;
     });
 
-    // Shift summary
-    y += 20;
-    doc.setDrawColor(232, 230, 225);
-    doc.line(20, y, pageW - 20, y);
-    y += 12;
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 0, 0);
-    doc.text('Shift Details', 20, y);
-    y += 10;
-
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(120, 120, 120);
-    doc.text('DATE', 25, y);
-    doc.text('CHECK IN', 75, y);
-    doc.text('CHECK OUT', 115, y);
-    doc.text('HOURS', pageW - 25, y, { align: 'right' });
-    y += 6;
-    doc.line(20, y, pageW - 20, y);
-    y += 6;
-
-    ms.slice(0, 20).forEach(function(s) {
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(40, 40, 40);
-      doc.text(s.date || '', 25, y);
-      doc.text(s.check_in || '—', 75, y);
-      doc.text(s.check_out || '—', 115, y);
-      if (s.is_late) doc.setTextColor(220, 38, 38);
-      doc.text((parseFloat(s.hours)||0).toFixed(1) + 'h', pageW - 25, y, { align: 'right' });
-      doc.setTextColor(40, 40, 40);
+    // ── Shift details (every shift, oldest first; continues on the next page if needed)
+    var list = ms.slice().sort(function (a, b) { return (a.date + ' ' + (a.check_in || '')).localeCompare(b.date + ' ' + (b.check_in || '')); });
+    y += 8;
+    if (y > 245) { doc.addPage(); y = 24; }   // only start a new page if there is no room for the heading and a few rows
+    section('Shift Details');
+    function tableHead() {
+      fill(CARD); doc.rect(M, y - 5, R - M, 8, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); ink(GREY);
+      doc.text('DATE', M + 3, y); doc.text('CHECK IN', M + 55, y); doc.text('CHECK OUT', M + 90, y);
+      doc.text('HOURS', R - 3, y, { align: 'right' });
       y += 8;
-      if (y > 270) { doc.addPage(); y = 20; }
+    }
+    tableHead();
+    list.forEach(function (s) {
+      if (y > 272) { doc.addPage(); y = 24; tableHead(); }
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); ink([55, 65, 81]);
+      doc.text(niceDate(s.date), M + 3, y);
+      doc.text(String(s.check_in || '—').slice(0, 5), M + 55, y);
+      doc.text(String(s.check_out || '—').slice(0, 5), M + 90, y);
+      if (s.is_late) { doc.setFontSize(7); doc.setTextColor(220, 38, 38); doc.text('LATE', M + 66, y); doc.setFontSize(9); }
+      ink(s.is_late ? [220, 38, 38] : INK);
+      doc.text((parseFloat(s.hours) || 0).toFixed(1) + 'h', R - 3, y, { align: 'right' });
+      doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.15); doc.line(M, y + 3, R, y + 3);
+      y += 7.5;
     });
+    if (list.length === 0) { doc.setFont('helvetica', 'normal'); doc.setFontSize(9); ink(GREY); doc.text('No completed shifts this month.', M + 3, y); y += 7.5; }
+    else {
+      if (y > 272) { doc.addPage(); y = 24; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); ink(INK);
+      doc.text('Total', M + 3, y + 1);
+      doc.text((regH + otH).toFixed(1) + 'h', R - 3, y + 1, { align: 'right' });
+    }
 
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(160, 160, 160);
-    doc.text('Generated by Punëza · puneza.app', pageW / 2, 285, { align: 'center' });
+    // ── Footer on every page
+    var pages = doc.getNumberOfPages();
+    for (var pg = 1; pg <= pages; pg++) {
+      doc.setPage(pg);
+      doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.3); doc.line(M, 284, R, 284);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); ink(GREY);
+      doc.text('Generated by Punëza', M, 290);
+      doc.text('Page ' + pg + ' of ' + pages, R, 290, { align: 'right' });
+    }
 
     doc.save('payslip-' + emp.name.replace(/\s/g, '-') + '-' + ym + '.pdf');
     toast('Payslip downloaded!', 'success');
