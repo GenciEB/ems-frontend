@@ -218,7 +218,7 @@ function updateTimestamp() {
 function renderStats() {
   var now = new Date();
   var in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  var pro = businesses.filter(function(b) { return b.plan === 'pro'; });
+  var pro = businesses.filter(function(b) { return b.plan === 'pro' || b.plan === 'business'; });
   var expiring = pro.filter(function(b) {
     if (!b.pro_expires_at) return false;
     var exp = new Date(b.pro_expires_at);
@@ -246,6 +246,8 @@ function renderList() {
   var in3 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
   var in7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
+  // businesses that say they have paid come first, so they are not missed
+  filtered.sort(function(a, b) { return (b.payment_notified_at ? 1 : 0) - (a.payment_notified_at ? 1 : 0); });
   var html = filtered.map(function(b) {
     var isPro = b.plan === 'pro' || b.plan === 'business';
     var isBiz = b.plan === 'business';
@@ -254,6 +256,9 @@ function renderList() {
     var expired = expDate && expDate < now;
     var expiring3 = expDate && expDate > now && expDate <= in3;
     var expiring7 = expDate && expDate > now && expDate <= in7;
+    var payBadge = b.payment_notified_at
+      ? '<span style="background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.4);font-family:\'JetBrains Mono\',monospace;font-size:9px;padding:2px 7px;border-radius:20px;letter-spacing:.5px;">💳 PAYMENT NOTIFIED · ' + (b.payment_notified_plan === 'business' ? 'BUSINESS' : 'PRO') + ' · ' + new Date(b.payment_notified_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</span>'
+      : '';
 
     var badge = isPro && !expired
       ? (expiring3
@@ -288,11 +293,11 @@ function renderList() {
       '<button style="padding:6px 10px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:rgba(239,68,68,.08);color:#f87171;font-family:\'JetBrains Mono\',monospace;font-size:10px;cursor:pointer;" data-id="'+b.id+'" data-name="'+esc(b.name)+'" onclick="deleteBusiness(this)">🗑 Delete</button>' +
       '</div>';
 
-    return '<div class="biz-card" id="biz_'+b.id+'" style="'+(isBlocked?'opacity:0.7;border-color:rgba(239,68,68,.2);':'')+'">' +
+    return '<div class="biz-card" id="biz_'+b.id+'" style="'+(isBlocked?'opacity:0.7;border-color:rgba(239,68,68,.2);':(b.payment_notified_at?'border-color:rgba(245,158,11,.55);':''))+'">' +
       '<div class="biz-info">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
           '<div class="biz-name">' + esc(b.name||'Unnamed') + '</div>' +
-          badge +
+          badge + payBadge +
           (isBlocked ? '<span style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);font-family:\'JetBrains Mono\',monospace;font-size:9px;padding:2px 7px;border-radius:20px;letter-spacing:.5px;">⛔ SUSPENDED</span>' : '') +
         '</div>' +
         '<div class="biz-code">Code: ' + esc(b.code||'—') + (b.notify_email ? ' · ' + esc(b.notify_email) : '') + '</div>' +
