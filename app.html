@@ -462,6 +462,14 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         <div class="field"><label>Start Time</label><input type="text" inputmode="numeric" id="editEmpStart" placeholder="09:00" maxlength="5" oninput="formatTimeInput(this)"></div>
         <div class="field"><label>End Time</label><input type="text" inputmode="numeric" id="editEmpEnd" placeholder="17:00" maxlength="5" oninput="formatTimeInput(this)"></div>
       </div>
+      <div class="form-r">
+        <div class="field"><label>Contract</label><select id="editEmpContract" onchange="contractTypeChanged('editEmp')"><option value="full_time">Full-time</option><option value="part_time">Part-time</option></select></div>
+        <div class="field"><label>Hours / week</label><input type="number" id="editEmpWeekly" min="1" max="80" step="0.5"></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Contract start</label><input type="date" id="editEmpCStart"></div>
+        <div class="field"><label>Contract end <span style="color:#bbb;font-size:9px;">(fixed-term)</span></label><input type="date" id="editEmpCEnd"></div>
+      </div>
       <div class="field"><label>New PIN <span style="color:#bbb;font-size:9px;">(leave blank to keep current)</span></label><input type="password" id="editEmpPin" placeholder="Leave blank to keep" inputmode="numeric" maxlength="6"></div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-p" onclick="saveEditEmp()">💾 Save Changes</button>
@@ -630,6 +638,14 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       <div class="form-r">
         <div class="field"><label>Start Time</label><input type="text" inputmode="numeric" id="empStart" value="09:00" placeholder="09:00" maxlength="5" oninput="formatTimeInput(this)"></div>
         <div class="field"><label>End Time</label><input type="text" inputmode="numeric" id="empEnd" value="17:00" placeholder="17:00" maxlength="5" oninput="formatTimeInput(this)"></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Contract</label><select id="empContract" onchange="contractTypeChanged('emp')"><option value="full_time">Full-time</option><option value="part_time">Part-time</option></select></div>
+        <div class="field"><label>Hours / week</label><input type="number" id="empWeekly" value="40" min="1" max="80" step="0.5"></div>
+      </div>
+      <div class="form-r">
+        <div class="field"><label>Contract start <span style="color:#bbb;font-size:9px;">(optional)</span></label><input type="date" id="empCStart"></div>
+        <div class="field"><label>Contract end <span style="color:#bbb;font-size:9px;">(fixed-term)</span></label><input type="date" id="empCEnd"></div>
       </div>
       <div class="field"><label>Phone <span style="color:#bbb;font-size:9px;">(optional)</span></label><input type="tel" id="empPhone" placeholder="+355 69 123 4567"></div>
       <button type="button" class="btn btn-p" onclick="addEmp()">+ Add Employee</button>
@@ -875,6 +891,26 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
     <div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">BUSINESS NAME</div><div style="font-size:15px;font-weight:600;" id="secBizName">—</div></div>
   </div>
   <div class="card">
+    <div class="card-lbl">⚖️ Payroll Rules</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;">Overtime and contribution rules used for payroll, payslips and the Tatimet export. Confirm the right values with your accountant.</div>
+    <div class="form-r">
+      <div class="field"><label>Overtime after (hours/day)</label><input type="number" id="otDaily" min="0" max="24" step="0.5" placeholder="8"></div>
+      <div class="field"><label>Overtime after (hours/week)</label><input type="number" id="otWeekly" min="1" max="100" step="0.5" placeholder="none"></div>
+    </div>
+    <div class="form-r">
+      <div class="field"><label>Overtime pay (× normal rate)</label><input type="number" id="otMult" min="1" max="3" step="0.05" placeholder="1.5"></div>
+      <div class="field"><label>Minimum contribution base</label><select id="minBasePolicy"><option value="full">Always apply the minimum</option><option value="prorate">Prorate by contract hours</option><option value="actual">Do not apply (actual pay)</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="savePayrollSettings()">Save rules</button>
+    <div id="payrollSettingsMsg" style="font-family:var(--mono);font-size:11px;min-height:14px;margin-top:6px;"></div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin:12px 0 6px;line-height:1.6;">New rules apply to shifts closed from now on. To re-apply them to a month that already has shifts:</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="month" id="otRecalcMonth" style="flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:8px;">
+      <button class="btn btn-s" style="width:auto;padding:8px 14px;" onclick="recalcOvertime()">Recalculate month</button>
+    </div>
+    <div id="recalcMsg" style="font-family:var(--mono);font-size:11px;min-height:14px;margin-top:6px;"></div>
+  </div>
+  <div class="card">
     <div class="card-lbl">💱 Currency Symbol</div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:10px;">Set the currency symbol shown on payslips and reports (e.g. $ € £ ¥).</div>
     <div style="display:flex;gap:8px;align-items:center;">
@@ -965,6 +1001,7 @@ var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
 var CURR = 'L'; // Albanian Lek — updated via SEC tab if needed
+var OT_MULT = 1.5, OT_DAILY = 8, OT_WEEKLY = null, MIN_BASE_POLICY = 'full';   // payroll rules, loaded from the server
 var currentPlanExpiry = null;
 var bizLogo = null; // base64 logo for Business tier payslips
 var FREE_EMP_LIMIT = 5;
@@ -1000,7 +1037,7 @@ var T = {
     fixStuck:'Fix Stuck Shifts',
     // Payroll
     grossPay:'PAY DUE', thisMonth:'THIS MONTH', regularHours:'Regular Hours',
-    overtime:'Overtime (1.5×)', bonuses:'Bonuses', deductions2:'Deductions',
+    overtime:'Overtime', bonuses:'Bonuses', deductions2:'Deductions',
     netTakeHome:'NET TAKE-HOME', socialIns:'Social Insurance (9.5%)',
     healthIns:'Health Insurance (1.7%)', incomeTax:'Income Tax (TAP)',
     downloadPDF:'Download PDF', exportCSV:'Export CSV',
@@ -1045,7 +1082,7 @@ var T = {
     fixStuck:'Rregulllo Turnet e Bllokuara',
     // Payroll
     grossPay:'PAGA BRUTO', thisMonth:'KËTË MUAJ', regularHours:'Orë Normale',
-    overtime:'Orë Shtesë (1.5×)', bonuses:'Bonuse', deductions2:'Zbritje',
+    overtime:'Orë Shtesë', bonuses:'Bonuse', deductions2:'Zbritje',
     netTakeHome:'PAGA NETO', socialIns:'Sig. Shoqërore (9.5%)',
     healthIns:'Sig. Shëndetësore (1.7%)', incomeTax:'TAP (Tatimi mbi të Ardhurat)',
     downloadPDF:'Shkarko PDF', exportCSV:'Eksporto CSV',
@@ -1097,6 +1134,7 @@ var PAYROLL_RULES = {
   // Albanian rules by effective year. When rates change, ADD a new year; never edit a past year,
   // so older months can still be calculated with the rules that applied then.
   2026: {
+    fullTimeWeeklyHours: 40,  // standard full-time week (used to prorate the minimum base for part-time contracts)
     minBase: 50000,       // minimum monthly contribution base (L)
     maxBase: 186416,      // maximum monthly contribution base (L)
     empSocial: 0.095,     // employee social insurance
@@ -1167,9 +1205,17 @@ function calcPayroll(input) {
     return out;
   }
 
-  var base = Math.min(Math.max(gross, R.minBase), R.maxBase);
+  // Minimum-base policy (a payroll setting, because the correct treatment of short-hour contracts is unconfirmed):
+  //   'full'    the minimum base always applies (default)
+  //   'prorate' the minimum is scaled by the contract's share of a full-time week
+  //   'actual'  no minimum: contributions on actual pay
+  var policy = (input.minBasePolicy === 'prorate' || input.minBasePolicy === 'actual') ? input.minBasePolicy : 'full';
+  var frac = Number(input.contractFraction); if (!(frac > 0 && frac <= 1)) frac = 1;
+  var minBase = policy === 'actual' ? 0 : (policy === 'prorate' ? payrollRound(R.minBase * frac) : R.minBase);
+  var base = Math.min(Math.max(gross, minBase), R.maxBase);
   out.base = base;
-  out.baseReason = gross < R.minBase ? 'minimum' : (gross > R.maxBase ? 'maximum' : 'gross');
+  out.minBaseUsed = minBase;
+  out.baseReason = gross < minBase ? 'minimum' : (gross > R.maxBase ? 'maximum' : 'gross');
   out.empSocial = payrollRound(base * R.empSocial);
   out.empHealth = payrollRound(base * R.empHealth);
   out.empTotal = payrollRound(out.empSocial + out.empHealth);
@@ -1188,10 +1234,20 @@ function calcPayroll(input) {
   out.employerCost = payrollRound(gross + out.emplrTotal);
   out.effectiveRate = (out.empTotal + out.pit) / gross * 100;
 
-  if (gross < R.minBase) {
+  if (gross < minBase) {
     warn('MIN_BASE_APPLIED', 'warn',
-      'Gross pay (' + payrollLek(gross) + ') is below the ' + payrollLek(R.minBase) + ' minimum contribution base, so contributions use ' + payrollLek(R.minBase) + '. Part-time or short-hour contracts may be treated differently — confirm with your accountant.',
-      'Paga bruto (' + payrollLek(gross) + ') është nën bazën minimale të kontributeve (' + payrollLek(R.minBase) + '), ndaj kontributet llogariten mbi ' + payrollLek(R.minBase) + '. Kontratat me orar të shkurtuar mund të trajtohen ndryshe — konfirmojeni me llogaritarin.');
+      'Gross pay (' + payrollLek(gross) + ') is below the ' + payrollLek(minBase) + ' minimum contribution base' + (policy === 'prorate' ? ' (prorated for this contract)' : '') + ', so contributions use ' + payrollLek(minBase) + '. Part-time or short-hour contracts may be treated differently — confirm with your accountant.',
+      'Paga bruto (' + payrollLek(gross) + ') është nën bazën minimale të kontributeve (' + payrollLek(minBase) + (policy === 'prorate' ? ', e përqasuar sipas kontratës' : '') + '), ndaj kontributet llogariten mbi ' + payrollLek(minBase) + '. Kontratat me orar të shkurtuar mund të trajtohen ndryshe — konfirmojeni me llogaritarin.');
+  }
+  if (policy === 'actual' && gross < R.minBase) {
+    warn('MIN_BASE_POLICY', 'warn',
+      'Contributions are calculated on actual pay because the minimum base is switched off in the payroll settings. Confirm this treatment with your accountant.',
+      'Kontributet u llogaritën mbi pagën reale sepse baza minimale është e çaktivizuar në cilësimet e pagave. Konfirmojeni këtë trajtim me llogaritarin.');
+  }
+  if (policy === 'prorate' && gross >= minBase && gross < R.minBase) {
+    warn('MIN_BASE_POLICY', 'info',
+      'The minimum base was prorated to ' + payrollLek(minBase) + ' for this contract (payroll settings).',
+      'Baza minimale u përqasua në ' + payrollLek(minBase) + ' sipas kësaj kontrate (cilësimet e pagave).');
   }
   if (gross > R.maxBase) {
     warn('CAP_APPLIED', 'info',
@@ -1206,6 +1262,49 @@ function calcPayroll(input) {
   return out;
 }
 
+// ── Overtime ─────────────────────────────────────────────────────────────────
+// Monday of the week that contains a date ('YYYY-MM-DD'); weeks run Monday to Sunday.
+function payrollWeekStart(dateStr) {
+  var p = String(dateStr).slice(0, 10).split('-').map(Number);
+  var d = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+// Splits ONE person's closed shifts into regular and overtime hours, working through them in time order.
+//   shifts: [{ id, date, check_in, hours }]      opts: { dailyLimit, weeklyLimit }  (empty / 0 = no limit)
+// Daily:  hours above dailyLimit across ALL of that day's shifts are overtime (not just within one shift).
+// Weekly: regular hours above weeklyLimit within a Monday-Sunday week are overtime.
+// Returns { [shiftId]: { regular, ot } } with regular + ot = the shift's hours.
+function payrollSplitHours(shifts, opts) {
+  opts = opts || {};
+  var daily = Number(opts.dailyLimit) > 0 ? Number(opts.dailyLimit) : null;
+  var weekly = Number(opts.weeklyLimit) > 0 ? Number(opts.weeklyLimit) : null;
+  var list = (shifts || []).slice().sort(function (a, b) {
+    return String(a.date).slice(0, 10).localeCompare(String(b.date).slice(0, 10)) ||
+           String(a.check_in || '').localeCompare(String(b.check_in || '')) || (a.id - b.id);
+  });
+  var dayTotal = {}, weekRegular = {}, out = {};
+  list.forEach(function (s) {
+    var h = Number(s.hours) || 0, day = String(s.date).slice(0, 10), wk = payrollWeekStart(day);
+    var before = dayTotal[day] || 0;
+    var regular = daily === null ? h : Math.max(0, Math.min(h, daily - before));
+    if (weekly !== null) regular = Math.min(regular, Math.max(0, weekly - (weekRegular[wk] || 0)));
+    weekRegular[wk] = (weekRegular[wk] || 0) + regular;
+    dayTotal[day] = before + h;
+    regular = payrollRound(regular);
+    out[s.id] = { regular: regular, ot: payrollRound(h - regular) };
+  });
+  return out;
+}
+
+// Share of a full-time week that a contract covers (0..1), used to prorate the minimum base.
+function payrollContractFraction(weeklyHours, month) {
+  var full = payrollRulesFor(month).rules.fullTimeWeeklyHours || 40;
+  var w = Number(weeklyHours);
+  return (w > 0 && w < full) ? payrollRound(w / full * 10000) / 10000 : 1;
+}
+
 // Short text for a CSV/notes cell. lang: 'sq' or 'en'. Skips plain "info" notes unless asked.
 function payrollNotes(result, lang, includeInfo) {
   return result.warnings
@@ -1216,10 +1315,33 @@ function payrollNotes(result, lang, includeInfo) {
 // <<< PAYROLL_CORE_END <<<
 
 // Thin adapter kept so the payslip, PDF and CSV code can use the same field names as before.
-function calcAlbanianTax(grossMonthly, month) {
-  var r = calcPayroll({ gross: grossMonthly, month: month });
+function calcAlbanianTax(grossMonthly, month, emp) {
+  var r = calcPayroll({ gross: grossMonthly, month: month, minBasePolicy: MIN_BASE_POLICY, contractFraction: emp ? payrollContractFraction(emp.weekly_hours, month) : 1 });
   return { gross: r.gross, base: r.base, baseReason: r.baseReason, rates: r.rates, socialIns: r.empSocial, healthIns: r.empHealth, socialSecurity: r.empTotal,
            incomeTax: r.pit, netPay: r.net, effectiveRate: r.effectiveRate, warnings: r.warnings };
+}
+function applyPayrollSettings(s) {
+  OT_MULT = Number(s.ot_multiplier) || 1.5;
+  OT_DAILY = Number(s.ot_daily_hours);
+  OT_WEEKLY = s.ot_weekly_hours;
+  MIN_BASE_POLICY = s.min_base_policy || 'full';
+}
+function contractLabel(emp) {
+  var s = (emp.contract_type === 'part_time' ? 'Part-time' : 'Full-time') + ' · ' + (parseFloat(emp.weekly_hours) || 40) + ' h/week';
+  if (emp.contract_end) s += ' · until ' + String(emp.contract_end).slice(0, 10);
+  return s;
+}
+function contractTypeChanged(prefix) {   // prefix: 'emp' (add form) or 'editEmp' (edit window)
+  var type = document.getElementById(prefix + 'Contract').value, w = document.getElementById(prefix + 'Weekly');
+  if (type === 'part_time' && (parseFloat(w.value) || 40) >= 40) w.value = 20;
+  if (type === 'full_time') w.value = 40;
+}
+function readContract(prefix) {         // the four contract inputs -> request fields, or null (after showing why)
+  var weekly = parseFloat(document.getElementById(prefix + 'Weekly').value);
+  var cs = document.getElementById(prefix + 'CStart').value, ce = document.getElementById(prefix + 'CEnd').value;
+  if (!(weekly >= 1 && weekly <= 80)) { toast('Hours per week must be between 1 and 80', 'error'); return null; }
+  if (cs && ce && ce < cs) { toast('Contract end cannot be before its start', 'error'); return null; }
+  return { contract_type: document.getElementById(prefix + 'Contract').value, weekly_hours: weekly, contract_start: cs || null, contract_end: ce || null };
 }
 function payPct(frac) { return (Math.round(frac * 1000) / 10).toString().replace(/\.0$/, '') + '%'; }          // 0.095 -> 9.5%
 function payLek0(n) { return CURR + ' ' + Math.round(Number(n) || 0).toLocaleString('en-US'); }
@@ -1445,7 +1567,7 @@ function goNav(page, btn) {
   if (page === 'analytics') renderAnalytics();
   if (page === 'reports') renderReports();
   if (page === 'history') renderHistory();
-  if (page === 'security') { renderSecurity(); loadLogoSettings(); }
+  if (page === 'security') { renderSecurity(); loadLogoSettings(); fillPayrollSettings(); }
   if (page === 'plans') renderPlans();
   if (page === 'security') renderSecurity();
 }
@@ -1492,6 +1614,7 @@ async function loadPlan() {
     currentPlan = r.plan || 'free';
     currentPlanExpiry = r.pro_expires_at || null;
     if (r.currency) CURR = r.currency;
+    if (r.settings) applyPayrollSettings(r.settings);
     // If plan changed, re-render the current active page so lock screens update instantly
     if (prevPlan !== currentPlan) {
       var activePage = document.querySelector('.page.active');
@@ -1614,6 +1737,38 @@ async function removeLogo() {
     document.getElementById('logoMsg').textContent = '✓ Logo removed';
     toast('Logo removed', 'success');
   } catch(e) { setSy('error'); toast(e.message||'Failed', 'error'); }
+}
+
+function fillPayrollSettings() {
+  var d = document.getElementById('otDaily'); if (!d) return;
+  d.value = OT_DAILY;
+  document.getElementById('otWeekly').value = OT_WEEKLY || '';
+  document.getElementById('otMult').value = OT_MULT;
+  document.getElementById('minBasePolicy').value = MIN_BASE_POLICY;
+  var m = document.getElementById('otRecalcMonth'); if (m && !m.value) m.value = dk(new Date()).slice(0, 7);
+}
+async function savePayrollSettings() {
+  var msg = document.getElementById('payrollSettingsMsg');
+  var body = { ot_daily_hours: document.getElementById('otDaily').value, ot_weekly_hours: document.getElementById('otWeekly').value,
+               ot_multiplier: document.getElementById('otMult').value, min_base_policy: document.getElementById('minBasePolicy').value };
+  try {
+    setSy('syncing');
+    var s = await aPost('/api/business/' + BIZ_CODE + '/payroll-settings', body);
+    applyPayrollSettings(s); fillPayrollSettings();
+    setSy('ok'); msg.textContent = '✓ Saved'; msg.style.color = 'var(--green)';
+    toast('Payroll rules saved', 'success');
+  } catch (e) { setSy('error'); msg.textContent = e.message || 'Failed'; msg.style.color = 'var(--red)'; }
+}
+async function recalcOvertime() {
+  var msg = document.getElementById('recalcMsg'), month = document.getElementById('otRecalcMonth').value;
+  if (!month) { msg.textContent = 'Choose a month'; msg.style.color = 'var(--red)'; return; }
+  try {
+    setSy('syncing'); msg.textContent = 'Recalculating...'; msg.style.color = 'var(--text3)';
+    var r = await aPost('/api/business/' + BIZ_CODE + '/recalc-overtime', { month: month });
+    await loadAll();
+    setSy('ok'); msg.textContent = '✓ ' + r.updated + ' shift(s) updated'; msg.style.color = 'var(--green)';
+    toast('Overtime recalculated: ' + r.updated + ' shift(s) changed', 'success');
+  } catch (e) { setSy('error'); msg.textContent = e.message || 'Failed'; msg.style.color = 'var(--red)'; }
 }
 
 async function saveCurrency() {
@@ -1874,9 +2029,10 @@ async function addEmp() {
   if (!vStart || !vEnd) { toast('Start/End time must be in HH:MM format, e.g. 09:00', 'error'); return; }
   start = vStart; end = vEnd;
   if (!pin || pin.length < 4) { toast('PIN must be at least 4 digits', 'error'); return; }
+  var contract = readContract('emp'); if (!contract) return;
   try {
     setSy('syncing');
-    var emp = await aPost('/api/employees', {business_id:BIZ_ID, name, role:role||'Staff', pin, rate:parseFloat(rate)||0, start_time:start, end_time:end, phone:phone||null});
+    var emp = await aPost('/api/employees', Object.assign({business_id:BIZ_ID, name, role:role||'Staff', pin, rate:parseFloat(rate)||0, start_time:start, end_time:end, phone:phone||null}, contract));
     setSy('ok');
     logAudit('add', 'Employee added: ' + name, 'Manager');
     toast(name + ' added', 'success');
@@ -1902,7 +2058,8 @@ function renderEmps() {
   else emps.forEach(function(emp) {
     html += '<div class="emp-item"><div class="emp-avatar">'+emp.name[0]+'</div>' +
       '<div class="emp-info"><div class="emp-name">'+esc(emp.name)+'</div>' +
-      '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · L '+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div></div>' +
+      '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · L '+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div>' +
+      '<div class="emp-role-label">'+esc(contractLabel(emp))+'</div></div>' +
       '<div style="display:flex;gap:5px;">' +
       '<button class="btn btn-g" style="width:auto;padding:5px 9px;font-size:11px;" onclick="openEditEmp('+emp.id+')">✏️</button>' +
       '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delEmp('+emp.id+')">✕</button>' +
@@ -1938,6 +2095,10 @@ function openEditEmp(empId) {
   document.getElementById('editEmpStart').value = emp.start_time || '09:00';
   document.getElementById('editEmpEnd').value = emp.end_time || '17:00';
   document.getElementById('editEmpPin').value = '';
+  document.getElementById('editEmpContract').value = emp.contract_type || 'full_time';
+  document.getElementById('editEmpWeekly').value = parseFloat(emp.weekly_hours) || 40;
+  document.getElementById('editEmpCStart').value = emp.contract_start ? String(emp.contract_start).slice(0, 10) : '';
+  document.getElementById('editEmpCEnd').value = emp.contract_end ? String(emp.contract_end).slice(0, 10) : '';
   document.getElementById('editEmpModal').classList.add('open');
 }
 
@@ -1965,6 +2126,8 @@ async function saveEditEmp() {
 
   var body = { name, role, rate: rate ? parseFloat(rate) : undefined, phone: phone || null, start_time: start, end_time: end };
   if (pin) body.pin = pin;
+  var contractEdit = readContract('editEmp'); if (!contractEdit) return;
+  Object.assign(body, contractEdit);
 
   try {
     setSy('syncing');
@@ -2096,16 +2259,16 @@ function renderPayroll() {
     var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);
     var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);
     var rate=parseFloat(emp.rate)||0;
-    var basePay=regH*rate, otPay=otH*rate*1.5;
+    var basePay=regH*rate, otPay=otH*rate*OT_MULT;
     var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
     var gross=basePay+otPay+bonuses-deductions;
-    var tax=calcAlbanianTax(gross, ym);
+    var tax=calcAlbanianTax(gross, ym, emp);
     html+='<div class="payslip"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">'+
       '<div><div style="font-size:17px;font-weight:800;">'+esc(emp.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);">'+esc(emp.role||'')+'</div></div>'+
       '<span class="badge bb">'+totalH.toFixed(2)+'h</span><button class="btn btn-s" style="width:auto;padding:5px 10px;font-size:11px;" onclick="downloadPayslip('+emp.id+',\''+ym+'\')" >📄 PDF</button></div>'+
       '<div class="payslip-row"><span>Regular ('+regH.toFixed(2)+'h × L '+rate.toFixed(2)+')</span><span>L '+basePay.toFixed(2)+'</span></div>'+
-      (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>L '+otPay.toFixed(2)+'</span></div>':'')+
+      (otH>0?'<div class="payslip-row"><span>Overtime ('+otH.toFixed(2)+'h × '+OT_MULT+')</span><span>L '+otPay.toFixed(2)+'</span></div>':'')+
       (bonuses>0?'<div class="payslip-row"><span>Bonuses</span><span style="color:var(--green);">+L '+bonuses.toFixed(2)+'</span></div>':'')+
       (deductions>0?'<div class="payslip-row"><span>Deductions</span><span style="color:var(--red);">-L '+deductions.toFixed(2)+'</span></div>':'')+
       '<div class="payslip-row" style="border-top:2px solid var(--border);margin-top:5px;padding-top:5px;"><span style="font-weight:700;">Pay Due (Gross)</span><span style="font-weight:700;">L '+gross.toFixed(2)+'</span></div>'+
@@ -2196,7 +2359,7 @@ async function exportTatimet() {
     if (!data.rows.length) { toast('Asnjë punonjës me pagë këtë muaj', 'error'); return; }
 
     var headers = [
-      'Emri i Punonjësit', 'Roli', 'Nr. Identifikimi (plotësoni)', 'Orë Totale',
+      'Emri i Punonjësit', 'Roli', 'Lloji i Kontratës', 'Orë/Javë (kontratë)', 'Nr. Identifikimi (plotësoni)', 'Orë Totale',
       'Paga Bruto (L)', 'Baza e Kontributeve (L)',
       'Sig. Shoqërore Punonjës 9.5% (L)', 'Sig. Shëndetësore Punonjës 1.7% (L)', 'Kontributi Total Punonjës 11.2% (L)',
       'Sig. Shoqërore Punëdhënës 15% (L)', 'Sig. Shëndetësore Punëdhënës 1.7% (L)', 'Kontributi Total Punëdhënës 16.7% (L)',
@@ -2204,7 +2367,7 @@ async function exportTatimet() {
       'Shënime / Paralajmërime'
     ];
     var rows = data.rows.map(function (r) {
-      return [r.name, r.role, '', r.totalHours.toFixed(2),
+      return [r.name, r.role, r.contractType === 'part_time' ? 'Me kohë të pjesshme' : 'Me kohë të plotë', String(r.weeklyHours), '', r.totalHours.toFixed(2),
         r.grossSalary.toFixed(2), r.base.toFixed(2),
         r.empSocialIns.toFixed(2), r.empHealthIns.toFixed(2), r.empTotalIns.toFixed(2),
         r.emplrSocialIns.toFixed(2), r.emplrHealthIns.toFixed(2), r.emplrTotalIns.toFixed(2),
@@ -2212,7 +2375,7 @@ async function exportTatimet() {
         r.notes || ''];
     });
     function sum(k) { return data.rows.reduce(function (a, r) { return a + r[k]; }, 0).toFixed(2); }
-    rows.push(['TOTALI', '', '', sum('totalHours'), sum('grossSalary'), '',
+    rows.push(['TOTALI', '', '', '', '', sum('totalHours'), sum('grossSalary'), '',
       sum('empSocialIns'), sum('empHealthIns'), sum('empTotalIns'),
       sum('emplrSocialIns'), sum('emplrHealthIns'), sum('emplrTotalIns'),
       sum('incomeTax'), sum('netPay'), sum('totalEmployerCost'), '']);
@@ -2231,7 +2394,7 @@ function getReportFilters() { var month=document.getElementById('reportMonth').v
 function buildCSV(headers,rows){var lines=[headers.join(',')];rows.forEach(function(row){lines.push(row.map(function(cell){var s=String(cell||'');if(s.includes(',')||s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(','));});return lines.join('\r\n');}
 function showPreview(title,headers,rows,csv,filename){currentCSV=csv;currentCSVName=filename;document.getElementById('reportPreviewTitle').textContent=title+' ('+rows.length+' rows)';var table=document.getElementById('reportPreviewTable');var html='<thead><tr>'+headers.map(function(h){return'<th style="padding:5px 7px;border-bottom:2px solid var(--border);text-align:left;color:var(--text3);white-space:nowrap;">'+h+'</th>';}).join('')+'</tr></thead><tbody>';rows.slice(0,8).forEach(function(row){html+='<tr>'+row.map(function(cell){return'<td style="padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap;">'+(cell||'—')+'</td>';}).join('')+'</tr>';});if(rows.length>8)html+='<tr><td colspan="'+headers.length+'" style="padding:5px;color:var(--text3);font-size:10px;">...and '+(rows.length-8)+' more</td></tr>';html+='</tbody>';table.innerHTML=html;document.getElementById('reportPreview').style.display='';document.getElementById('reportPreview').scrollIntoView({behavior:'smooth'});}
 function downloadCSV(){if(!currentCSV)return;var blob=new Blob([currentCSV],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=currentCSVName;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('Downloaded: '+currentCSVName,'success');}
-function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)','Social Security (L)','Income Tax (L)','Net Take-Home (L)','Notes'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*1.5;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;var tax=calcAlbanianTax(gross,f.month);return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2),payrollNotes(tax,'en')];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
+function exportPayroll(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Pay Rate (L/hr)','Regular Hours','Overtime Hours','Total Hours','Base Pay (L)','OT Pay (L)','Bonuses (L)','Deductions (L)','Pay Due (L)','Social Security (L)','Income Tax (L)','Net Take-Home (L)','Notes'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var ms=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var regH=ms.reduce(function(a,s){return a+(parseFloat(s.regular_hours)||parseFloat(s.hours)||0);},0);var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);var rate=parseFloat(emp.rate)||0;var basePay=regH*rate,otPay=otH*rate*OT_MULT;var bonuses=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var deductions=deds.filter(function(d){return d.emp_id===emp.id&&d.month===f.month&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);var gross=basePay+otPay+bonuses-deductions;var tax=calcAlbanianTax(gross,f.month,emp);return[emp.name,emp.role||'',rate.toFixed(2),regH.toFixed(2),otH.toFixed(2),(regH+otH).toFixed(2),basePay.toFixed(2),otPay.toFixed(2),bonuses.toFixed(2),deductions.toFixed(2),gross.toFixed(2),tax.socialSecurity.toFixed(2),tax.incomeTax.toFixed(2),tax.netPay.toFixed(2),payrollNotes(tax,'en')];});var csv=buildCSV(headers,rows);showPreview('Payroll — '+f.month,headers,rows,csv,'payroll-'+f.month+'.csv');}
 function exportShifts(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Role','Check In','Check Out','Hours','Late','Note'];var filtered=shfts.filter(function(s){return s.date&&s.date.slice(0,7)===f.month&&(f.empId?s.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(s){var emp=emps.find(function(e){return e.id===s.emp_id;});return[s.date,emp?emp.name:'?',emp?emp.role||'':'',s.check_in||'',s.check_out||'',(parseFloat(s.hours)||0).toFixed(2),s.is_late?'Yes':'No',s.note||''];});var csv=buildCSV(headers,rows);showPreview('Shifts — '+f.month,headers,rows,csv,'shifts-'+f.month+'.csv');}
 function exportAttendance(){var f=getReportFilters();if(!f)return;var headers=['Employee','Role','Days Worked','Total Hours','Days Leave','Attendance %'];var fe=f.empId?emps.filter(function(e){return e.id===f.empId;}):emps;var rows=fe.map(function(emp){var es=shfts.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month&&s.check_out;});var el=lvs.filter(function(l){return l.emp_id===emp.id&&l.date&&l.date.slice(0,7)===f.month;});var esc2=scheds.filter(function(s){return s.emp_id===emp.id&&s.date&&s.date.slice(0,7)===f.month;});var totalH=es.reduce(function(a,s){return a+(parseFloat(s.hours)||0);},0);var att=esc2.length>0?((es.length/esc2.length)*100).toFixed(0)+'%':'N/A';return[emp.name,emp.role||'',es.length,totalH.toFixed(2),el.length,att];});var csv=buildCSV(headers,rows);showPreview('Attendance — '+f.month,headers,rows,csv,'attendance-'+f.month+'.csv');}
 function exportLeaves(){var f=getReportFilters();if(!f)return;var headers=['Date','Employee','Type','Note'];var filtered=lvs.filter(function(l){return l.date&&l.date.slice(0,7)===f.month&&(f.empId?l.emp_id===f.empId:true);});var rows=filtered.sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(l){var emp=emps.find(function(e){return e.id===l.emp_id;});return[l.date,emp?emp.name:'?',l.type||'',l.note||''];});var csv=buildCSV(headers,rows);showPreview('Leaves — '+f.month,headers,rows,csv,'leaves-'+f.month+'.csv');}
@@ -2330,7 +2493,7 @@ function downloadPayslip(empId, ym) {
   var otH = ms.reduce(function(a,s){ return a+(parseFloat(s.ot_hours)||0); }, 0);
   var rate = parseFloat(emp.rate)||0;
   var basePay = regH * rate;
-  var otPay = otH * rate * 1.5;
+  var otPay = otH * rate * OT_MULT;
   var bonuses = deds.filter(function(d){ return d.emp_id===emp.id&&d.month===ym&&d.type==='bonus'; }).reduce(function(a,d){ return a+parseFloat(d.amount); }, 0);
   var deductions = deds.filter(function(d){ return d.emp_id===emp.id&&d.month===ym&&d.type==='deduction'; }).reduce(function(a,d){ return a+parseFloat(d.amount); }, 0);
   var gross = basePay + otPay + bonuses - deductions;
@@ -2374,7 +2537,8 @@ function downloadPayslip(empId, ym) {
     // ── Employee card
     fill(CARD); doc.roundedRect(M, 51, R - M, 29, 3, 3, 'F');
     ink(INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(emp.name, M + 7, 63);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink(GREY); doc.text(emp.role || 'Staff', M + 7, 70.5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink(GREY); doc.text(emp.role || 'Staff', M + 7, 69.5);
+    doc.setFontSize(8); doc.text(contractLabel(emp), M + 7, 75.5);
     doc.setFontSize(7.5); doc.text('EMPLOYER', 108, 61);
     doc.text('HOURLY RATE', R - 7, 61, { align: 'right' });
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); ink(INK);
@@ -2399,7 +2563,7 @@ function downloadPayslip(empId, ym) {
     // ── Pay summary
     section('Pay Summary');
     payRow('Regular hours (' + regH.toFixed(2) + 'h × ' + money(rate) + ')', money(basePay));
-    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × 1.5)', money(otPay));
+    if (otH > 0) payRow('Overtime (' + otH.toFixed(2) + 'h × ' + OT_MULT + ')', money(otPay));
     if (bonuses > 0) payRow('Bonuses', '+' + money(bonuses), [22, 163, 74]);
     if (deductions > 0) payRow('Deductions', '-' + money(deductions), [220, 38, 38]);
     y += 1;
@@ -2409,7 +2573,7 @@ function downloadPayslip(empId, ym) {
     y += 13;
 
     // ── Statutory deductions and net pay
-    var tax = calcAlbanianTax(gross, ym);
+    var tax = calcAlbanianTax(gross, ym, emp);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); ink(GREY);
     doc.text('STATUTORY DEDUCTIONS (EMPLOYEE SHARE)', M + 2, y); y += 7;
     payRow('Social insurance (' + payPct(tax.rates.empSocial) + ' of ' + payLek0(tax.base) + ')', '-' + money(tax.socialIns), [185, 28, 28]);
