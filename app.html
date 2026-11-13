@@ -518,9 +518,11 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
         Once we confirm the transfer, your plan is activated within 24 hours.
       </div>
       <div style="display:flex;gap:8px;">
-        <a class="btn btn-p" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" href="mailto:[your-email-here]?subject=Punëza%20payment%20sent">✉️ I've sent it — notify us</a>
+        <button class="btn btn-p" id="payNotifyBtn" onclick="notifyPayment()">✓ I've sent it — notify us</button>
         <button class="btn btn-g" onclick="closeUpgradeModal()">Close</button>
       </div>
+      <a class="btn btn-s" id="payWhatsApp" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center;margin-top:8px;" href="#">💬 Or message us on WhatsApp</a>
+      <div id="payNotifyMsg" style="font-family:var(--mono);font-size:11px;min-height:14px;margin-top:8px;line-height:1.5;"></div>
     </div>
   </div>
 </div>
@@ -1001,6 +1003,7 @@ var AUDIT_KEY = BIZ_CODE ? 'ems_audit_' + BIZ_CODE : '';
 var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
 var CURR = 'L'; // Albanian Lek — updated via SEC tab if needed
+var SUPPORT_WHATSAPP = '355693767747', upgradeTier = 'pro';
 var OT_MULT = 1.5, OT_DAILY = 8, OT_WEEKLY = null, MIN_BASE_POLICY = 'full';   // payroll rules, loaded from the server
 var currentPlanExpiry = null;
 var bizLogo = null; // base64 logo for Business tier payslips
@@ -1326,10 +1329,14 @@ function applyPayrollSettings(s) {
   OT_WEEKLY = s.ot_weekly_hours;
   MIN_BASE_POLICY = s.min_base_policy || 'full';
 }
-function contractLabel(emp) {
-  var s = (emp.contract_type === 'part_time' ? 'Part-time' : 'Full-time') + ' · ' + (parseFloat(emp.weekly_hours) || 40) + ' h/week';
-  if (emp.contract_end) s += ' · until ' + String(emp.contract_end).slice(0, 10);
-  return s;
+// Short contract note, only when it differs from the usual full-time job. It never contains dates:
+// the end date of a contract is for the manager's edit window only, not for lists or payslips.
+function contractNote(emp, forPayslip) {
+  var hours = parseFloat(emp.weekly_hours) || 40, parts = [];
+  if (emp.contract_type === 'part_time') parts.push('Part-time · ' + hours + ' h/week');
+  else if (hours !== 40) parts.push('Full-time · ' + hours + ' h/week');
+  if (emp.contract_end && !forPayslip) parts.push('Fixed-term');
+  return parts.join(' · ');
 }
 function contractTypeChanged(prefix) {   // prefix: 'emp' (add form) or 'editEmp' (edit window)
   var type = document.getElementById(prefix + 'Contract').value, w = document.getElementById(prefix + 'Weekly');
@@ -2059,7 +2066,7 @@ function renderEmps() {
     html += '<div class="emp-item"><div class="emp-avatar">'+emp.name[0]+'</div>' +
       '<div class="emp-info"><div class="emp-name">'+esc(emp.name)+'</div>' +
       '<div class="emp-role-label">'+esc(emp.role||'')+(emp.rate ? ' · L '+parseFloat(emp.rate).toFixed(2)+'/hr' : '')+(emp.phone?' · '+esc(emp.phone):'')+'</div>' +
-      '<div class="emp-role-label">'+esc(contractLabel(emp))+'</div></div>' +
+      (contractNote(emp) ? '<div class="emp-role-label">'+esc(contractNote(emp))+'</div>' : '') + '</div>' +
       '<div style="display:flex;gap:5px;">' +
       '<button class="btn btn-g" style="width:auto;padding:5px 9px;font-size:11px;" onclick="openEditEmp('+emp.id+')">✏️</button>' +
       '<button class="btn btn-d" style="width:auto;padding:5px 9px;font-size:11px;" onclick="delEmp('+emp.id+')">✕</button>' +
@@ -2440,8 +2447,28 @@ function startUpgrade(tier) {
   if (titleEl) titleEl.textContent = isBiz ? 'Upgrade to Business — L 20,000/year' : 'Upgrade to Pro — L 1,000/month';
   if (priceEl) priceEl.textContent = isBiz ? 'L 20,000/year (~€200)' : 'L 1,000/month or L 12,000/year';
   if (refEl) refEl.textContent = BIZ_CODE.toUpperCase();
+  upgradeTier = tier;
+  var wa = document.getElementById('payWhatsApp');
+  if (wa) wa.href = 'https://wa.me/' + SUPPORT_WHATSAPP + '?text=' + encodeURIComponent('Hello, I sent the payment for Punëza ' + (isBiz ? 'Business' : 'Pro') + '. Business: ' + BIZ_NAME + ' (code ' + BIZ_CODE.toUpperCase() + ').');
+  var nb = document.getElementById('payNotifyBtn'), nm = document.getElementById('payNotifyMsg');
+  if (nb) { nb.disabled = false; nb.textContent = "✓ I've sent it — notify us"; }
+  if (nm) nm.textContent = '';
   document.getElementById('upgradeModal').classList.add('open');
 }
+// "I've sent it": tells the server, so the payment shows up in the admin panel (no email program needed on this device)
+async function notifyPayment() {
+  var btn = document.getElementById('payNotifyBtn'), msg = document.getElementById('payNotifyMsg');
+  if (!btn || btn.disabled) return;
+  btn.disabled = true; msg.style.color = 'var(--text3)'; msg.textContent = 'Sending...';
+  try {
+    await aPost('/api/business/' + BIZ_CODE + '/payment-notice', { plan: upgradeTier });
+    msg.style.color = 'var(--green)'; msg.textContent = '✓ Thank you. We have been notified and will activate your plan within 24 hours.';
+    btn.textContent = '✓ Notified';
+  } catch (e) {
+    btn.disabled = false; msg.style.color = 'var(--red)'; msg.textContent = 'Could not send the notice. Please message us on WhatsApp instead.';
+  }
+}
+
 function closeUpgradeModal() {
   document.getElementById('upgradeModal').classList.remove('open');
 }
@@ -2537,8 +2564,9 @@ function downloadPayslip(empId, ym) {
     // ── Employee card
     fill(CARD); doc.roundedRect(M, 51, R - M, 29, 3, 3, 'F');
     ink(INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(emp.name, M + 7, 63);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink(GREY); doc.text(emp.role || 'Staff', M + 7, 69.5);
-    doc.setFontSize(8); doc.text(contractLabel(emp), M + 7, 75.5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); ink(GREY); var cNote = contractNote(emp, true);   // payslip: part-time / unusual hours only, never contract dates
+    doc.text(emp.role || 'Staff', M + 7, cNote ? 69.5 : 70.5);
+    if (cNote) { doc.setFontSize(8); doc.text(cNote, M + 7, 75.5); }
     doc.setFontSize(7.5); doc.text('EMPLOYER', 108, 61);
     doc.text('HOURLY RATE', R - 7, 61, { align: 'right' });
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); ink(INK);
