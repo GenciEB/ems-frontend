@@ -183,7 +183,7 @@ html,body{height:100%;background:#0d0d0d;color:#f0f0ee;font-family:'Plus Jakarta
 <script>
 var API = 'https://ems-api-mgye.onrender.com';
 var TOKEN = null;
-var CURR = '$';
+var CURR = 'L', OT_MULT = 1.5;   // both are refreshed from the business settings in loadData()
 var emp = null;
 var shifts = [], leaves = [], deds = [];
 var pin = '';
@@ -255,6 +255,8 @@ async function doVerify(){
 async function loadData(){
   if(!TOKEN||!emp) return;
   var h={'x-emp-token':TOKEN};
+  // Currency and overtime rate come from the business settings, so they always match what the manager set
+  try{ var bcode=localStorage.getItem('pnz_kiosk_biz_code'); if(bcode){ var br0=await fetch(API+'/api/business/'+bcode); if(br0.ok){ var bd0=await br0.json(); if(bd0.currency_symbol) CURR=bd0.currency_symbol; if(parseFloat(bd0.ot_multiplier)>0) OT_MULT=parseFloat(bd0.ot_multiplier); } } }catch(e){}
   try{ var r=await fetch(API+'/api/shifts?business_id='+emp.biz_id,{headers:h}); var d=await r.json(); shifts=(Array.isArray(d)?d:[]).filter(function(s){return s.emp_id===emp.id;}); }catch(e){shifts=[];}
   try{ var r2=await fetch(API+'/api/leaves?business_id='+emp.biz_id,{headers:h}); var d2=await r2.json(); leaves=(Array.isArray(d2)?d2:[]).filter(function(l){return l.emp_id===emp.id;}); }catch(e){leaves=[];}
   try{ var r3=await fetch(API+'/api/deductions?business_id='+emp.biz_id,{headers:h}); var d3=await r3.json(); deds=(Array.isArray(d3)?d3:[]).filter(function(d){return d.emp_id===emp.id;}); }catch(e){deds=[];}
@@ -362,13 +364,13 @@ function renderStats(){
   var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);
   var bon=deds.filter(function(d){return d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
   var ded=deds.filter(function(d){return d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
-  var gross=(regH*rate)+(otH*rate*1.5)+bon-ded;
+  var gross=(regH*rate)+(otH*rate*OT_MULT)+bon-ded;
 
   // Today's gross earnings
   var todayShift=shifts.find(function(s){return s.date===today&&s.check_out;});
   var todayH=todayShift?(parseFloat(todayShift.regular_hours)||0):0;
   var todayOtH=todayShift?(parseFloat(todayShift.ot_hours)||0):0;
-  var todayGross=todayH*rate+todayOtH*rate*1.5;
+  var todayGross=todayH*rate+todayOtH*rate*OT_MULT;
   var onShift=!!shifts.find(function(s){return s.date===today&&s.check_in&&!s.check_out;});
   document.getElementById('stats').innerHTML=
     '<div class="stat"><div class="stat-v">'+totalH.toFixed(0)+'h</div><div class="stat-k">THIS MONTH</div></div>'+
@@ -406,7 +408,7 @@ function renderShifts(ym){
     var badge=done?(late?'<span class="badge blate">Late</span>':'<span class="badge bdone">Done</span>'):'<span class="badge bactive">On shift</span>';
     var regH=parseFloat(s.regular_hours)||parseFloat(s.hours)||0;
     var otH=parseFloat(s.ot_hours)||0;
-    var pay=done?'<div class="row-pay">'+CURR+(regH*rate+otH*rate*1.5).toFixed(0)+'</div>':'';
+    var pay=done?'<div class="row-pay">'+CURR+(regH*rate+otH*rate*OT_MULT).toFixed(0)+'</div>':'';
     h+='<div class="row"><div>'+
       '<div class="row-date">'+fmtd(s.date)+'</div>'+
       '<div class="row-time">'+(s.check_in||'—')+(s.check_out?' → '+s.check_out:'')+(late?' · +'+s.late_minutes+'m late':'')+' </div>'+
@@ -471,13 +473,13 @@ function renderPay(ym){
   var otH=ms.reduce(function(a,s){return a+(parseFloat(s.ot_hours)||0);},0);
   var bon=deds.filter(function(d){return d.month===ym&&d.type==='bonus';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
   var ded=deds.filter(function(d){return d.month===ym&&d.type==='deduction';}).reduce(function(a,d){return a+parseFloat(d.amount);},0);
-  var gross=regH*rate+otH*rate*1.5+bon-ded;
+  var gross=regH*rate+otH*rate*OT_MULT+bon-ded;
   var late=ms.filter(function(s){return s.is_late;}).length;
   var h='<div class="card">'+
     '<div class="card-row"><span>Shifts worked</span><span style="font-weight:700;">'+ms.length+'</span></div>'+
     '<div class="card-row"><span>Total hours</span><span>'+(regH+otH).toFixed(2)+'h</span></div>'+
     '<div class="card-row"><span>Regular ('+regH.toFixed(2)+'h × '+CURR+rate.toFixed(0)+')</span><span>'+CURR+(regH*rate).toFixed(2)+'</span></div>'+
-    (otH>0?'<div class="card-row"><span>Overtime ('+otH.toFixed(2)+'h × 1.5)</span><span>'+CURR+(otH*rate*1.5).toFixed(2)+'</span></div>':'')+
+    (otH>0?'<div class="card-row"><span>Overtime ('+otH.toFixed(2)+'h × '+OT_MULT+')</span><span>'+CURR+(otH*rate*OT_MULT).toFixed(2)+'</span></div>':'')+
     (bon>0?'<div class="card-row"><span style="color:#4ade80;">Bonuses</span><span style="color:#4ade80;">+'+CURR+bon.toFixed(2)+'</span></div>':'')+
     (ded>0?'<div class="card-row"><span style="color:#f87171;">Deductions</span><span style="color:#f87171;">-'+CURR+ded.toFixed(2)+'</span></div>':'')+
     (late>0?'<div class="card-row"><span style="color:#f87171;">Late arrivals</span><span style="color:#f87171;">'+late+'×</span></div>':'')+
