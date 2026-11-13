@@ -900,7 +900,7 @@ body.dark .toast{box-shadow:0 12px 32px -8px rgba(0,0,0,0.6);}
       <div class="field"><label>Overtime after (hours/week)</label><input type="number" id="otWeekly" min="1" max="100" step="0.5" placeholder="none"></div>
     </div>
     <div class="form-r">
-      <div class="field"><label>Overtime pay (× normal rate)</label><input type="number" id="otMult" min="1" max="3" step="0.05" placeholder="1.5"></div>
+      <div class="field"><label>Overtime pay (× normal rate)</label><input type="number" id="otMult" min="1" max="3" step="0.05" placeholder="1.25"></div>
       <div class="field"><label>Minimum contribution base</label><select id="minBasePolicy"><option value="full">Always apply the minimum</option><option value="prorate">Prorate by contract hours</option><option value="actual">Do not apply (actual pay)</option></select></div>
     </div>
     <button class="btn btn-p" onclick="savePayrollSettings()">Save rules</button>
@@ -1004,7 +1004,7 @@ var emps = [], shfts = [], lvs = [], deds = [], scheds = [];
 var currentPlan = 'free';
 var CURR = 'L'; // Albanian Lek — updated via SEC tab if needed
 var SUPPORT_WHATSAPP = '355693767747', upgradeTier = 'pro';
-var OT_MULT = 1.5, OT_DAILY = 8, OT_WEEKLY = null, MIN_BASE_POLICY = 'full';   // payroll rules, loaded from the server
+var OT_MULT = 1.25, OT_DAILY = 8, OT_WEEKLY = null, MIN_BASE_POLICY = 'full';   // payroll rules, loaded from the server
 var currentPlanExpiry = null;
 var bizLogo = null; // base64 logo for Business tier payslips
 var FREE_EMP_LIMIT = 5;
@@ -1324,7 +1324,7 @@ function calcAlbanianTax(grossMonthly, month, emp) {
            incomeTax: r.pit, netPay: r.net, effectiveRate: r.effectiveRate, warnings: r.warnings };
 }
 function applyPayrollSettings(s) {
-  OT_MULT = Number(s.ot_multiplier) || 1.5;
+  OT_MULT = Number(s.ot_multiplier) || 1.25;
   OT_DAILY = Number(s.ot_daily_hours);
   OT_WEEKLY = s.ot_weekly_hours;
   MIN_BASE_POLICY = s.min_base_policy || 'full';
